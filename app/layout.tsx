@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "./contexts/AppContext";
 import { OpenedNodeProvider } from "./contexts/OpenedNodeContext";
+import { SocketProvider } from "./contexts/SocketContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,9 +35,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
-        <AppProvider>
-          <OpenedNodeProvider>{children}</OpenedNodeProvider>
-        </AppProvider>
+        <SocketProvider>
+          <AppProvider>
+            <OpenedNodeProvider>{children}</OpenedNodeProvider>
+          </AppProvider>
+        </SocketProvider>
       </body>
     </html>
   );

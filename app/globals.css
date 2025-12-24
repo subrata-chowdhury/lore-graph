@@ -11,6 +11,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter: var(--font-inter);
+  --animate-radar: radar 1.5s linear infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,6 +25,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes radar {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 5px rgba(0, 255, 0, 0);
+  }
 }
 
 /* Custom Scrollbar */

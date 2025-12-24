@@ -27,15 +27,15 @@ function InputBox({
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="outline-0 border-b border-black/20 bg-black/5 rounded px-1 py-0.5 flex-1 resize-x-none text-xs py-1"
+          className="outline-0 border-b border-black/20 bg-black/5 rounded px-1 flex-1 resize-x-none text-xs py-1"
         />
         {replyData && (
-          <div className="text-[10px] mt-1 w-full flex items-center">
-            Reply to:{" "}
+          <div className="text-[10px] mt-1 w-full items-center flex gap-1">
+            Reply to:
             <span className="px-1 py-0.5 bg-black/10 rounded">
               {replyData.author}
             </span>
-            <CgClose className="ml-2 cursor-pointer" onClick={onCancelReply} />
+            <CgClose className="ml-1 cursor-pointer" onClick={onCancelReply} />
           </div>
         )}
       </div>

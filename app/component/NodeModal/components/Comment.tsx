@@ -1,9 +1,9 @@
 "use client";
 import { CommentType } from "@/types/commentTypes";
 import { useState } from "react";
-import { dummyComments } from "../NodeModal";
 import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import { HiReply } from "react-icons/hi";
+import { dummyComments } from "./CommenSection";
 
 function Comment({
   comment,

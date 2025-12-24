@@ -13,19 +13,15 @@ import { AnimatePresence } from "framer-motion";
 import { CommentType } from "@/types/commentTypes";
 import { IoIosArrowBack } from "react-icons/io";
 import numberFormatter from "@/libs/numberFormatter";
+import { useSocket } from "@/app/contexts/SocketContext";
 
 const NodeModal = () => {
   const { node, setNode } = useOpenedNodeContext();
   const [loading, setLoading] = useState(true);
-  const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<CommentType[]>([]);
-  const [commentPageniation, setCommentPagination] = useState({
-    page: 1,
-    pageSize: 20,
-    total: 0,
-    limit: 100,
-  });
+  const [showComments, setShowComments] = useState(true);
   const [expandDescription, setExpandDescription] = useState(false);
+  const [liveViewers, setLiveViewers] = useState<number>(0);
+  const socket = useSocket();
 
   // 1. Config: Hide default controls
   const opts = {
@@ -38,7 +34,7 @@ const NodeModal = () => {
     },
   };
 
-  const onReady = (event: YouTubeEvent) => {
+  const onReady = () => {
     setLoading(false);
   };
 
@@ -57,14 +53,35 @@ const NodeModal = () => {
     }
   };
 
+  const socketCleanup = () => {
+    if (!socket || !node) return;
+    // Leave the room for this node
+    socket.emit("leave-node-room", node._id);
+    socket.off("room-count-update");
+  };
+
   useEffect(() => {
-    setComments(dummyComments);
-  }, []);
+    if (!socket || !node) return;
+    // Join the room for this node
+    socket.emit("join-node-room", node._id);
+    // Listen for room count updates
+    socket.on("room-count-update", (count: number) => {
+      setLiveViewers(count);
+    });
+    // Cleanup on unmount or node change
+    return () => socketCleanup();
+  }, [socket, node]);
 
   return (
     <>
       {node && (
-        <Modal onClose={() => setNode(null)} className="bg-transparent!">
+        <Modal
+          onClose={() => {
+            setNode(null);
+            socketCleanup();
+          }}
+          className="bg-transparent!"
+        >
           <div
             className={`flex max-h-[85vh] h-[85vh] max-w-[90vw] transition-all justify-center`}
           >
@@ -129,7 +146,11 @@ const NodeModal = () => {
                 <div className="p-2 px-3 bg-black/10 rounded-lg text-sm">
                   <div className="flex font-semibold gap-2">
                     <div>{numberFormatter(node.viewsCount || 0)} views</div>
-                    <div>
+                    <div className="flex gap-2 ml-2">
+                      <div className="w-1.5 h-1.5 my-auto rounded-full bg-green-600 animate-radar"></div>
+                      {liveViewers} Live viewer
+                    </div>
+                    <div className="ml-2">
                       {new Date(node.updatedAt || "").toLocaleDateString() ||
                         ""}
                     </div>
@@ -155,14 +176,7 @@ const NodeModal = () => {
             </div>
             <AnimatePresence mode="wait" initial={false}>
               {showComments && (
-                <CommentSection
-                  comments={comments}
-                  onCommentSubmit={(newComment) =>
-                    setComments([...comments, newComment])
-                  }
-                  commentsCount={1200}
-                  onClose={() => setShowComments(false)}
-                />
+                <CommentSection onClose={() => setShowComments(false)} />
               )}
             </AnimatePresence>
             <div className="p-3 bg-white rounded-full my-auto cursor-pointer rotate-180 ml-6">
@@ -176,54 +190,3 @@ const NodeModal = () => {
 };
 
 export default NodeModal;
-
-export const dummyComments: CommentType[] = [
-  {
-    _id: "1",
-    author: "User1",
-    authorId: "user1",
-    content: "This is a great video!",
-    createdAt: new Date().toISOString(),
-    nodeId: "node1",
-    parentId: null,
-    likesCount: 10,
-    replyCount: 0,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "2",
-    author: "User2",
-    authorId: "user2",
-    content: "I learned a lot from this video.",
-    createdAt: new Date().toISOString(),
-    nodeId: "node1",
-    parentId: null,
-    likesCount: 5,
-    replyCount: 1,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "3",
-    author: "User3",
-    authorId: "user3",
-    content: "I learned a lot from this video.",
-    createdAt: new Date().toISOString(),
-    nodeId: "node1",
-    parentId: "2",
-    likesCount: 5,
-    replyCount: 0,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "4",
-    author: "User4",
-    authorId: "user4",
-    content: "I learned a lot from this video.",
-    createdAt: new Date().toISOString(),
-    nodeId: "node1",
-    parentId: "4",
-    likesCount: 5,
-    replyCount: 1,
-    updatedAt: new Date().toISOString(),
-  },
-];

@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSocket } from "@/libs/socket"; // Import your hook
+import { useSocket } from "@/app/contexts/SocketContext"; // Import your hook
 
 export default function ChatPage() {
   const socket = useSocket();

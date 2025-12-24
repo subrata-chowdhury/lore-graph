@@ -86,7 +86,6 @@ const calculateEdges = ({
         edgesBasedonY.has(finalToY) &&
         edgesBasedonY.get(finalToY)!.nodeId !== node._id
       ) {
-        console.log("satisfies for", node._id, nid);
         finalToY = finalToY + 10;
       }
 
