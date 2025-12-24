@@ -1,22 +1,23 @@
 "use client";
 import Modal from "@/ui/components/Modal";
 import { useOpenedNodeContext } from "../../contexts/OpenedNodeContext";
-import YouTube, { YouTubePlayer, YouTubeEvent } from "react-youtube";
-import { useEffect, useRef, useState } from "react";
+import YouTube, { YouTubeEvent } from "react-youtube";
+import { useEffect, useState } from "react";
 import { PiYoutubeLogo } from "react-icons/pi";
 import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
-import { BiFullscreen, BiShare } from "react-icons/bi";
 import Link from "next/link";
-import { PiShareFatFill } from "react-icons/pi";
+import { PiShareFatBold } from "react-icons/pi";
 import { BsChatSquareText } from "react-icons/bs";
 import CommentSection from "./components/CommenSection";
 import { AnimatePresence } from "framer-motion";
 import { CommentType } from "@/types/commentTypes";
+import { IoIosArrowBack } from "react-icons/io";
+import numberFormatter from "@/libs/numberFormatter";
 
 const NodeModal = () => {
   const { node, setNode } = useOpenedNodeContext();
   const [loading, setLoading] = useState(true);
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentPageniation, setCommentPagination] = useState({
     page: 1,
@@ -24,6 +25,8 @@ const NodeModal = () => {
     total: 0,
     limit: 100,
   });
+  const [expandDescription, setExpandDescription] = useState(false);
+
   // 1. Config: Hide default controls
   const opts = {
     height: "100%",
@@ -63,9 +66,16 @@ const NodeModal = () => {
       {node && (
         <Modal onClose={() => setNode(null)} className="bg-transparent!">
           <div
-            className={`flex max-h-[85vh] h-[85vh] max-w-[90vw] transition-all`}
+            className={`flex max-h-[85vh] h-[85vh] max-w-[90vw] transition-all justify-center`}
           >
-            <div className="flex flex-1 flex-col overflow-y-auto scrollbar-hide z-5 bg-white">
+            <div className="p-3 bg-white rounded-full my-auto cursor-pointer mr-6">
+              <IoIosArrowBack size={24} />
+            </div>
+            <div
+              className={`flex flex-1 flex-col overflow-y-auto scrollbar-hide z-5 bg-white rounded-l-lg ${
+                showComments ? "rounded-r-none" : "rounded-r-lg"
+              }`}
+            >
               {node.type === "youtube" && (
                 <YouTube
                   videoId={node.src}
@@ -73,14 +83,14 @@ const NodeModal = () => {
                   onReady={onReady}
                   onStateChange={onStateChange}
                   className={
-                    "rounded-t-md aspect-video w-[640px] h-[390px]" +
+                    "rounded-t-md aspect-video w-[640px] h-[360px] min-h-[360px]" +
                     (loading ? " hidden" : "") +
                     (showComments ? " rounded-r-md" : "")
                   }
                 />
               )}
               {loading && (
-                <div className="w-[640px] h-[390px] bg-black/10 flex items-center justify-center animate-pulse">
+                <div className="w-[640px] h-[360px] bg-black/10 flex items-center justify-center animate-pulse">
                   Loading...
                 </div>
               )}
@@ -113,29 +123,32 @@ const NodeModal = () => {
                     <BsChatSquareText />
                   </button>
                   <button className="px-3 py-2 bg-black/10 rounded-lg cursor-pointer hover:bg-black/20 transition-colors">
-                    <PiShareFatFill />
-                  </button>
-                  <button
-                    className="p-2 bg-black/10 rounded-lg cursor-pointer hover:bg-black/20 transition-colors"
-                    onClick={() => {
-                      const btn: HTMLButtonElement | null = window.document.querySelector(".ytp-fullscreen-button.ytp-button")
-                      console.log(btn)
-                      btn?.click();
-                    }}
-                  >
-                    <BiFullscreen />
+                    <PiShareFatBold />
                   </button>
                 </div>
                 <div className="p-2 px-3 bg-black/10 rounded-lg text-sm">
                   <div className="flex font-semibold gap-2">
-                    <div>{node.viewsCount || 0} views</div>
+                    <div>{numberFormatter(node.viewsCount || 0)} views</div>
                     <div>
                       {new Date(node.updatedAt || "").toLocaleDateString() ||
                         ""}
                     </div>
                   </div>
-                  <div className=" wrap-break-word whitespace-pre-wrap">
-                    {node.description || "N/A"}
+                  <div
+                    className="wrap-break-word whitespace-pre-wrap"
+                    onClick={() => setExpandDescription((val) => !val)}
+                  >
+                    {node.description?.length > 100
+                      ? expandDescription
+                        ? node.description
+                        : node.description.slice(0, 200) + "..."
+                      : node.description}
+                    {node.description?.length > 100 && (
+                      <span className="text-black text-sm font-semibold ml-2 cursor-pointer">
+                        {expandDescription ? "Show Less" : "Show More"}
+                      </span>
+                    )}
+                    {!node.description && <div>No Description</div>}
                   </div>
                 </div>
               </div>
@@ -152,6 +165,9 @@ const NodeModal = () => {
                 />
               )}
             </AnimatePresence>
+            <div className="p-3 bg-white rounded-full my-auto cursor-pointer rotate-180 ml-6">
+              <IoIosArrowBack size={24} />
+            </div>
           </div>
         </Modal>
       )}
@@ -165,6 +181,7 @@ export const dummyComments: CommentType[] = [
   {
     _id: "1",
     author: "User1",
+    authorId: "user1",
     content: "This is a great video!",
     createdAt: new Date().toISOString(),
     nodeId: "node1",
@@ -176,6 +193,7 @@ export const dummyComments: CommentType[] = [
   {
     _id: "2",
     author: "User2",
+    authorId: "user2",
     content: "I learned a lot from this video.",
     createdAt: new Date().toISOString(),
     nodeId: "node1",
@@ -187,12 +205,25 @@ export const dummyComments: CommentType[] = [
   {
     _id: "3",
     author: "User3",
+    authorId: "user3",
     content: "I learned a lot from this video.",
     createdAt: new Date().toISOString(),
     nodeId: "node1",
     parentId: "2",
     likesCount: 5,
     replyCount: 0,
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    _id: "4",
+    author: "User4",
+    authorId: "user4",
+    content: "I learned a lot from this video.",
+    createdAt: new Date().toISOString(),
+    nodeId: "node1",
+    parentId: "4",
+    likesCount: 5,
+    replyCount: 1,
     updatedAt: new Date().toISOString(),
   },
 ];

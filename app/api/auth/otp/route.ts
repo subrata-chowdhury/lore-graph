@@ -1,4 +1,4 @@
-import User from '@/models/User';
+import User from '@/models/user';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';

@@ -30,7 +30,7 @@ export default function Home() {
 }
 
 const data: NodeType[] = [
-  { _id: "a", next: ["b"] },
+  { _id: "a", next: ["b"], type: "youtube", src: "ShB3vNlSdDA" },
   {
     _id: "b",
     title: "Node B",
@@ -42,6 +42,7 @@ const data: NodeType[] = [
 `,
     type: "youtube",
     src: "ShB3vNlSdDA",
+    viewsCount: 123456,
     next: ["c", "d"],
     updatedAt: new Date().toISOString(),
   },
@@ -90,6 +91,15 @@ export function GraphView() {
       ["h", "i"],
     ];
     setLevels(newLevels);
+
+    const handleContextMenu = (event: MouseEvent) => {
+      // 1. Prevent the default browser menu
+      // event.preventDefault();
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
   }, []);
 
   useLayoutEffect(() => {
