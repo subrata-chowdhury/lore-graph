@@ -83,13 +83,13 @@ const NodeModal = () => {
           className="bg-transparent!"
         >
           <div
-            className={`flex max-h-[85vh] h-[85vh] max-w-[90vw] transition-all justify-center`}
+            className={`flex max-h-[85vh] h-[85vh] max-w-[90vw] transition-all justify-center items-center`}
           >
             <div className="p-3 bg-white rounded-full my-auto cursor-pointer mr-6">
               <IoIosArrowBack size={24} />
             </div>
             <div
-              className={`flex flex-1 flex-col overflow-y-auto scrollbar-hide z-5 bg-white rounded-l-lg ${
+              className={`flex flex-1 flex-col overflow-y-auto scrollbar-hide z-5 h-full bg-white rounded-l-lg ${
                 showComments ? "rounded-r-none" : "rounded-r-lg"
               }`}
             >

@@ -8,6 +8,7 @@ import InputBox from "./InputBox";
 import { useEffect, useState } from "react";
 import { useOpenedNodeContext } from "@/app/contexts/OpenedNodeContext";
 import { useSocket } from "@/app/contexts/SocketContext";
+import { toast } from "react-toastify";
 
 type Props = {
   onClose?: () => void;
@@ -33,7 +34,6 @@ export default function CommentSection({ onClose = () => {} }: Props) {
 
   function checkForNewComments() {
     socket?.on("new-comment", (newComment: CommentType) => {
-      console.log("New comment received via socket:", newComment);
       if (newComment.nodeId === node?._id) {
         setComments((prevComments) => [newComment, ...prevComments]);
       }
@@ -47,7 +47,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
   useEffect(() => {
     setComments(dummyComments);
   }, []);
-  
+
   useEffect(() => {
     if (!socket || !node) return;
     checkForNewComments();
@@ -87,27 +87,29 @@ export default function CommentSection({ onClose = () => {} }: Props) {
           />
         ))}
       </div>
-      {socket && <InputBox
-        replyData={replyCommentData}
-        onCancelReply={() => setReplyCommentData(null)}
-        onCommentSubmit={comment => {
-          if(!node) return;
-          const newComment: CommentType = {
-            _id: Math.random().toString(36).substring(2, 9),
-            author: "CurrentUser", // Replace with actual user data
-            authorId: "currentUserId", // Replace with actual user ID
-            content: comment,
-            createdAt: new Date().toISOString(),
-            nodeId: node._id,
-            parentId: replyCommentData?._id || null,
-            likesCount: 0,
-            replyCount: 0,
-            updatedAt: new Date().toISOString(),
-          };
-          postComment(newComment);
-          setReplyCommentData(null);
-        }}
-      />}
+      {socket && (
+        <InputBox
+          replyData={replyCommentData}
+          onCancelReply={() => setReplyCommentData(null)}
+          onCommentSubmit={(comment) => {
+            if (!node) return;
+            const newComment: CommentType = {
+              _id: Math.random().toString(36).substring(2, 9),
+              author: "CurrentUser", // Replace with actual user data
+              authorId: "currentUserId", // Replace with actual user ID
+              content: comment,
+              createdAt: new Date().toISOString(),
+              nodeId: node._id,
+              parentId: replyCommentData?._id || null,
+              likesCount: 0,
+              replyCount: 0,
+              updatedAt: new Date().toISOString(),
+            };
+            postComment(newComment);
+            setReplyCommentData(null);
+          }}
+        />
+      )}
     </motion.div>
   );
 }

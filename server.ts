@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 import Comment from "./models/comment";
+import { Filter } from "bad-words";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -16,6 +17,8 @@ app.prepare().then(() => {
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
+    const filter = new Filter();
+
     // 1. User enters the node page
     socket.on("join-node-room", (nodeId) => {
       socket.join(nodeId);
@@ -36,12 +39,18 @@ app.prepare().then(() => {
     socket.on("send-comment", async (commentData) => {
       // Save to MongoDB first
       try {
+        if (filter.isProfane(commentData.content)) {
+          socket.emit("error", {
+            message: "Failed to save comment.",
+          });
+          return;
+        }
         // const newComment = await new Comment(commentData);
         // await newComment.save();
         // ONLY emit to users inside this specific nodeId room
         io.to(commentData.nodeId).emit("new-comment", commentData);
       } catch (error) {
-        io.to(commentData.nodeId).emit("error", {
+        socket.emit("error", {
           message: "Failed to save comment.",
         });
         console.error("Error saving comment:", error);

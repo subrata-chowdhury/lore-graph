@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppProvider } from "./contexts/AppContext";
 import { OpenedNodeProvider } from "./contexts/OpenedNodeContext";
 import { SocketProvider } from "./contexts/SocketContext";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
+        <ToastContainer position="top-right" />
         <SocketProvider>
           <AppProvider>
             <OpenedNodeProvider>{children}</OpenedNodeProvider>

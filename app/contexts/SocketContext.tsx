@@ -5,16 +5,18 @@ import { io, Socket } from "socket.io-client";
 
 const SocketContext = createContext<Socket | null>(null);
 
-export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     // Only one connection is created here
     const socketInstance = io();
 
-    socketInstance.on("error", (data: string) => {
-        toast.error(data);
-      });
+    socketInstance.on("error", (data: { message: string }) => {
+      toast.error(data.message || "An unknown error occurred.");
+    });
 
     socketInstance.on("connect", () => {
       console.log("Global Socket Connected:", socketInstance.id);
@@ -29,16 +31,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   return (
-    <SocketContext.Provider value={socket}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
   );
 };
 
 export const useSocket = () => {
-    const context = useContext(SocketContext);
-    if (context === undefined) {
-      throw new Error('useSocket must be used within a SocketProvider');
-    }
-    return context;
-}
+  const context = useContext(SocketContext);
+  if (context === undefined) {
+    throw new Error("useSocket must be used within a SocketProvider");
+  }
+  return context;
+};
