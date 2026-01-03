@@ -53,7 +53,7 @@ const Input = ({
           name={name}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`${inputClass} bg-transparent outline-0`}
+          className={`${inputClass} flex-1 bg-transparent outline-0`}
           style={inputStyle}
           ref={ref}
         />

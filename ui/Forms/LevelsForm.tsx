@@ -1,6 +1,6 @@
 import { PageType } from "@/types/types";
 import React, { useState } from "react";
-import LevelForm from "./LevelForm";
+import LevelForm from "./LevelForm/LevelForm";
 
 type Props = {
   levels: PageType["lvls"];

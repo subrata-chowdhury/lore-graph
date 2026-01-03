@@ -35,9 +35,9 @@ const TagInput = ({
       {label && <div className="text-sm font-semibold">{label}</div>}
       {description && <div className="text-sm text-black/60">{description}</div>}
       <div
-        className={`max-h-44 min-h-20 ${tagContainerClass} flex flex-col gap-2 overflow-y-auto rounded-lg border ${valueLength > (max || Infinity) ? "border-red-500" : "border-black/15 focus-within:border-black/50"} px-2 py-1 dark:border-white/20`}
+        className={`max-h-44 min-h-20 ${tagContainerClass} flex flex-col gap-1 rounded-lg border ${valueLength > (max || Infinity) ? "border-red-500" : "border-black/15 focus-within:border-black/50"} px-2 py-1 dark:border-white/20`}
       >
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           {values.length > 0 &&
             values.map((tag, index) => (
               <div

@@ -5,14 +5,19 @@ import { AuthTokenPayloadType } from "./types/types";
 import { generateFullTokenFromChunks } from "./libs/splittedCookieGetter";
 
 export async function proxy(request: NextRequest) {
-  const excludeTokenVerification = [
-    "/api/super-admin/auth/login",
-    "/api/auth/login",
-    "/api/auth/signup",
+  const excludeTokenVerification: {
+    url: string;
+    method: string;
+  }[] = [
+    { url: "/api/auth/login", method: "POST" },
+    { url: "/api/auth/signup", method: "POST" },
+    { url: "/api/nodes", method: "GET" },
   ];
   const excludeTokenVerificationPatterns = [/^\/api\/tests\/.*/, /^\/api\/labs\/.*/];
   if (
-    excludeTokenVerification.includes(request.nextUrl.pathname) ||
+    excludeTokenVerification.some(
+      (item) => item.url === request.nextUrl.pathname && item.method === request.method
+    ) ||
     excludeTokenVerificationPatterns.some((pattern) => pattern.test(request.nextUrl.pathname))
   ) {
     return NextResponse.next();

@@ -1,12 +1,16 @@
 "use client";
 import Node from "@/app/_components/Node";
+import fetcher from "@/libs/fetcher";
 import { NodeType } from "@/types/nodeTypes";
 import Dropdown from "@/ui/components/Dropdown";
 import Input from "@/ui/components/Inputs/Input";
 import TagInput from "@/ui/components/Inputs/TagInput";
 import TextAreaInput from "@/ui/components/Inputs/TextAreaInput";
+import { getYouTubeID } from "@/utils/videoIdGetter";
 import React, { useRef, useState } from "react";
 import { BiPencil, BiTrash } from "react-icons/bi";
+import { FiDownload } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 type Props = {
   nodeData: Omit<
@@ -23,15 +27,42 @@ type Props = {
 };
 
 const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: Props) => {
-  const [demoImageUrl, setDemoImageUrl] = useState("");
   const imgInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      setDemoImageUrl(url);
       onNodeDataChange({ ...nodeData, thumbnailUrl: url });
+    }
+  }
+
+  function fetchVideoDetails() {
+    const youtubeId = getYouTubeID(nodeData?.src || "");
+    if (youtubeId) {
+      fetcher
+        .get<{
+          data: {
+            title: string;
+            description: string;
+            thumbnails: string;
+            tags: string[];
+          };
+        }>(`/super-admin/video-details?videoId=${youtubeId}`)
+        .then((data) => {
+          if (data.body?.data)
+            onNodeDataChange({
+              ...nodeData,
+              title: data.body.data.title,
+              description: data.body.data.description,
+              thumbnailUrl: data.body.data.thumbnails,
+              tags: data.body.data.tags || [],
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("Error fetching video details");
+        });
     }
   }
 
@@ -55,7 +86,7 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
               onChange={(option) =>
                 onNodeDataChange({ ...nodeData, type: option.value as NodeType["type"] })
               }
-              containerClassName="text-sm"
+              containerClassName="text-sm capitalize"
               mainContainerClassName="pl-3"
             />
           </div>
@@ -72,7 +103,10 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
                 { label: "Private", value: "private" },
               ]}
               onChange={(option) =>
-                onNodeDataChange({ ...nodeData, type: option.value as NodeType["type"] })
+                onNodeDataChange({
+                  ...nodeData,
+                  visibility: option.value as NodeType["visibility"],
+                })
               }
               containerClassName="text-sm"
               mainContainerClassName="pl-3"
@@ -97,6 +131,7 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
               className={`mt-auto mb-4 rounded-full bg-black/20 px-5 py-2 text-sm font-semibold hover:bg-black/25 ${
                 !nodeData?.src ? "cursor-not-allowed opacity-50" : "cursor-pointer"
               }`}
+              onClick={fetchVideoDetails}
             >
               Fetch Details
             </button>
@@ -142,18 +177,33 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
           }}
         >
           {nodeData?.thumbnailUrl && (
-            <div className="absolute top-0 right-0 flex h-full w-full gap-0 bg-linear-30 from-transparent to-white p-2 opacity-0 transition-all group-hover:opacity-100">
+            <div className="absolute top-0 right-0 z-10 flex h-full w-full gap-0 bg-linear-30 from-transparent to-white p-2 opacity-0 transition-all group-hover:opacity-100">
               <div className="mb-auto ml-auto cursor-pointer rounded-full p-2 hover:bg-black/10">
                 <BiPencil size={20} />
+              </div>
+              <div
+                className="mb-auto cursor-pointer rounded-full p-2 hover:bg-black/10"
+                onClick={(e) => {
+                  if (nodeData?.thumbnailUrl) {
+                    const a: HTMLAnchorElement = document.createElement("a");
+                    a.href = nodeData.thumbnailUrl;
+                    a.target = "_blank";
+                    a.download = "thumbnail.jpg";
+                    a.click();
+                    e.stopPropagation();
+                  }
+                }}
+              >
+                <FiDownload size={20} />
               </div>
               <div className="mb-auto cursor-pointer rounded-full p-2 hover:bg-black/10">
                 <BiTrash size={20} />
               </div>
             </div>
           )}
-          {demoImageUrl ? (
+          {nodeData?.thumbnailUrl ? (
             <img
-              src={demoImageUrl}
+              src={nodeData?.thumbnailUrl}
               alt="Demo"
               className="absolute inset-0 h-full w-full object-cover"
             />

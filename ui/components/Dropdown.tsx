@@ -43,7 +43,7 @@ function Dropdown({
   return (
     <div className={"relative " + containerClassName} style={{ width: width || "fit-content" }}>
       <div
-        className={`flex cursor-pointer items-center justify-between gap-1 rounded-md border border-black/15 p-2 dark:border-white/20 ${mainContainerClassName}`}
+        className={`flex cursor-pointer items-center justify-between gap-1 rounded-md border border-black/15 p-2 pl-3 dark:border-white/20 ${mainContainerClassName}`}
         onClick={() => (!loading ? setIsOpen(!isOpen) : "")}
         ref={ref}
         style={{ height: height || "40px", width: width || "fit-content" }}

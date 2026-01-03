@@ -82,7 +82,6 @@ class Fetcher {
   private async handleResponse<T>(
     response: Response
   ): Promise<{ body: T | null; status: number; error: string | null }> {
-    toast.success("Request completed with status " + response.status);
     if (response.status === 401) {
       if (window.location.href.includes("/super-admin"))
         window.location.href = "/login/super-admin?redirect=" + window.location.pathname;
@@ -98,7 +97,7 @@ class Fetcher {
         return {
           body: null,
           status: response.status,
-          error: errorData.message || "An error occurred",
+          error: errorData?.message || errorData?.error || "An error occurred",
         };
       } catch (e) {
         return { body: null, status: response.status, error: "An error occurred" };

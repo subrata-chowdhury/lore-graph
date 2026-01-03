@@ -6,9 +6,10 @@ import calculateEdges from "@/libs/edgeCalculationLogic";
 import { NodeType } from "@/types/nodeTypes";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BiPlus, BiSearch } from "react-icons/bi";
-import Modal from "../components/Modal";
+import Modal from "../../components/Modal";
 import Link from "next/link";
 import { conData, lvlData } from "@/app/data/nodeData";
+import NodeFinder from "./_components/NodeFinder";
 
 type Props = {};
 
@@ -150,47 +151,10 @@ const LevelForm = (props: Props) => {
         </button>
       </div>
       {showNodeSelector && (
-        <Modal isOpen={!!showNodeSelector} onClose={() => setShowNodeSelector(null)}>
-          <div className="border-b border-black/20 p-4 px-5">Select a Node</div>
-          <div className="min-h-32 px-5 py-3">
-            <div className="flex gap-3">
-              <SearchBar
-                onSearch={(value) => {
-                  console.log("searching for", value);
-                }}
-              />
-              <Link
-                href="/super-admin/nodes/create"
-                target="_blank"
-                className="cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70"
-              >
-                Create New Node
-              </Link>
-            </div>
-          </div>
-        </Modal>
+        <NodeFinder isOpen={!!showNodeSelector} onClose={() => setShowNodeSelector(null)} />
       )}
     </>
   );
 };
 
 export default LevelForm;
-
-function SearchBar({ onSearch = () => {} }: { onSearch?: (value: string) => void }) {
-  const [searchValue, setSearchValue] = useState("");
-
-  return (
-    <div className="flex min-h-9 max-w-52 items-center gap-1 rounded border border-black/15 p-1 px-2 dark:border-white/30">
-      <BiSearch size={20} className="my-auto" />
-      <input
-        className="w-full bg-transparent text-sm outline-none"
-        value={searchValue}
-        placeholder="Search"
-        onChange={(e) => {
-          setSearchValue(e.target.value);
-          onSearch(e.target.value);
-        }}
-      />
-    </div>
-  );
-}

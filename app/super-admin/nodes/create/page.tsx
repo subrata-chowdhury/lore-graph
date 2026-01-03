@@ -1,7 +1,9 @@
 "use client";
+import fetcher from "@/libs/fetcher";
 import { NodeType } from "@/types/nodeTypes";
 import NodeForm from "@/ui/Forms/NodeForm";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 type Props = {};
 
@@ -19,7 +21,34 @@ const NodeFormPage = (props: Props) => {
     visibility: "private",
   });
 
-  return <NodeForm nodeData={nodeData} onNodeDataChange={setNodeData} />;
+  async function saveNode() {
+    try {
+      const { body, error } = await fetcher.post<
+        typeof nodeData,
+        { success: boolean; error?: string }
+      >("/super-admin/nodes/new", nodeData);
+
+      if (body?.success) {
+        toast.success("Node created successfully");
+        setNodeData({
+          title: "",
+          description: "",
+          tags: [],
+          type: "youtube",
+          visibility: "private",
+          src: "",
+          thumbnailUrl: "",
+        });
+      } else {
+        toast.error(error || body?.error || "Failed to create node");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    }
+  }
+
+  return <NodeForm nodeData={nodeData} onNodeDataChange={setNodeData} onSave={saveNode} />;
 };
 
 export default NodeFormPage;
