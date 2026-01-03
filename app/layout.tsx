@@ -33,10 +33,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
-      >
-        <ToastContainer position="top-right" />
+      <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}>
+        <ToastContainer
+          stacked
+          limit={3} // Shows top toast + 2 "peeking" layers
+          position="top-right"
+        />
         <SocketProvider>
           <AppProvider>
             <OpenedNodeProvider>{children}</OpenedNodeProvider>

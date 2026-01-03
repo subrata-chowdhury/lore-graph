@@ -2,17 +2,17 @@ interface ModalProps {
   children?: React.ReactNode;
   onClose: () => void;
   className?: string;
-  heading?: string;
+  isOpen?: boolean;
 }
 
-function Modal({ children, onClose = () => {}, className = "" }: ModalProps) {
+function Modal({ children, onClose = () => {}, className = "", isOpen }: ModalProps) {
   return (
     <div
-      className="fixed inset-0 flex items-center top-to-bottom justify-center bg-black/20 dark:bg-white/10 backdrop-blur-sm z-30"
+      className="top-to-bottom fixed inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-sm dark:bg-white/10"
       onClick={onClose}
     >
       <div
-        className={`bg-white dark:bg-black rounded-md shadow-md flex flex-col overflow-hidden ${className}`}
+        className={`flex flex-col overflow-hidden rounded-md bg-white shadow-md dark:bg-black ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

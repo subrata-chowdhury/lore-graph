@@ -10,6 +10,7 @@ type Props = {
 
 const Node = ({ node, refs }: Props) => {
   const { setNode } = useOpenedNodeContext();
+  if (!node) return null;
 
   return (
     <div
@@ -21,14 +22,14 @@ const Node = ({ node, refs }: Props) => {
         marginRight: node.next.length * 10,
       }}
       onClick={() => setNode(node)}
-      className="w-[230px] h-[129.375px] bg-white rounded-lg flex items-center justify-center p-1 cursor-pointer"
+      className="flex aspect-video w-[230px] cursor-pointer items-center justify-center rounded-lg bg-white p-1"
     >
       <Image
         src="/first-cutscene.jpg"
         alt="node thumbnail"
         width={230}
         height={130}
-        className="rounded-lg w-full h-full object-cover z-0"
+        className="z-0 h-full w-full rounded-lg object-cover"
       />
     </div>
   );

@@ -2,9 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface ISession extends Document {
   user: mongoose.Schema.Types.ObjectId;
-  token: string;
-  deviceInfo: string;
-  ipaddress: string;
+  agent: string;
+  language: string;
   createdAt: Date;
   updatedAt: Date;
   expiresAt: Date;
@@ -17,15 +16,11 @@ const SessionSchema: Schema = new Schema(
       ref: "User",
       required: true,
     },
-    token: {
+    agent: {
       type: String,
       required: true,
     },
-    deviceInfo: {
-      type: String,
-      required: true,
-    },
-    ipaddress: {
+    language: {
       type: String,
       required: true,
     },

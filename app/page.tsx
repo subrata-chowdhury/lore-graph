@@ -1,14 +1,14 @@
 "use client";
 import Image from "next/image";
 import nbg from "@/assets/night.webp";
-import Menubar from "./component/Menubar";
+import Menubar from "./_components/Menubar";
 import { useRef, useEffect, useState, useLayoutEffect } from "react";
-import Edge from "./component/Edge";
-import Node from "./component/Node";
+import Edge from "./_components/Edge";
+import Node from "./_components/Node";
 import calculateEdges from "../libs/edgeCalculationLogic";
-import PinchZoomWrapper from "./component/PinchZoomFeature";
+import PinchZoomWrapper from "./_components/PinchZoomFeature";
 import { NodeType } from "../types/nodeTypes";
-import NodeModal from "./component/NodeModal/NodeModal";
+import NodeModal from "./_components/NodeModal/NodeModal";
 
 export default function Home() {
   return (
@@ -18,10 +18,10 @@ export default function Home() {
         alt="Night Background"
         width={540}
         height={268}
-        className="fixed top-0 left-0 w-full min-h-screen -z-20"
+        className="fixed top-0 left-0 -z-20 min-h-screen w-full"
       />
-      <div className="fixed top-0 left-0 w-full min-h-screen -z-10 bg-black/70"></div>
-      <div className="flex w-screen h-screen">
+      <div className="fixed top-0 left-0 -z-10 min-h-screen w-full bg-black/70"></div>
+      <div className="flex h-screen w-screen">
         <Menubar />
         <GraphView />
       </div>
@@ -45,6 +45,10 @@ const data: NodeType[] = [
     viewsCount: 123456,
     next: ["c", "d"],
     updatedAt: new Date().toISOString(),
+    createdBy: "UserNameHandler",
+    createdById: "user123",
+    likesCount: 7890,
+    tags: ["example", "node"],
   },
   { _id: "c", next: ["e", "f", "j", "k", "l", "m", "n"] },
   { _id: "d", next: ["g"] },
@@ -143,14 +147,14 @@ export function GraphView() {
   return (
     <>
       <NodeModal />
+      <div className="fixed top-5 left-1/2 z-10 -translate-x-1/2 cursor-pointer rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/15">
+        Genshin Impact Timeline Visualizer
+      </div>
       <PinchZoomWrapper>
-        <div
-          ref={containerRef}
-          className="relative min-h-125 px-20 grid grid-flow-col gap-35 my-5"
-        >
+        <div ref={containerRef} className="relative my-5 grid min-h-125 grid-flow-col gap-35 px-20">
           {/* Edges SVGs */}
           <svg
-            className="absolute top-0 left-0 pointer-events-none"
+            className="pointer-events-none absolute top-0 left-0"
             width={nodeContainerSize.width}
             height={nodeContainerSize.height}
           >

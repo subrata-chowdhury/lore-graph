@@ -14,6 +14,9 @@ import { CommentType } from "@/types/commentTypes";
 import { IoIosArrowBack } from "react-icons/io";
 import numberFormatter from "@/libs/numberFormatter";
 import { useSocket } from "@/app/contexts/SocketContext";
+import { LuRectangleHorizontal } from "react-icons/lu";
+import Title from "@/ui/components/Title";
+import { BsExclamationCircle } from "react-icons/bs";
 
 const NodeModal = () => {
   const { node, setNode } = useOpenedNodeContext();
@@ -21,6 +24,7 @@ const NodeModal = () => {
   const [showComments, setShowComments] = useState(true);
   const [expandDescription, setExpandDescription] = useState(false);
   const [liveViewers, setLiveViewers] = useState<number>(0);
+  const [isInFullscreen, setIsInFullscreen] = useState<boolean>(false);
   const socket = useSocket();
 
   // 1. Config: Hide default controls
@@ -83,13 +87,21 @@ const NodeModal = () => {
           className="bg-transparent!"
         >
           <div
-            className={`flex max-h-[85vh] h-[85vh] max-w-[90vw] transition-all justify-center items-center`}
+            className={`flex ${
+              isInFullscreen
+                ? "h-screen max-h-screen w-screen max-w-screen"
+                : "h-[85vh] max-h-[85vh] max-w-[90vw]"
+            } items-center justify-center transition-all`}
           >
-            <div className="p-3 bg-white rounded-full my-auto cursor-pointer mr-6">
+            <div
+              className={`my-auto mr-6 cursor-pointer rounded-full bg-white p-3 ${
+                isInFullscreen ? "hidden" : ""
+              }`}
+            >
               <IoIosArrowBack size={24} />
             </div>
             <div
-              className={`flex flex-1 flex-col overflow-y-auto scrollbar-hide z-5 h-full bg-white rounded-l-lg ${
+              className={`scrollbar-hide z-5 flex h-full flex-1 flex-col overflow-y-auto rounded-l-lg bg-white ${
                 showComments ? "rounded-r-none" : "rounded-r-lg"
               }`}
             >
@@ -99,60 +111,80 @@ const NodeModal = () => {
                   opts={opts}
                   onReady={onReady}
                   onStateChange={onStateChange}
-                  className={
-                    "rounded-t-md aspect-video w-[640px] h-[360px] min-h-[360px]" +
-                    (loading ? " hidden" : "") +
-                    (showComments ? " rounded-r-md" : "")
-                  }
+                  className={`aspect-video rounded-t-md ${
+                    isInFullscreen ? "h-full max-h-[85vh] w-full" : "h-90 min-h-90 w-160"
+                  } ${loading ? "hidden" : ""} ${showComments ? "rounded-r-md" : ""} `}
                 />
               )}
               {loading && (
-                <div className="w-[640px] h-[360px] bg-black/10 flex items-center justify-center animate-pulse">
-                  Loading...
+                <div className="flex aspect-video w-160 animate-pulse items-center justify-center bg-black/10">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-800 border-b-transparent"></div>
                 </div>
               )}
-              <div className="p-4 flex flex-col max-w-[640px]">
-                <div className="font-semibold mb-1">{node.title || "N/A"}</div>
-                <div className="mb-1 mr-auto flex gap-2 items-center w-full">
+              <div className={`flex flex-col p-4 ${isInFullscreen ? "" : "max-w-160"}`}>
+                <div className="mb-1 font-semibold">{node.title || "N/A"}</div>
+                <div className="mr-auto mb-1 flex w-full items-center gap-2">
+                  {node.createdById && (
+                    <Link href={`/users/${node.createdById}`}>
+                      <Title
+                        title={
+                          <div className="flex items-center gap-2">
+                            <div className="text-xs">
+                              Content added by{" "}
+                              <span className="font-semibold">{node.createdBy || "Unknown"}</span>
+                            </div>
+                          </div>
+                        }
+                        className="left-0 [&>*:last-child]:left-0 [&>*:last-child]:translate-x-2"
+                      >
+                        <div className="h-7 w-7 rounded-full bg-black/10"></div>
+                      </Title>
+                    </Link>
+                  )}
                   {node.type === "youtube" && (
                     <Link
                       href={`https://youtu.be/${node.src}`}
                       target="_blank"
-                      className="flex items-center gap-1 text-sm px-3 py-1 bg-black/10 hover:bg-black/20 transition-colors rounded-full cursor-pointer"
+                      className="flex cursor-pointer items-center gap-1 rounded-full bg-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/20"
                     >
                       <PiYoutubeLogo className="" size={20} />
                       <span className="align-middle">YouTube</span>
                     </Link>
                   )}
-                  <div className="flex px-3 py-2 bg-black/10 rounded-full cursor-pointer ml-auto">
-                    <button className="flex gap-1 pr-1.5 border-r border-black/20 text-xs font-semibold items-center">
+                  <div className="ml-auto flex cursor-pointer rounded-full bg-black/10 px-3 py-1.75">
+                    <button className="flex items-center gap-1 border-r border-black/20 pr-1.5 text-xs font-semibold">
                       <FiThumbsUp size={18} />
                       {node.likesCount || 0}
                     </button>
-                    <button className="flex gap-1 pl-1.5 text-xs font-semibold items-center">
+                    <button className="flex items-center gap-1 pl-1.5 text-xs font-semibold">
                       <FiThumbsDown size={18} />
                     </button>
                   </div>
                   <button
-                    className="px-3 py-2 bg-black/10 rounded-lg cursor-pointer hover:bg-black/20 transition-colors"
+                    className="cursor-pointer rounded-lg bg-black/10 px-3 py-2 transition-colors hover:bg-black/20"
                     onClick={() => setShowComments((val) => !val)}
                   >
                     <BsChatSquareText />
                   </button>
-                  <button className="px-3 py-2 bg-black/10 rounded-lg cursor-pointer hover:bg-black/20 transition-colors">
+                  <button
+                    className="cursor-pointer rounded-lg bg-black/10 px-2.5 py-1.5 transition-colors hover:bg-black/20"
+                    onClick={() => setIsInFullscreen(!isInFullscreen)}
+                  >
+                    <LuRectangleHorizontal size={20} />
+                  </button>
+                  <button className="cursor-pointer rounded-lg bg-black/10 px-3 py-2 transition-colors hover:bg-black/20">
                     <PiShareFatBold />
                   </button>
                 </div>
-                <div className="p-2 px-3 bg-black/10 rounded-lg text-sm">
-                  <div className="flex font-semibold gap-2">
+                <div className="rounded-lg bg-black/10 p-2 px-3 text-sm">
+                  <div className="flex gap-2 font-semibold">
                     <div>{numberFormatter(node.viewsCount || 0)} views</div>
-                    <div className="flex gap-2 ml-2">
-                      <div className="w-1.5 h-1.5 my-auto rounded-full bg-green-600 animate-radar"></div>
+                    <div className="ml-2 flex gap-2">
+                      <div className="animate-radar my-auto h-1.5 w-1.5 rounded-full bg-green-600"></div>
                       {liveViewers} Live viewer
                     </div>
                     <div className="ml-2">
-                      {new Date(node.updatedAt || "").toLocaleDateString() ||
-                        ""}
+                      {new Date(node.updatedAt || "").toLocaleDateString() || ""}
                     </div>
                   </div>
                   <div
@@ -165,7 +197,7 @@ const NodeModal = () => {
                         : node.description.slice(0, 200) + "..."
                       : node.description}
                     {node.description?.length > 100 && (
-                      <span className="text-black text-sm font-semibold ml-2 cursor-pointer">
+                      <span className="ml-2 cursor-pointer text-sm font-semibold text-black">
                         {expandDescription ? "Show Less" : "Show More"}
                       </span>
                     )}
@@ -175,11 +207,13 @@ const NodeModal = () => {
               </div>
             </div>
             <AnimatePresence mode="wait" initial={false}>
-              {showComments && (
-                <CommentSection onClose={() => setShowComments(false)} />
-              )}
+              {showComments && <CommentSection onClose={() => setShowComments(false)} />}
             </AnimatePresence>
-            <div className="p-3 bg-white rounded-full my-auto cursor-pointer rotate-180 ml-6">
+            <div
+              className={`my-auto ml-6 rotate-180 cursor-pointer rounded-full bg-white p-3 ${
+                isInFullscreen ? "hidden" : ""
+              }`}
+            >
               <IoIosArrowBack size={24} />
             </div>
           </div>

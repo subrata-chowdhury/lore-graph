@@ -33,10 +33,7 @@ function PinchZoomWrapper(props: { children: React.ReactNode }) {
   const applyZoom = (factor: number) => {
     state.current.scale *= factor;
     // Clamp: Ensure we never scale below 0.05 or above 1.5
-    state.current.scale = Math.min(
-      Math.max(MIN_SCALE, state.current.scale),
-      MAX_SCALE
-    );
+    state.current.scale = Math.min(Math.max(MIN_SCALE, state.current.scale), MAX_SCALE);
     updateTransform();
   };
 
@@ -82,10 +79,7 @@ function PinchZoomWrapper(props: { children: React.ReactNode }) {
         e.preventDefault();
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
-        const currentDist = Math.hypot(
-          touch1.pageX - touch2.pageX,
-          touch1.pageY - touch2.pageY
-        );
+        const currentDist = Math.hypot(touch1.pageX - touch2.pageX, touch1.pageY - touch2.pageY);
 
         if (state.current.initialDist > 0) {
           const distChange = currentDist / state.current.initialDist;
@@ -115,41 +109,28 @@ function PinchZoomWrapper(props: { children: React.ReactNode }) {
     <div
       ref={containerRef}
       style={containerStyles}
-      className="w-full h-full overflow-auto relative"
+      className="relative h-full w-full overflow-auto"
     >
       {/* Toolbar for Manual Zoom */}
-      <div className="fixed bottom-2 right-2 z-10 flex gap-2">
+      <div className="fixed right-2 bottom-2 z-10 flex gap-2">
         <Title title="Zoom In">
-          <button
-            onClick={handleZoomIn}
-            className="px-2 py-2 cursor-pointer bg-white/80 rounded"
-          >
+          <button onClick={handleZoomIn} className="cursor-pointer rounded bg-white/80 px-2 py-2">
             <PiPlus size={14} />
           </button>
         </Title>
         <Title title="Zoom Out">
-          <button
-            onClick={handleZoomOut}
-            className="px-2 py-2 cursor-pointer bg-white/80 rounded"
-          >
+          <button onClick={handleZoomOut} className="cursor-pointer rounded bg-white/80 px-2 py-2">
             <BiMinus size={14} />
           </button>
         </Title>
         <Title title="Reset Zoom">
-          <button
-            onClick={handleReset}
-            className="px-3 py-2 cursor-pointer bg-white/80 rounded"
-          >
+          <button onClick={handleReset} className="cursor-pointer rounded bg-white/80 px-3 py-2">
             <TbReload size={14} />
           </button>
         </Title>
       </div>
 
-      <div
-        ref={contentRef}
-        style={contentStyles}
-        className={`w-full max-h-screen overflow-auto`}
-      >
+      <div ref={contentRef} style={contentStyles} className={`max-h-screen w-full overflow-auto`}>
         {props.children}
       </div>
     </div>

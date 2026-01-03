@@ -15,9 +15,7 @@ type Props = {
 };
 
 export default function CommentSection({ onClose = () => {} }: Props) {
-  const [replyCommentData, setReplyCommentData] = useState<CommentType | null>(
-    null
-  );
+  const [replyCommentData, setReplyCommentData] = useState<CommentType | null>(null);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentPageniation, setCommentPagination] = useState({
     page: 1,
@@ -59,13 +57,13 @@ export default function CommentSection({ onClose = () => {} }: Props) {
       initial={{ x: "-100%" }}
       animate={{ x: "0" }}
       exit={{ x: "-100%" }}
-      className="h-full flex flex-col min-w-87.5 bg-white rounded-r-lg"
+      className="flex h-full min-w-87.5 flex-col rounded-r-lg bg-white"
     >
-      <div className="flex justify-between items-center gap-7 px-4 py-2.5 border-b border-black/10">
+      <div className="flex items-center justify-between gap-7 border-b border-black/10 px-4 py-2.5">
         <h3 className="font-semibold">
           Comments
           {(commentPageniation.total || 0) > 0 && (
-            <span className="font-normal text-xs">
+            <span className="text-xs font-normal">
               {" "}
               ({numberFormatter(commentPageniation.total)})
             </span>
@@ -73,18 +71,12 @@ export default function CommentSection({ onClose = () => {} }: Props) {
         </h3>
         <CgClose className="cursor-pointer" onClick={onClose} />
       </div>
-      <div className="flex-1 flex flex-col max-w-87.5 lg:max-w-137.5 overflow-auto px-4">
+      <div className="flex max-w-87.5 flex-1 flex-col overflow-auto px-4 lg:max-w-137.5">
         {comments.length <= 0 && (
-          <p className="text-xs my-auto text-black/40 font-medium text-center py-2">
-            No Comments
-          </p>
+          <p className="my-auto py-2 text-center text-xs font-medium text-black/40">No Comments</p>
         )}
         {comments.map((comment, index) => (
-          <Comment
-            key={index}
-            comment={comment}
-            onReplyClick={setReplyCommentData}
-          />
+          <Comment key={index} comment={comment} onReplyClick={setReplyCommentData} />
         ))}
       </div>
       {socket && (

@@ -5,26 +5,14 @@ type Props = {
   paddingLeft: number;
 };
 
-const Edge = ({
-  from,
-  to,
-  cornerSize = 10,
-  paddingLeft = 0,
-}: Props) => {
+const Edge = ({ from, to, cornerSize = 10, paddingLeft = 0 }: Props) => {
   const x1 = from.x;
   const y1 = from.y;
   const x2 = to.x;
   const y2 = to.y;
   if (y1 === y2) {
     return (
-      <line
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke={`rgba(255,255,255,0.4)`}
-        strokeWidth="2"
-      />
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={`rgba(255,255,255,0.4)`} strokeWidth="2" />
     );
   }
   // Determine direction
@@ -62,14 +50,7 @@ const Edge = ({
         H ${x2}
     `;
 
-  return (
-    <path
-      d={path}
-      stroke={`rgba(255,255,255,0.4)`}
-      strokeWidth="2"
-      fill="none"
-    />
-  );
+  return <path d={path} stroke={`rgba(255,255,255,0.4)`} strokeWidth="2" fill="none" />;
 };
 
 export default Edge;
