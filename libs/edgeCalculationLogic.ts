@@ -13,12 +13,9 @@ const calculateEdges = ({
 }) => {
   if (!containerRef.current) return;
   const containerBox = containerRef.current.getBoundingClientRect();
-
   const prevNodesMapRef = new Map(
     nodes.map((n) => {
-      const filteredNodes = nodes
-        .filter((nd) => nd.next.includes(n._id))
-        .map((nd) => nd._id);
+      const filteredNodes = nodes.filter((nd) => nd.next.includes(n._id)).map((nd) => nd._id);
       return [n._id, filteredNodes];
     })
   );
@@ -48,9 +45,7 @@ const calculateEdges = ({
     for (const n in currentLvl) {
       allEdgesOfThisLvl = [
         ...allEdgesOfThisLvl,
-        ...(nodeMapRef.current
-          .get(currentLvl[n])
-          ?.next.map((e) => `${e}-${currentLvl[n]}`) || []),
+        ...(nodeMapRef.current.get(currentLvl[n])?.next.map((e) => `${e}-${currentLvl[n]}`) || []),
       ];
     }
 
@@ -60,32 +55,21 @@ const calculateEdges = ({
       const nextNodeMeasure = nextNode.getBoundingClientRect();
       const prevNodes = prevNodesMapRef.get(nid) || [];
 
-      const fromX =
-        firstNodeMeasure.left - containerBox.left + firstNodeMeasure.width;
-      const fromY =
-        firstNodeMeasure.top - containerBox.top + firstNodeMeasure.height / 2;
+      const fromX = firstNodeMeasure.left - containerBox.left + firstNodeMeasure.width;
+      const fromY = firstNodeMeasure.top - containerBox.top + firstNodeMeasure.height / 2;
       const toX = nextNodeMeasure.left - containerBox.left;
-      const toY =
-        nextNodeMeasure.top - containerBox.top + nextNodeMeasure.height / 2;
+      const toY = nextNodeMeasure.top - containerBox.top + nextNodeMeasure.height / 2;
 
       const indexOfTheEdgeOfTheParentNode = idx;
       const totalEdgesOfTheParentNode = node.next.length;
       const totalEdgesOfTheDestinationNode = prevNodes.length;
       const indexOfTheEdgeOfTheDestinationNode = prevNodes.indexOf(node._id);
       let finalFromY =
-        fromY +
-        (indexOfTheEdgeOfTheParentNode - (totalEdgesOfTheParentNode - 1) / 2) *
-          10;
+        fromY + (indexOfTheEdgeOfTheParentNode - (totalEdgesOfTheParentNode - 1) / 2) * 10;
       let finalToY =
-        toY -
-        (indexOfTheEdgeOfTheDestinationNode -
-          (totalEdgesOfTheDestinationNode - 1) / 2) *
-          10;
+        toY - (indexOfTheEdgeOfTheDestinationNode - (totalEdgesOfTheDestinationNode - 1) / 2) * 10;
 
-      if (
-        edgesBasedonY.has(finalToY) &&
-        edgesBasedonY.get(finalToY)!.nodeId !== node._id
-      ) {
+      if (edgesBasedonY.has(finalToY) && edgesBasedonY.get(finalToY)!.nodeId !== node._id) {
         finalToY = finalToY + 10;
       }
 

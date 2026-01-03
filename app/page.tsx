@@ -9,6 +9,7 @@ import calculateEdges from "../libs/edgeCalculationLogic";
 import PinchZoomWrapper from "./_components/PinchZoomFeature";
 import { NodeType } from "../types/nodeTypes";
 import NodeModal from "./_components/NodeModal/NodeModal";
+import { conData, lvlData, nData } from "./data/nodeData";
 
 export default function Home() {
   return (
@@ -29,41 +30,6 @@ export default function Home() {
   );
 }
 
-const data: NodeType[] = [
-  { _id: "a", next: ["b"], type: "youtube", src: "ShB3vNlSdDA" },
-  {
-    _id: "b",
-    title: "Node B",
-    description: `On the Insert tab, the galleries include items that are designed to coordinate with the overall look of your document. You can use these galleries to insert tables, headers, footers, lists, cover pages, and other document building blocks. When you create pictures, charts, or diagrams, they also coordinate with your current document look.
-
-    You can easily change the formatting of selected text in the document text by choosing a look for the selected text from the Quick Styles gallery on the Home tab. You can also format text directly by using the other controls on the Home tab. Most controls offer a choice of using the look from the current theme or using a format that you specify directly.
-
-    To change the overall look of your document, choose new Theme elements on the Page Layout tab. To change the looks available in the Quick Style gallery, use the Change Current Quick Style Set command. Both the Themes gallery and the Quick Styles gallery provide reset commands so that you can always restore the look of your document to the original contained in your current template.
-`,
-    type: "youtube",
-    src: "ShB3vNlSdDA",
-    viewsCount: 123456,
-    next: ["c", "d"],
-    updatedAt: new Date().toISOString(),
-    createdBy: "UserNameHandler",
-    createdById: "user123",
-    likesCount: 7890,
-    tags: ["example", "node"],
-  },
-  { _id: "c", next: ["e", "f", "j", "k", "l", "m", "n"] },
-  { _id: "d", next: ["g"] },
-  { _id: "e", next: ["h"] },
-  { _id: "f", next: ["i"] },
-  { _id: "g", next: ["h"] },
-  { _id: "h", next: [] },
-  { _id: "i", next: [] },
-  { _id: "j", next: [] },
-  { _id: "k", next: [] },
-  { _id: "l", next: [] },
-  { _id: "m", next: [] },
-  { _id: "n", next: [] },
-] as NodeType[];
-
 export function GraphView() {
   const [nodeContainerSize, setNodeContainerSize] = useState({
     width: 0,
@@ -76,25 +42,25 @@ export function GraphView() {
       paddingLeft?: number;
     }[]
   >([]);
-  const [nodes, setNodes] = useState<NodeType[]>([]);
+  const [nodes, setNodes] = useState<Map<string, NodeType>>(new Map());
   const [levels, setLevels] = useState<string[][]>([]);
-  const map = useRef(new Map(nodes.map((n) => [n._id, n])));
+  const [connectionData, setConnectionData] = useState<{ _id: string; next: string[] }[]>([]);
+  const connectionMap = useRef<Map<string, { _id: string; next: string[] }>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     console.log("calculation started", new Date().getTime());
-    map.current = new Map(data.map((n) => [n._id, n]));
-    setNodes(data);
 
-    const newLevels = [
-      ["a"],
-      ["b"],
-      ["c", "d"],
-      ["e", "f", "g", "j", "k", "l", "m", "n"],
-      ["h", "i"],
-    ];
-    setLevels(newLevels);
+    // fetch nData
+    setNodes(nData);
+
+    // fetch connection data
+    connectionMap.current = new Map(conData.map((item) => [item._id, item]));
+    setConnectionData(conData);
+
+    // set levels data
+    setLevels(lvlData);
 
     const handleContextMenu = (event: MouseEvent) => {
       // 1. Prevent the default browser menu
@@ -108,13 +74,13 @@ export function GraphView() {
 
   useLayoutEffect(() => {
     const calculateEdgesAndUpdate = () => {
-      if (nodes.length > 0 && levels.length > 0) {
+      if (connectionData.length > 0 && levels.length > 0) {
         const result = calculateEdges({
-          nodes,
+          nodes: connectionData,
           levels,
           containerRef,
           htmlNodesRef: refs,
-          nodeMapRef: map,
+          nodeMapRef: connectionMap,
         });
         if (!result) return;
         setEdges(result);
@@ -140,7 +106,7 @@ export function GraphView() {
     return () => {
       window.removeEventListener("resize", calculateEdgesAndUpdate);
     };
-  }, [nodes, levels]);
+  }, [connectionData, levels]);
 
   console.log("rerender graph view");
 
@@ -172,8 +138,9 @@ export function GraphView() {
           {levels.map((level, i) => (
             <div key={i} className="flex flex-col justify-center gap-20">
               {level.map((id) => {
-                const n = map.current.get(id)!;
-                return <Node key={id} node={n} refs={refs} />;
+                const n = nodes.get(id)!;
+                const next = connectionMap.current.get(id)?.next || [];
+                return <Node key={id} node={{ ...n, _id: id, next }} refs={refs} />;
               })}
             </div>
           ))}

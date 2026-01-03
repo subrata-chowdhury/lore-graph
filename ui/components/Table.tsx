@@ -22,7 +22,7 @@ type Props<T> = {
     onPageChange: (page: number) => void;
   };
   limit: {
-    options: string[] | number[];
+    options: { label: string; value: string | number }[];
     limit: string | number;
     onLimitChange: (value: string | number) => void;
   };
@@ -32,7 +32,7 @@ type Props<T> = {
     onTagChange: (tag: string) => void;
   };
   dropdown?: {
-    options: string[] | number[];
+    options: { label: string; value: string | number }[];
     value: string | number;
     onChange: (value: string | number) => void;
     width?: number;
@@ -81,7 +81,13 @@ function Table<T>({
           <p className="text-sm text-gray-600 dark:text-white/65">Showing</p>
           <Dropdown
             loading={loading}
-            options={limit.options || [5, 10, 15]}
+            options={
+              limit.options || [
+                { label: "5", value: 5 },
+                { label: "10", value: 10 },
+                { label: "20", value: 20 },
+              ]
+            }
             value={limit.limit}
             onChange={(val) => limit.onLimitChange(val.value)}
             showPopupAtTop={true}

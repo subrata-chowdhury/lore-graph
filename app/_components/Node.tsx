@@ -3,12 +3,17 @@ import React from "react";
 import { useOpenedNodeContext } from "../contexts/OpenedNodeContext";
 import { NodeType } from "../../types/nodeTypes";
 
+interface NodeTypeWithNext extends NodeType {
+  next: string[];
+}
+
 type Props = {
-  node: NodeType;
-  refs: React.RefObject<{ [key: string]: HTMLDivElement | null }>;
+  node: NodeTypeWithNext;
+  refs?: React.RefObject<{ [key: string]: HTMLDivElement | null }>;
+  className?: string;
 };
 
-const Node = ({ node, refs }: Props) => {
+const Node = ({ node, refs, className }: Props) => {
   const { setNode } = useOpenedNodeContext();
   if (!node) return null;
 
@@ -16,16 +21,16 @@ const Node = ({ node, refs }: Props) => {
     <div
       key={node._id}
       ref={(el) => {
-        refs.current[node._id] = el;
+        if (refs) refs.current[node._id] = el;
       }}
       style={{
         marginRight: node.next.length * 10,
       }}
       onClick={() => setNode(node)}
-      className="flex aspect-video w-[230px] cursor-pointer items-center justify-center rounded-lg bg-white p-1"
+      className={`flex aspect-video w-[230px] cursor-pointer items-center justify-center rounded-lg bg-white p-1 ${className || ""}`}
     >
       <Image
-        src="/first-cutscene.jpg"
+        src={node?.thumbnailUrl || "/first-cutscene.jpg"}
         alt="node thumbnail"
         width={230}
         height={130}

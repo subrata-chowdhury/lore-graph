@@ -16,6 +16,7 @@ const NodeFormPage = (props: Props) => {
     description: "",
     tags: [],
     type: "youtube",
+    visibility: "private",
   });
 
   return <NodeForm nodeData={nodeData} onNodeDataChange={setNodeData} />;

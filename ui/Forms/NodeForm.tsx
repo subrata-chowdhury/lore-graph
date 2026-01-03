@@ -1,4 +1,5 @@
 "use client";
+import Node from "@/app/_components/Node";
 import { NodeType } from "@/types/nodeTypes";
 import Dropdown from "@/ui/components/Dropdown";
 import Input from "@/ui/components/Inputs/Input";
@@ -37,6 +38,70 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
   return (
     <div className="flex flex-1 justify-between gap-8 bg-white p-6 px-8">
       <div>
+        <div className="mb-4 flex gap-6">
+          <div>
+            <div className="mb-2 flex flex-col gap-1">
+              <div className={`text-sm font-semibold`}>Type</div>
+              <div className="text-sm text-black/60">Select the type of node.</div>
+            </div>
+            <Dropdown
+              width={"200px"}
+              value={nodeData?.type || "video"}
+              options={[
+                { label: "Video", value: "video" },
+                { label: "YouTube", value: "youtube" },
+                { label: "Post", value: "post" },
+              ]}
+              onChange={(option) =>
+                onNodeDataChange({ ...nodeData, type: option.value as NodeType["type"] })
+              }
+              containerClassName="text-sm"
+              mainContainerClassName="pl-3"
+            />
+          </div>
+          <div>
+            <div className="mb-2 flex flex-col gap-1">
+              <div className={`text-sm font-semibold`}>Visibility</div>
+              <div className="text-sm text-black/60">Select the visibility of the node.</div>
+            </div>
+            <Dropdown
+              width={"200px"}
+              value={nodeData?.visibility || "private"}
+              options={[
+                { label: "Public", value: "public" },
+                { label: "Private", value: "private" },
+              ]}
+              onChange={(option) =>
+                onNodeDataChange({ ...nodeData, type: option.value as NodeType["type"] })
+              }
+              containerClassName="text-sm"
+              mainContainerClassName="pl-3"
+            />
+          </div>
+        </div>
+        {nodeData?.type === "youtube" && (
+          <div className="flex gap-3">
+            <Input
+              label="Source"
+              description="Source URL for the youtube video."
+              value={nodeData?.src || ""}
+              onChange={(val) => onNodeDataChange({ ...nodeData, src: val })}
+              placeholder="Enter youtube video link"
+              max={150}
+              containerClass="mb-4 flex-1"
+              labelClass="text-sm font-semibold"
+              inputClass="text-sm"
+            />
+            <button
+              disabled={!nodeData?.src}
+              className={`mt-auto mb-4 rounded-full bg-black/20 px-5 py-2 text-sm font-semibold hover:bg-black/25 ${
+                !nodeData?.src ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+            >
+              Fetch Details
+            </button>
+          </div>
+        )}
         <TextAreaInput
           label="Title (required)"
           description="This title will also consider as meta title."
@@ -57,21 +122,6 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
           inputClass="resize-none"
           mainInputContainerClass="h-40"
         />
-        {nodeData?.type === "youtube" && (
-          <div>
-            <Input
-              label="Source"
-              description="Source URL for the youtube video."
-              value={nodeData?.src || ""}
-              onChange={(val) => onNodeDataChange({ ...nodeData, src: val })}
-              placeholder="Enter youtube video link"
-              max={150}
-              containerClass="mb-4"
-              labelClass="text-sm font-semibold"
-              inputClass="text-sm"
-            />
-          </div>
-        )}
         <TagInput
           label="Tags"
           description="Press Enter to add each tag. Add tags to help categorize the node. These tags will also be considered as meta keywords."
@@ -81,6 +131,10 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
         />
       </div>
       <div className="flex flex-col">
+        <div className={`text-sm font-semibold`}>Thumbnail</div>
+        <div className="mt-1 mb-2 text-sm text-black/60">
+          This thumbnail will be shown as a preview of the node.
+        </div>
         <div
           className="group relative flex aspect-video h-auto w-100 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50"
           onClick={() => {
@@ -108,23 +162,24 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
           )}
           <input type="file" className="hidden" ref={imgInputRef} onChange={handleImageChange} />
         </div>
-        <div className="mt-4">
-          <div className="mb-2 flex flex-col gap-1">
-            <div className={`text-sm font-semibold`}>Type</div>
-            <div className="text-sm text-black/60">Select the type of node.</div>
+        <div className="mt-5">
+          <div className={`text-sm font-semibold`}>Demo Node View</div>
+          <div className="mt-1 mb-2 text-sm text-black/60">
+            This will be shown as a preview of the node.
           </div>
-          <Dropdown
-            width={"150px"}
-            value={nodeData?.type || "video"}
-            options={[
-              { label: "Video", value: "video" },
-              { label: "YouTube", value: "youtube" },
-              { label: "Post", value: "post" },
-            ]}
-            onChange={(option) =>
-              onNodeDataChange({ ...nodeData, type: option.value as NodeType["type"] })
-            }
-            containerClassName="text-sm"
+          <Node
+            node={{
+              ...nodeData,
+              viewsCount: 0,
+              likesCount: 0,
+              _id: "demo-node-id",
+              next: [],
+              createdBy: "user",
+              createdById: "userid",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }}
+            className="w-100! border border-black/15"
           />
         </div>
         <div className="mt-4">

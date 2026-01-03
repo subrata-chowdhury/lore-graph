@@ -174,7 +174,15 @@ const Pages = () => {
             data: data,
           }}
           pagination={{ currentPage, totalPages: totalPages, onPageChange: setCurrentPage }}
-          limit={{ limit, options: [5, 10, 15], onLimitChange: (val) => setLimit(val as number) }}
+          limit={{
+            limit,
+            options: [
+              { label: "5", value: 5 },
+              { label: "10", value: 10 },
+              { label: "20", value: 20 },
+            ],
+            onLimitChange: (val) => setLimit(val as number),
+          }}
           onSearch={(val) => setName(val)}
           tag={{
             tags: ["All", "Today"],

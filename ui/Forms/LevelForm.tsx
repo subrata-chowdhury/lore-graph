@@ -7,12 +7,10 @@ import { NodeType } from "@/types/nodeTypes";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BiPlus, BiSearch } from "react-icons/bi";
 import Modal from "../components/Modal";
-import DropdownWithPaginatedSearch from "../components/Inputs/DropdownWithPaginatedSearch";
 import Link from "next/link";
+import { conData, lvlData } from "@/app/data/nodeData";
 
 type Props = {};
-
-const data: NodeType[] = [];
 
 const LevelForm = (props: Props) => {
   const [nodeContainerSize, setNodeContainerSize] = useState({
@@ -26,29 +24,27 @@ const LevelForm = (props: Props) => {
       paddingLeft?: number;
     }[]
   >([]);
-  const [nodes, setNodes] = useState<NodeType[]>([]);
+  const [nodes, setNodes] = useState<Map<string, NodeType>>(new Map());
   const [levels, setLevels] = useState<string[][]>([]);
+  const [connectionData, setConnectionData] = useState<{ _id: string; next: string[] }[]>([]);
   const [showNodeSelector, setShowNodeSelector] = useState<null | {
     col: number;
     row: number;
   }>(null);
-  const map = useRef(new Map(nodes.map((n) => [n._id, n])));
+  const connectionMap = useRef<Map<string, { _id: string; next: string[] }>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
-    console.log("calculation started", new Date().getTime());
-    map.current = new Map(data.map((n) => [n._id, n]));
-    setNodes(data);
+    // fetch nData
+    setNodes(new Map());
 
-    const newLevels = [
-      ["a"],
-      ["b"],
-      ["c", "d"],
-      ["e", "f", "g", "j", "k", "l", "m", "n"],
-      ["h", "i"],
-    ];
-    setLevels(newLevels);
+    // fetch connection data
+    connectionMap.current = new Map(conData.map((item) => [item._id, item]));
+    setConnectionData(conData);
+
+    // set levels data
+    setLevels(lvlData);
 
     const handleContextMenu = (event: MouseEvent) => {
       // 1. Prevent the default browser menu
@@ -62,13 +58,13 @@ const LevelForm = (props: Props) => {
 
   useLayoutEffect(() => {
     const calculateEdgesAndUpdate = () => {
-      if (nodes.length > 0 && levels.length > 0) {
+      if (connectionData.length > 0 && levels.length > 0) {
         const result = calculateEdges({
-          nodes,
+          nodes: connectionData,
           levels,
           containerRef,
           htmlNodesRef: refs,
-          nodeMapRef: map,
+          nodeMapRef: connectionMap,
         });
         if (!result) return;
         setEdges(result);
@@ -94,7 +90,7 @@ const LevelForm = (props: Props) => {
     return () => {
       window.removeEventListener("resize", calculateEdgesAndUpdate);
     };
-  }, [nodes, levels]);
+  }, [connectionData, levels]);
 
   return (
     <>
@@ -130,8 +126,9 @@ const LevelForm = (props: Props) => {
             {levels.map((level, i) => (
               <div key={i} className="flex flex-col justify-center gap-20 border-r border-dashed">
                 {level.map((id) => {
-                  const n = map.current.get(id)!;
-                  return <Node key={id} node={n} refs={refs} />;
+                  const n = nodes.get(id)!;
+                  const next = connectionMap.current.get(id)?.next || [];
+                  return <Node key={id} node={{ ...n, _id: id, next }} refs={refs} />;
                 })}
                 <div
                   onClick={() => setShowNodeSelector({ col: i, row: level.length })}

@@ -8,6 +8,7 @@ export type NodeType = {
   type: "video" | "youtube" | "post";
   viewsCount: number;
   likesCount: number;
+  visibility: "public" | "private";
   // next: string[]; // Array of Node IDs
   createdBy: string; // Reference to User (Indexed)
   createdById: string; // Reference to User ID (Indexed)
