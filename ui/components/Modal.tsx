@@ -5,10 +5,10 @@ interface ModalProps {
   isOpen?: boolean;
 }
 
-function Modal({ children, onClose = () => {}, className = "", isOpen }: ModalProps) {
+function Modal({ children, onClose = () => {}, className = "", isOpen = true }: ModalProps) {
   return (
     <div
-      className="top-to-bottom fixed inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-sm dark:bg-white/10"
+      className={`top-to-bottom fixed inset-0 z-30 ${isOpen ? "flex" : "hidden"} items-center justify-center bg-black/20 backdrop-blur-sm dark:bg-white/10`}
       onClick={onClose}
     >
       <div

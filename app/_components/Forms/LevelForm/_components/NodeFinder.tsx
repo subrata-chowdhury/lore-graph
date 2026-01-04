@@ -3,7 +3,6 @@ import debounce from "@/libs/debouncer";
 import fetcher from "@/libs/fetcher";
 import { NodeType } from "@/types/nodeTypes";
 import Dropdown from "@/ui/components/Dropdown";
-import Input from "@/ui/components/Inputs/Input";
 import Modal from "@/ui/components/Modal";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -74,10 +73,8 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
   );
 
   useEffect(() => {
-    if (isOpen) {
-      fetchNodes({ filters, sortingData, pagination: { ...pagination, page: 1 } });
-    }
-  }, [isOpen, fetchNodes]);
+    fetchNodes({ filters, sortingData, pagination: { ...pagination, page: 1 } });
+  }, []);
 
   return (
     <Modal

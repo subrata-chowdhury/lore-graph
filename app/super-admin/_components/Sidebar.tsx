@@ -40,11 +40,13 @@ const Sidebar = () => {
   return (
     <div className="relative h-screen border-r border-black/20 px-4">
       <div className="py-6 text-center text-lg font-bold">{minimal ? "LG" : "Lore Graph"}</div>
-      <div className="absolute top-16 right-0 translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-black/20 bg-white p-1.5">
+      <div
+        onClick={() => setMinimal((prevVal) => !prevVal)}
+        className="absolute top-16 right-0 translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-black/20 bg-white p-1.5"
+      >
         <IoIosArrowForward
           size={20}
           className={`transition-transform duration-300 ${minimal ? "" : "rotate-180"}`}
-          onClick={() => setMinimal((prevVal) => !prevVal)}
         />
       </div>
       <div className="mt-4 flex flex-col gap-3">

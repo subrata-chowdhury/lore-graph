@@ -10,6 +10,7 @@ export async function proxy(request: NextRequest) {
     method: string;
   }[] = [
     { url: "/api/auth/login", method: "POST" },
+    { url: "/api/super-admin/auth/login", method: "POST" },
     { url: "/api/auth/signup", method: "POST" },
     { url: "/api/nodes", method: "GET" },
   ];

@@ -1,7 +1,7 @@
 "use client";
 import fetcher from "@/libs/fetcher";
 import { NodeType } from "@/types/nodeTypes";
-import NodeForm from "@/ui/Forms/NodeForm";
+import NodeForm from "@/app/_components/Forms/NodeForm";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 

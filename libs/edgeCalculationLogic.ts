@@ -13,7 +13,7 @@ const calculateEdges = ({
 }) => {
   if (!containerRef.current) return;
   const containerBox = containerRef.current.getBoundingClientRect();
-  const prevNodesMapRef = new Map(
+  const parentNodesMapRef = new Map(
     nodes.map((n) => {
       const filteredNodes = nodes.filter((nd) => nd.next.includes(n._id)).map((nd) => nd._id);
       return [n._id, filteredNodes];
@@ -53,7 +53,7 @@ const calculateEdges = ({
       const nextNode = htmlNodesRef.current[nid];
       if (!nextNode) return;
       const nextNodeMeasure = nextNode.getBoundingClientRect();
-      const prevNodes = prevNodesMapRef.get(nid) || [];
+      const prevNodes = parentNodesMapRef.get(nid) || [];
 
       const fromX = firstNodeMeasure.left - containerBox.left + firstNodeMeasure.width;
       const fromY = firstNodeMeasure.top - containerBox.top + firstNodeMeasure.height / 2;

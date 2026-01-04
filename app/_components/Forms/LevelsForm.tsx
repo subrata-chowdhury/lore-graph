@@ -1,12 +1,14 @@
 import { PageType } from "@/types/types";
 import React, { useState } from "react";
 import LevelForm from "./LevelForm/LevelForm";
+import { TbTrash } from "react-icons/tb";
 
 type Props = {
   levels: PageType["lvls"];
+  onLevelsChange: (newLevels: PageType["lvls"]) => void;
 };
 
-const LevelsForm = ({ levels }: Props) => {
+const LevelsForm = ({ levels, onLevelsChange = () => {} }: Props) => {
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
 
   return (
@@ -22,10 +24,19 @@ const LevelsForm = ({ levels }: Props) => {
             </div>
             {levels?.map((lvl) => {
               return (
-                <div key={lvl.id} className="mt-4">
+                <div className="mt-2 flex gap-2 rounded-lg bg-black/10 p-3 pr-4" key={lvl.id}>
+                  <div className="flex flex-1 flex-col justify-between gap-1">
+                    <div className="truncate text-sm leading-none font-semibold">{lvl.title}</div>
+                    <div className="truncate text-xs leading-none text-black/50">{lvl.id}</div>
+                  </div>
                   <div>
-                    <p>{lvl.title}</p>
-                    <p>{lvl.id}</p>
+                    <TbTrash
+                      className="cursor-pointer"
+                      onClick={() => {
+                        const newLevels = levels.filter((level) => level.id !== lvl.id);
+                        onLevelsChange(newLevels);
+                      }}
+                    />
                   </div>
                 </div>
               );
@@ -40,7 +51,15 @@ const LevelsForm = ({ levels }: Props) => {
             </div>
           </>
         )}
-        {showNewLevelForm && <LevelForm />}
+        {showNewLevelForm && (
+          <LevelForm
+            onAdd={(newLevel) => {
+              onLevelsChange([...levels, newLevel]);
+              setShowNewLevelForm(false);
+            }}
+            onCancel={() => setShowNewLevelForm(false)}
+          />
+        )}
       </div>
     </>
   );

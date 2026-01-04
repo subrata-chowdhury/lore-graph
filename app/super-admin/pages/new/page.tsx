@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { PageType } from "@/types/types";
 import StepsBar from "../_components/StepsBar";
-import LevelsForm from "@/ui/Forms/LevelsForm";
-import PageForm from "@/ui/Forms/PageForm";
+import LevelsForm from "@/app/_components/Forms/LevelsForm";
+import PageForm from "@/app/_components/Forms/PageForm";
 
 type Props = {};
 
@@ -32,7 +32,12 @@ const CreatePage = (props: Props) => {
             onSave={() => setCurrentStep(2)}
           />
         )}
-        {currentStep === 2 && <LevelsForm levels={pageData.lvls} />}
+        {currentStep === 2 && (
+          <LevelsForm
+            levels={pageData.lvls}
+            onLevelsChange={(newLevels) => setPageData((prev) => ({ ...prev, lvls: newLevels }))}
+          />
+        )}
       </div>
     </div>
   );
