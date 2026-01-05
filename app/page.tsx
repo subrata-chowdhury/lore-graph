@@ -43,8 +43,7 @@ export function GraphView() {
     }[]
   >([]);
   const [nodes, setNodes] = useState<Map<string, NodeType>>(new Map());
-  const [levels, setLevels] = useState<string[][]>([]);
-  const [connectionData, setConnectionData] = useState<{ _id: string; next: string[] }[]>([]);
+  const [levels, setLevels] = useState<{ _id: string; next: string[] }[][]>([]);
   const connectionMap = useRef<Map<string, { _id: string; next: string[] }>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -56,11 +55,13 @@ export function GraphView() {
     setNodes(nData);
 
     // fetch connection data
-    connectionMap.current = new Map(conData.map((item) => [item._id, item]));
-    setConnectionData(conData);
+    const cMap = new Map(conData.map((item) => [item._id, item]));
+    connectionMap.current = cMap;
 
     // set levels data
-    setLevels(lvlData);
+    setLevels(
+      lvlData.map((level) => level.map((id) => ({ _id: id, next: cMap.get(id)?.next || [] })))
+    );
 
     const handleContextMenu = (event: MouseEvent) => {
       // 1. Prevent the default browser menu
@@ -74,13 +75,12 @@ export function GraphView() {
 
   useLayoutEffect(() => {
     const calculateEdgesAndUpdate = () => {
-      if (connectionData.length > 0 && levels.length > 0) {
+      if (levels.length > 0) {
         const result = calculateEdges({
-          nodes: connectionData,
+          nodes: levels.flat(),
           levels,
           containerRef,
           htmlNodesRef: refs,
-          nodeMapRef: connectionMap,
         });
         if (!result) return;
         setEdges(result);
@@ -106,7 +106,7 @@ export function GraphView() {
     return () => {
       window.removeEventListener("resize", calculateEdgesAndUpdate);
     };
-  }, [connectionData, levels]);
+  }, [levels]);
 
   console.log("rerender graph view");
 
@@ -137,10 +137,15 @@ export function GraphView() {
           {/* Node boxes */}
           {levels.map((level, i) => (
             <div key={i} className="flex flex-col justify-center gap-20">
-              {level.map((id) => {
-                const n = nodes.get(id)!;
-                const next = connectionMap.current.get(id)?.next || [];
-                return <Node key={id} node={{ ...n, _id: id, next }} refs={refs} />;
+              {level.map((node) => {
+                const n = nodes.get(node._id)!;
+                return (
+                  <Node
+                    key={node._id}
+                    node={{ ...n, _id: node._id, next: node.next }}
+                    refs={refs}
+                  />
+                );
               })}
             </div>
           ))}

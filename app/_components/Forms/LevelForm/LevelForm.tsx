@@ -30,8 +30,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     }[]
   >([]);
   const [nodes, setNodes] = useState<Map<string, NodeType>>(new Map());
-  const [levels, setLevels] = useState<string[][]>([]);
-  const [connectionData, setConnectionData] = useState<{ _id: string; next: string[] }[]>([]);
+  const [levels, setLevels] = useState<{ _id: string; next: string[] }[][]>([]);
   const [showNodeSelector, setShowNodeSelector] = useState<null | {
     col: number;
     row: number;
@@ -43,49 +42,37 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
 
   const handleNodeSelect = (node: NodeType) => {
     if (showNodeSelector) {
-      if (connectionMap.current.has(node._id)) {
+      // Check if node already exists in any level
+      if (levels.some((level) => level.some((n) => n._id === node._id))) {
         toast.warn("This node is already added to the graph. You can't add it again.");
         return;
       }
-      const newLevels = [...levels];
+      // Deep copy levels
+      const newLevels = levels.map((lvl) => lvl.map((n) => ({ ...n, next: [...n.next] })));
+
       if (newLevels[showNodeSelector.col].length === showNodeSelector.row) {
-        newLevels[showNodeSelector.col].push(node._id);
-        connectionMap.current.set(node._id, {
-          _id: node._id,
-          next: [],
-        });
-        const newConnectionData = [...connectionData];
-        newConnectionData.push({
-          _id: node._id,
-          next: [],
-        });
-        setConnectionData(newConnectionData);
+        newLevels[showNodeSelector.col].push({ _id: node._id, next: [] });
       } else {
-        const prevElem = newLevels[showNodeSelector.col][showNodeSelector.row];
-        newLevels[showNodeSelector.col].splice(showNodeSelector.row, 1, node._id);
-        const prevNext = connectionMap.current.get(prevElem)?.next;
-        if (prevNext) {
-          connectionMap.current.set(node._id, {
-            _id: node._id,
-            next: [...prevNext],
+        const prevNode = newLevels[showNodeSelector.col][showNodeSelector.row];
+        const prevId = prevNode._id;
+
+        // Replace node but keep connections
+        newLevels[showNodeSelector.col][showNodeSelector.row] = {
+          _id: node._id,
+          next: prevNode.next,
+        };
+
+        // Update incoming connections from other nodes
+        newLevels.forEach((lvl) => {
+          lvl.forEach((n) => {
+            const idx = n.next.indexOf(prevId);
+            if (idx !== -1) {
+              n.next[idx] = node._id;
+            }
           });
-          connectionMap.current.delete(prevElem);
-        }
-        const newConnectionData = [...connectionData];
-        const prevElemIndex = newConnectionData.findIndex((item) => item._id === prevElem);
-        if (prevElemIndex !== -1) {
-          newConnectionData[prevElemIndex]._id = node._id;
-        }
-        for (let i = 0; i < newConnectionData.length; i++) {
-          const item = newConnectionData[i];
-          const index = item.next.findIndex((id) => id === prevElem);
-          if (index !== -1) {
-            item.next.splice(index, 1, node._id);
-            connectionMap.current.set(item._id, item);
-          }
-        }
-        setConnectionData([...newConnectionData]);
+        });
       }
+
       setLevels(newLevels);
       if (!nodes.has(node._id))
         setNodes((prev) => {
@@ -93,23 +80,23 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
           newMap.set(node._id, node);
           return newMap;
         });
-      calculateEdgesAndUpdate();
       setShowNodeSelector(null);
     }
   };
 
   const handleConnect = (nodeId: string | undefined, nextId: string) => {
     if (!nodeId) return;
-    const existingConnection = connectionData.find(
-      (item) => item._id === nodeId && item.next.includes(nextId)
-    );
-    if (existingConnection) {
+
+    const parentNode = levels.flat().find((n) => n._id === nodeId);
+
+    if (parentNode && parentNode.next.includes(nextId)) {
       toast.warn("This connection already exists.");
       setConnectStart(null);
       return;
     }
-    const nodeIdLevel = levels.findIndex((level) => level.includes(nodeId));
-    const nextIdLevel = levels.findIndex((level) => level.includes(nextId));
+
+    const nodeIdLevel = levels.findIndex((level) => level.some((n) => n._id === nodeId));
+    const nextIdLevel = levels.findIndex((level) => level.some((n) => n._id === nextId));
 
     if (nodeIdLevel === -1 || nextIdLevel === -1) {
       toast.error("One of the nodes is not found in any level.");
@@ -123,22 +110,23 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
       return;
     }
 
-    const newConnectionData = [...connectionData];
-    const nodeIdIndex = newConnectionData.findIndex((item) => item._id === nodeId);
-    if (nodeIdIndex !== -1) {
-      newConnectionData[nodeIdIndex].next.push(nextId);
-      connectionMap.current.set(nodeId, newConnectionData[nodeIdIndex]);
-      setConnectionData(newConnectionData);
+    const newLevels = levels.map((lvl) => lvl.map((n) => ({ ...n, next: [...n.next] })));
+
+    const nodeToUpdate = newLevels[nodeIdLevel].find((n) => n._id === nodeId);
+    if (nodeToUpdate) {
+      nodeToUpdate.next.push(nextId);
+      setLevels(newLevels);
     }
-    calculateEdgesAndUpdate();
+
     setConnectStart(null);
   };
 
   const calculateEdgesAndUpdate = () => {
-    if (connectionData.length > 0 && levels.length > 0) {
+    if (levels.length > 0) {
+      const flatNodes = levels.flat();
+
       const result = calculateEdges({
-        nodes: connectionData,
-        nodeMapRef: connectionMap,
+        nodes: flatNodes,
         levels,
         containerRef,
         htmlNodesRef: refs,
@@ -154,51 +142,42 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
   };
 
   const handleNodeDelete = (nodeId: string) => {
-    const newConnectionData = [...connectionData];
-    const newLevels = [...levels];
-    const nodeIndex = newConnectionData.findIndex((item) => item._id === nodeId);
-    if (nodeIndex !== -1) {
-      // Remove the node from connectionData
-      newConnectionData.splice(nodeIndex, 1);
-      connectionMap.current.delete(nodeId);
-    }
-    // Remove the node from levels
-    for (let i = 0; i < newLevels.length; i++) {
-      const levelIndex = newLevels[i].indexOf(nodeId);
-      if (levelIndex !== -1) {
-        newLevels[i].splice(levelIndex, 1);
-        break;
-      }
-    }
-    // Remove any connections to this node from other nodes
-    newConnectionData.forEach((item) => {
-      item.next = item.next.filter((id) => id !== nodeId);
-      connectionMap.current.set(item._id, item);
+    // Filter out the node from levels
+    const newLevels = levels.map((lvl) =>
+      lvl.filter((n) => n._id !== nodeId).map((n) => ({ ...n, next: [...n.next] }))
+    );
+
+    // Remove connections to this node
+    newLevels.forEach((lvl) => {
+      lvl.forEach((n) => {
+        n.next = n.next.filter((id) => id !== nodeId);
+      });
     });
 
-    setConnectionData(newConnectionData);
     setLevels(newLevels);
     setNodes((prev) => {
       const newMap = new Map(prev);
       newMap.delete(nodeId);
       return newMap;
     });
-    calculateEdgesAndUpdate();
   };
 
   const removeConnection = (parentId: string | undefined, childId: string | undefined) => {
     if (!parentId || !childId) return;
-    const newConnectionData = [...connectionData];
-    const parentIndex = newConnectionData.findIndex((item) => item._id === parentId);
-    if (parentIndex !== -1) {
-      newConnectionData[parentIndex].next = newConnectionData[parentIndex].next.filter(
-        (id) => id !== childId
-      );
-      connectionMap.current.delete(parentId);
-      connectionMap.current.set(parentId, newConnectionData[parentIndex]);
-      setConnectionData(newConnectionData);
-    }
-    calculateEdgesAndUpdate();
+
+    const newLevels = levels.map((lvl) =>
+      lvl.map((n) => {
+        if (n._id === parentId) {
+          return {
+            ...n,
+            next: n.next.filter((id) => id !== childId),
+          };
+        }
+        return n;
+      })
+    );
+
+    setLevels(newLevels);
   };
 
   useEffect(() => {
@@ -207,7 +186,6 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
 
     // fetch connection data
     connectionMap.current = new Map();
-    setConnectionData([]);
 
     // set levels data
     setLevels([[]]);
@@ -246,7 +224,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     return () => {
       window.removeEventListener("resize", calculateEdgesAndUpdate);
     };
-  }, [connectionData, levels]);
+  }, [levels]);
 
   return (
     <>
@@ -296,20 +274,19 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
                 key={i}
                 className="relative flex flex-col justify-center gap-20 border-r border-dashed"
               >
-                {level.map((id, index) => {
-                  const n = nodes.get(id)!;
-                  const next = connectionMap.current.get(id)?.next || [];
+                {level.map((node, index) => {
+                  const n = nodes.get(node._id)!;
                   return (
                     <EditableNode
-                      key={id + index}
-                      node={{ ...n, _id: id, next }}
+                      key={node._id + index}
+                      node={{ ...n, _id: node._id, next: node.next }}
                       refs={refs}
-                      onDeleteClick={() => handleNodeDelete(id)}
+                      onDeleteClick={() => handleNodeDelete(node._id)}
                       onEditClick={() => setShowNodeSelector({ col: i, row: index })}
-                      onConnectClick={() => setConnectStart({ nodeId: id })}
+                      onConnectClick={() => setConnectStart({ nodeId: node._id })}
                       onConnectCancelClick={() => setConnectStart(null)}
                       connectionOf={connectStart?.nodeId}
-                      onSecondConnectClick={() => handleConnect(connectStart?.nodeId, id)}
+                      onSecondConnectClick={() => handleConnect(connectStart?.nodeId, node._id)}
                       nodes={nodes}
                       onDeleteConnction={removeConnection}
                     />
@@ -328,10 +305,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
                       onClick={() => {
                         const newLevels = [...levels];
                         newLevels.splice(i + 1, 0, []);
-                        // newLevels[i].push(
-                        //   ...connection
                         setLevels(newLevels);
-                        calculateEdgesAndUpdate();
                       }}
                     >
                       <BiPlus />
@@ -343,10 +317,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
                       onClick={() => {
                         const newLevels = [...levels];
                         newLevels.splice(i + 1, 1);
-                        // newLevels[i].push(
-                        //   ...connection
                         setLevels(newLevels);
-                        calculateEdgesAndUpdate();
                       }}
                     >
                       <BiMinus />
@@ -367,6 +338,11 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
         </button>
         <button
           onClick={() => {
+            if (levelName.length <= 0) {
+              toast.error("Level name is required.");
+              return;
+            }
+            console.log(levels);
             onAdd({ id: new Date().getTime().toString(), title: levelName });
           }}
           className="cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70"
