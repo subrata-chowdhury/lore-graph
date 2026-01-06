@@ -1,25 +1,25 @@
 import React from "react";
 
 const calculateEdges = ({
-  nodes,
+  lores,
   levels,
   containerRef,
-  htmlNodesRef,
+  htmlLoresRef,
 }: {
-  nodes: { _id: string; next: string[] }[];
+  lores: { _id: string; next: string[] }[];
   levels: { _id: string; next: string[] }[][];
   containerRef: React.RefObject<HTMLDivElement | null>;
-  htmlNodesRef: React.RefObject<{ [key: string]: HTMLDivElement | null }>;
+  htmlLoresRef: React.RefObject<{ [key: string]: HTMLDivElement | null }>;
 }) => {
   if (!containerRef.current) return;
   const containerBox = containerRef.current.getBoundingClientRect();
-  const parentNodesMap = new Map<string, string[]>();
-  nodes.forEach((n) => {
+  const parentLoresMap = new Map<string, string[]>();
+  lores.forEach((n) => {
     n.next.forEach((childId) => {
-      if (!parentNodesMap.has(childId)) {
-        parentNodesMap.set(childId, []);
+      if (!parentLoresMap.has(childId)) {
+        parentLoresMap.set(childId, []);
       }
-      parentNodesMap.get(childId)!.push(n._id);
+      parentLoresMap.get(childId)!.push(n._id);
     });
   });
 
@@ -29,7 +29,7 @@ const calculateEdges = ({
     paddingLeft?: number;
   }[] = [];
 
-  const edgesBasedonY = new Map<number, { nodeId: string }>();
+  const edgesBasedonY = new Map<number, { loreId: string }>();
   levels.forEach((level) => {
     const allEdgesOfThisLvl: string[] = [];
     level.forEach((n) => {
@@ -38,34 +38,34 @@ const calculateEdges = ({
       });
     });
 
-    level.forEach((node) => {
-      const firstNode = htmlNodesRef.current?.[node._id];
-      if (!firstNode) return;
+    level.forEach((lore) => {
+      const firstLore = htmlLoresRef.current?.[lore._id];
+      if (!firstLore) return;
 
-      const firstNodeMeasure = firstNode.getBoundingClientRect();
+      const firstLoreMeasure = firstLore.getBoundingClientRect();
 
-      node.next.forEach((nid, idx) => {
-        const nextNode = htmlNodesRef.current?.[nid];
-        if (!nextNode) return;
-        const nextNodeMeasure = nextNode.getBoundingClientRect();
-        const prevNodes = parentNodesMap.get(nid) || [];
+      lore.next.forEach((nid, idx) => {
+        const nextLore = htmlLoresRef.current?.[nid];
+        if (!nextLore) return;
+        const nextLoreMeasure = nextLore.getBoundingClientRect();
+        const prevLores = parentLoresMap.get(nid) || [];
 
-        const fromX = firstNodeMeasure.left - containerBox.left + firstNodeMeasure.width;
-        const fromY = firstNodeMeasure.top - containerBox.top + firstNodeMeasure.height / 2;
-        const toX = nextNodeMeasure.left - containerBox.left;
-        const toY = nextNodeMeasure.top - containerBox.top + nextNodeMeasure.height / 2;
+        const fromX = firstLoreMeasure.left - containerBox.left + firstLoreMeasure.width;
+        const fromY = firstLoreMeasure.top - containerBox.top + firstLoreMeasure.height / 2;
+        const toX = nextLoreMeasure.left - containerBox.left;
+        const toY = nextLoreMeasure.top - containerBox.top + nextLoreMeasure.height / 2;
 
-        const indexOfTheEdgeOfTheParentNode = idx;
-        const totalEdgesOfTheParentNode = node.next.length;
-        const totalEdgesOfTheDestinationNode = prevNodes.length;
-        const indexOfTheEdgeOfTheDestinationNode = prevNodes.indexOf(node._id);
+        const indexOfTheEdgeOfTheParentLore = idx;
+        const totalEdgesOfTheParentLore = lore.next.length;
+        const totalEdgesOfTheDestinationLore = prevLores.length;
+        const indexOfTheEdgeOfTheDestinationLore = prevLores.indexOf(lore._id);
         let finalFromY =
-          fromY + (indexOfTheEdgeOfTheParentNode - (totalEdgesOfTheParentNode - 1) / 2) * 10;
+          fromY + (indexOfTheEdgeOfTheParentLore - (totalEdgesOfTheParentLore - 1) / 2) * 10;
         let finalToY =
           toY -
-          (indexOfTheEdgeOfTheDestinationNode - (totalEdgesOfTheDestinationNode - 1) / 2) * 10;
+          (indexOfTheEdgeOfTheDestinationLore - (totalEdgesOfTheDestinationLore - 1) / 2) * 10;
 
-        if (edgesBasedonY.has(finalToY) && edgesBasedonY.get(finalToY)!.nodeId !== node._id) {
+        if (edgesBasedonY.has(finalToY) && edgesBasedonY.get(finalToY)!.loreId !== lore._id) {
           finalToY = finalToY + 10;
         }
 
@@ -78,13 +78,13 @@ const calculateEdges = ({
             x: toX,
             y: finalToY,
           },
-          paddingLeft: allEdgesOfThisLvl.indexOf(`${nid}-${node._id}`) * 20,
+          paddingLeft: allEdgesOfThisLvl.indexOf(`${nid}-${lore._id}`) * 20,
         });
         if (!edgesBasedonY.has(finalFromY)) {
-          edgesBasedonY.set(finalFromY, { nodeId: nid });
+          edgesBasedonY.set(finalFromY, { loreId: nid });
         }
         if (!edgesBasedonY.has(finalToY)) {
-          edgesBasedonY.set(finalToY, { nodeId: node._id });
+          edgesBasedonY.set(finalToY, { loreId: lore._id });
         }
       });
     });

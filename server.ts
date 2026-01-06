@@ -18,20 +18,20 @@ app.prepare().then(() => {
   io.on("connection", (socket) => {
     const filter = new Filter();
 
-    // 1. User enters the node page
-    socket.on("join-node-room", (nodeId) => {
-      socket.join(nodeId);
-      const count = io.sockets.adapter.rooms.get(nodeId)?.size || 0;
-      io.to(nodeId).emit("room-count-update", count);
-      console.log(`User ${socket.id} joined room: ${nodeId}`);
+    // 1. User enters the lore page
+    socket.on("join-lore-room", (loreId) => {
+      socket.join(loreId);
+      const count = io.sockets.adapter.rooms.get(loreId)?.size || 0;
+      io.to(loreId).emit("room-count-update", count);
+      console.log(`User ${socket.id} joined room: ${loreId}`);
     });
 
-    // 2. User leaves the node page
-    socket.on("leave-node-room", (nodeId) => {
-      socket.leave(nodeId);
-      const count = io.sockets.adapter.rooms.get(nodeId)?.size || 0;
-      io.to(nodeId).emit("room-count-update", count);
-      console.log(`User ${socket.id} left room: ${nodeId}`);
+    // 2. User leaves the lore page
+    socket.on("leave-lore-room", (loreId) => {
+      socket.leave(loreId);
+      const count = io.sockets.adapter.rooms.get(loreId)?.size || 0;
+      io.to(loreId).emit("room-count-update", count);
+      console.log(`User ${socket.id} left room: ${loreId}`);
     });
 
     // 3. Handling a new comment
@@ -46,8 +46,8 @@ app.prepare().then(() => {
         }
         // const newComment = await new Comment(commentData);
         // await newComment.save();
-        // ONLY emit to users inside this specific nodeId room
-        io.to(commentData.nodeId).emit("new-comment", commentData);
+        // ONLY emit to users inside this specific loreId room
+        io.to(commentData.loreId).emit("new-comment", commentData);
       } catch (error) {
         socket.emit("error", {
           message: "Failed to save comment.",
@@ -61,7 +61,7 @@ app.prepare().then(() => {
       const rooms = socket.rooms;
       rooms.forEach((roomId) => {
         if (roomId !== socket.id) {
-          // Only update "node" rooms, not the private user room
+          // Only update "lore" rooms, not the private user room
           const count = (io.sockets.adapter.rooms.get(roomId)?.size || 1) - 1;
           io.to(roomId).emit("room-count-update", count);
         }

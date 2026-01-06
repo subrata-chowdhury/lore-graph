@@ -1,5 +1,5 @@
 import dbConnect from "@/config/db";
-import Node from "@/models/node";
+import Lore from "@/models/lore";
 import User from "@/models/user";
 import SuperAdmin from "@/models/superAdmin";
 import { NextResponse } from "next/server";
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found", success: false }, { status: 404 });
     }
 
-    const newNode = new Node({
+    const newLore = new Lore({
       title: title.trim(),
       description: description.trim(),
       type,
@@ -98,11 +98,11 @@ export async function POST(request: Request) {
       createdById: userId,
     });
 
-    await newNode.save();
+    await newLore.save();
 
-    return NextResponse.json({ data: newNode, success: true }, { status: 201 });
+    return NextResponse.json({ data: newLore, success: true }, { status: 201 });
   } catch (error) {
-    console.error("Error creating node:", error);
+    console.error("Error creating lore:", error);
     return NextResponse.json({ error: "Internal Server Error", success: false }, { status: 500 });
   }
 }

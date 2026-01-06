@@ -1,7 +1,7 @@
 "use client";
-import Node from "@/app/_components/Node";
+import Lore from "@/app/_components/Lore";
 import fetcher from "@/libs/fetcher";
-import { NodeType } from "@/types/nodeTypes";
+import { LoreType } from "@/types/loreTypes";
 import Dropdown from "@/ui/components/Dropdown";
 import Input from "@/ui/components/Inputs/Input";
 import TagInput from "@/ui/components/Inputs/TagInput";
@@ -13,32 +13,32 @@ import { FiDownload } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 type Props = {
-  nodeData: Omit<
-    NodeType,
+  loreData: Omit<
+    LoreType,
     "_id" | "createdAt" | "updatedAt" | "likesCount" | "viewsCount" | "createdBy" | "createdById"
   >;
-  onNodeDataChange: (
-    updatedNode: Omit<
-      NodeType,
+  onLoreDataChange: (
+    updatedLore: Omit<
+      LoreType,
       "_id" | "createdAt" | "updatedAt" | "likesCount" | "viewsCount" | "createdBy" | "createdById"
     >
   ) => void;
   onSave?: () => void;
 };
 
-const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: Props) => {
+const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: Props) => {
   const imgInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      onNodeDataChange({ ...nodeData, thumbnailUrl: url });
+      onLoreDataChange({ ...loreData, thumbnailUrl: url });
     }
   }
 
   function fetchVideoDetails() {
-    const youtubeId = getYouTubeID(nodeData?.src || "");
+    const youtubeId = getYouTubeID(loreData?.src || "");
     if (youtubeId) {
       fetcher
         .get<{
@@ -51,8 +51,8 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
         }>(`/super-admin/video-details?videoId=${youtubeId}`)
         .then((data) => {
           if (data.body?.data)
-            onNodeDataChange({
-              ...nodeData,
+            onLoreDataChange({
+              ...loreData,
               title: data.body.data.title,
               description: data.body.data.description,
               thumbnailUrl: data.body.data.thumbnails,
@@ -73,18 +73,18 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
           <div>
             <div className="mb-2 flex flex-col gap-1">
               <div className={`text-sm font-semibold`}>Type</div>
-              <div className="text-sm text-black/60">Select the type of node.</div>
+              <div className="text-sm text-black/60">Select the type of lore.</div>
             </div>
             <Dropdown
               width={"200px"}
-              value={nodeData?.type || "video"}
+              value={loreData?.type || "video"}
               options={[
                 { label: "Video", value: "video" },
                 { label: "YouTube", value: "youtube" },
                 { label: "Post", value: "post" },
               ]}
               onChange={(option) =>
-                onNodeDataChange({ ...nodeData, type: option.value as NodeType["type"] })
+                onLoreDataChange({ ...loreData, type: option.value as LoreType["type"] })
               }
               containerClassName="text-sm capitalize"
               mainContainerClassName="pl-3"
@@ -93,19 +93,19 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
           <div>
             <div className="mb-2 flex flex-col gap-1">
               <div className={`text-sm font-semibold`}>Visibility</div>
-              <div className="text-sm text-black/60">Select the visibility of the node.</div>
+              <div className="text-sm text-black/60">Select the visibility of the lore.</div>
             </div>
             <Dropdown
               width={"200px"}
-              value={nodeData?.visibility || "private"}
+              value={loreData?.visibility || "private"}
               options={[
                 { label: "Public", value: "public" },
                 { label: "Private", value: "private" },
               ]}
               onChange={(option) =>
-                onNodeDataChange({
-                  ...nodeData,
-                  visibility: option.value as NodeType["visibility"],
+                onLoreDataChange({
+                  ...loreData,
+                  visibility: option.value as LoreType["visibility"],
                 })
               }
               containerClassName="text-sm"
@@ -113,13 +113,13 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
             />
           </div>
         </div>
-        {nodeData?.type === "youtube" && (
+        {loreData?.type === "youtube" && (
           <div className="flex gap-3">
             <Input
               label="Source"
               description="Source URL for the youtube video."
-              value={nodeData?.src || ""}
-              onChange={(val) => onNodeDataChange({ ...nodeData, src: val })}
+              value={loreData?.src || ""}
+              onChange={(val) => onLoreDataChange({ ...loreData, src: val })}
               placeholder="Enter youtube video link"
               max={150}
               containerClass="mb-4 flex-1"
@@ -127,9 +127,9 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
               inputClass="text-sm"
             />
             <button
-              disabled={!nodeData?.src}
+              disabled={!loreData?.src}
               className={`mt-auto mb-4 rounded-full bg-black/20 px-5 py-2 text-sm font-semibold hover:bg-black/25 ${
-                !nodeData?.src ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                !loreData?.src ? "cursor-not-allowed opacity-50" : "cursor-pointer"
               }`}
               onClick={fetchVideoDetails}
             >
@@ -140,9 +140,9 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
         <TextAreaInput
           label="Title (required)"
           description="This title will also consider as meta title."
-          value={nodeData?.title || ""}
-          onChange={(val) => onNodeDataChange({ ...nodeData, title: val })}
-          placeholder="Enter node title"
+          value={loreData?.title || ""}
+          onChange={(val) => onLoreDataChange({ ...loreData, title: val })}
+          placeholder="Enter lore title"
           max={100}
           containerClass="mb-4"
           inputClass="resize-none"
@@ -150,25 +150,25 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
         <TextAreaInput
           label="Description (required)"
           description="This description will also consider as meta description."
-          value={nodeData?.description || ""}
-          onChange={(val) => onNodeDataChange({ ...nodeData, description: val })}
-          placeholder="Enter node description"
+          value={loreData?.description || ""}
+          onChange={(val) => onLoreDataChange({ ...loreData, description: val })}
+          placeholder="Enter lore description"
           containerClass="mb-4"
           inputClass="resize-none"
           mainInputContainerClass="h-40"
         />
         <TagInput
           label="Tags"
-          description="Press Enter to add each tag. Add tags to help categorize the node. These tags will also be considered as meta keywords."
-          values={nodeData?.tags || []}
-          onChange={(tags) => onNodeDataChange({ ...nodeData, tags })}
+          description="Press Enter to add each tag. Add tags to help categorize the lore. These tags will also be considered as meta keywords."
+          values={loreData?.tags || []}
+          onChange={(tags) => onLoreDataChange({ ...loreData, tags })}
           tagContainerClass="h-40"
         />
       </div>
       <div className="flex flex-col">
         <div className={`text-sm font-semibold`}>Thumbnail</div>
         <div className="mt-1 mb-2 text-sm text-black/60">
-          This thumbnail will be shown as a preview of the node.
+          This thumbnail will be shown as a preview of the lore.
         </div>
         <div
           className="group relative flex aspect-video h-auto w-100 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50"
@@ -176,7 +176,7 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
             imgInputRef.current?.click();
           }}
         >
-          {nodeData?.thumbnailUrl && (
+          {loreData?.thumbnailUrl && (
             <div className="absolute top-0 right-0 z-10 flex h-full w-full gap-0 bg-linear-30 from-transparent to-white p-2 opacity-0 transition-all group-hover:opacity-100">
               <div className="mb-auto ml-auto cursor-pointer rounded-full p-2 hover:bg-black/10">
                 <BiPencil size={20} />
@@ -184,9 +184,9 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
               <div
                 className="mb-auto cursor-pointer rounded-full p-2 hover:bg-black/10"
                 onClick={(e) => {
-                  if (nodeData?.thumbnailUrl) {
+                  if (loreData?.thumbnailUrl) {
                     const a: HTMLAnchorElement = document.createElement("a");
-                    a.href = nodeData.thumbnailUrl;
+                    a.href = loreData.thumbnailUrl;
                     a.target = "_blank";
                     a.download = "thumbnail.jpg";
                     a.click();
@@ -201,9 +201,9 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
               </div>
             </div>
           )}
-          {nodeData?.thumbnailUrl ? (
+          {loreData?.thumbnailUrl ? (
             <img
-              src={nodeData?.thumbnailUrl}
+              src={loreData?.thumbnailUrl}
               alt="Demo"
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -213,16 +213,16 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
           <input type="file" className="hidden" ref={imgInputRef} onChange={handleImageChange} />
         </div>
         <div className="mt-5">
-          <div className={`text-sm font-semibold`}>Demo Node View</div>
+          <div className={`text-sm font-semibold`}>Demo Lore View</div>
           <div className="mt-1 mb-2 text-sm text-black/60">
-            This will be shown as a preview of the node.
+            This will be shown as a preview of the lore.
           </div>
-          <Node
-            node={{
-              ...nodeData,
+          <Lore
+            lore={{
+              ...loreData,
               viewsCount: 0,
               likesCount: 0,
-              _id: "demo-node-id",
+              _id: "demo-lore-id",
               next: [],
               createdBy: "user",
               createdById: "userid",
@@ -245,4 +245,4 @@ const NodeForm = ({ nodeData, onNodeDataChange = () => {}, onSave = () => {} }: 
   );
 };
 
-export default NodeForm;
+export default LoreForm;

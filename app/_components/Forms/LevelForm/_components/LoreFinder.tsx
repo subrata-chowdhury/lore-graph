@@ -1,7 +1,7 @@
 "use client";
 import debounce from "@/libs/debouncer";
 import fetcher from "@/libs/fetcher";
-import { NodeType } from "@/types/nodeTypes";
+import { LoreType } from "@/types/loreTypes";
 import Dropdown from "@/ui/components/Dropdown";
 import Modal from "@/ui/components/Modal";
 import Link from "next/link";
@@ -12,11 +12,11 @@ import { CgClose } from "react-icons/cg";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onSelect?: (node: NodeType) => void;
+  onSelect?: (lore: LoreType) => void;
 };
 
-const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
-  const [nodes, setNodes] = useState<NodeType[]>([]);
+const LoreFinder = ({ isOpen, onClose, onSelect }: Props) => {
+  const [lores, setLores] = useState<LoreType[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     type: "",
@@ -33,7 +33,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
     total: 0,
   });
 
-  const fetchNodes = useCallback(
+  const fetchLores = useCallback(
     debounce(async ({ filters, sortingData, pagination }) => {
       setLoading(true);
       try {
@@ -47,16 +47,16 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
 
         const res = await fetcher.get<{
           success: boolean;
-          data: NodeType[];
+          data: LoreType[];
           pagination: {
             page: number;
             limit: number;
             total: number;
             totalPages: number;
           };
-        }>(`/nodes?${params.toString()}`);
+        }>(`/lores?${params.toString()}`);
         if (res.body?.success) {
-          setNodes(res.body.data);
+          setLores(res.body.data);
           setPagination((prev) => ({
             ...prev,
             totalPages: res.body?.pagination.totalPages || 0,
@@ -64,7 +64,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
           }));
         }
       } catch (error) {
-        console.error("Error fetching nodes:", error);
+        console.error("Error fetching lores:", error);
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
   );
 
   useEffect(() => {
-    fetchNodes({ filters, sortingData, pagination: { ...pagination, page: 1 } });
+    fetchLores({ filters, sortingData, pagination: { ...pagination, page: 1 } });
   }, []);
 
   return (
@@ -83,7 +83,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
       className="max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw]"
     >
       <div className="flex items-center justify-between border-b border-black/20 p-4 px-5">
-        <span className="font-semibold">Select a Node</span>
+        <span className="font-semibold">Select a Lore</span>
         <button onClick={onClose} className="cursor-pointer text-sm text-gray-500 hover:text-black">
           <CgClose size={20} />
         </button>
@@ -93,7 +93,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
           <SearchBar
             onSearch={(value) => {
               setFilters((prev) => ({ ...prev, search: value }));
-              fetchNodes({
+              fetchLores({
                 filters: { ...filters, search: value },
                 sortingData,
                 pagination: { ...pagination, page: 1 },
@@ -110,7 +110,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
             value={filters.type}
             onChange={(opt) => {
               setFilters((prev) => ({ ...prev, type: opt.value as string }));
-              fetchNodes({
+              fetchLores({
                 filters: { ...filters, type: opt.value as string },
                 sortingData,
                 pagination: { ...pagination, page: 1 },
@@ -134,7 +134,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
                 sort: s,
                 order: o,
               }));
-              fetchNodes({
+              fetchLores({
                 filters,
                 sortingData: { sort: s, order: o },
                 pagination: { ...pagination, page: 1 },
@@ -144,7 +144,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
             containerClassName="text-sm"
           />
           <Link
-            href="/super-admin/nodes/create"
+            href="/super-admin/lores/create"
             target="_blank"
             className="ml-auto cursor-pointer rounded-full bg-black/80 px-4 py-1.5 text-sm font-semibold text-white hover:bg-black/70"
           >
@@ -155,23 +155,23 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
         <div className="min-h-75">
           {loading ? (
             <div className="flex h-full items-center justify-center text-gray-500">Loading...</div>
-          ) : nodes.length === 0 ? (
+          ) : lores.length === 0 ? (
             <div className="flex h-full items-center justify-center text-gray-500">
-              No nodes found.
+              No lores found.
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {nodes.map((node) => (
+              {lores.map((lore) => (
                 <div
-                  key={node._id}
-                  onClick={() => onSelect && onSelect(node)}
+                  key={lore._id}
+                  onClick={() => onSelect && onSelect(lore)}
                   className="group relative cursor-pointer overflow-hidden rounded border border-black/10 hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
                 >
                   <div className="aspect-video w-full bg-gray-100 dark:bg-gray-800">
-                    {node.thumbnailUrl ? (
+                    {lore.thumbnailUrl ? (
                       <img
-                        src={node.thumbnailUrl}
-                        alt={node.title}
+                        src={lore.thumbnailUrl}
+                        alt={lore.title}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -181,10 +181,10 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
                     )}
                   </div>
                   <div className="p-2">
-                    <div className="truncate text-sm font-medium">{node.title}</div>
+                    <div className="truncate text-sm font-medium">{lore.title}</div>
                     <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span className="capitalize">{node.type}</span>
-                      <span>{new Date(node.createdAt).toLocaleDateString()}</span>
+                      <span className="capitalize">{lore.type}</span>
+                      <span>{new Date(lore.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
           <button
             disabled={pagination.page === 1}
             onClick={() => {
-              fetchNodes({
+              fetchLores({
                 filters,
                 sortingData,
                 pagination: { ...pagination, page: Math.max(1, pagination.page - 1) },
@@ -213,7 +213,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
           <button
             disabled={pagination.page === pagination.totalPages}
             onClick={() => {
-              fetchNodes({
+              fetchLores({
                 filters,
                 sortingData,
                 pagination: {
@@ -232,7 +232,7 @@ const NodeFinder = ({ isOpen, onClose, onSelect }: Props) => {
   );
 };
 
-export default NodeFinder;
+export default LoreFinder;
 
 function SearchBar({ onSearch = () => {} }: { onSearch?: (value: string) => void }) {
   const [searchValue, setSearchValue] = useState("");

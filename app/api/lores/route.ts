@@ -1,5 +1,5 @@
 import dbConnect from "@/config/db";
-import Node from "@/models/node";
+import Lore from "@/models/lore";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -41,16 +41,16 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const nodes = await Node.find(query)
+    const lores = await Lore.find(query)
       .sort({ [sort]: order })
       .skip(skip)
       .limit(limit);
 
-    const total = await Node.countDocuments(query);
+    const total = await Lore.countDocuments(query);
 
     return NextResponse.json({
       success: true,
-      data: nodes,
+      data: lores,
       pagination: {
         total,
         page,
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching nodes:", error);
+    console.error("Error fetching lores:", error);
     return NextResponse.json({ error: "Internal Server Error", success: false }, { status: 500 });
   }
 }

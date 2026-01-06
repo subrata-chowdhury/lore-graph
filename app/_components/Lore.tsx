@@ -1,37 +1,37 @@
 import Image from "next/image";
 import React from "react";
-import { useOpenedNodeContext } from "../contexts/OpenedNodeContext";
-import { NodeType } from "../../types/nodeTypes";
+import { useOpenedLoreContext } from "../contexts/OpenedLoreContext";
+import { LoreType } from "../../types/loreTypes";
 
-interface NodeTypeWithNext extends NodeType {
+interface LoreTypeWithNext extends LoreType {
   next: string[];
 }
 
 type Props = {
-  node: NodeTypeWithNext;
+  lore: LoreTypeWithNext;
   refs?: React.RefObject<{ [key: string]: HTMLDivElement | null }>;
   className?: string;
 };
 
-const Node = ({ node, refs, className }: Props) => {
-  const { setNode } = useOpenedNodeContext();
-  if (!node) return null;
+const Lore = ({ lore, refs, className }: Props) => {
+  const { setLore } = useOpenedLoreContext();
+  if (!lore) return null;
 
   return (
     <div
-      key={node._id}
+      key={lore._id}
       ref={(el) => {
-        if (refs) refs.current[node._id] = el;
+        if (refs) refs.current[lore._id] = el;
       }}
       style={{
-        marginRight: node.next.length * 10,
+        marginRight: lore.next.length * 10,
       }}
-      onClick={() => setNode(node)}
+      onClick={() => setLore(lore)}
       className={`flex aspect-video w-[230px] cursor-pointer items-center justify-center rounded-lg bg-white p-1 ${className || ""}`}
     >
       <Image
-        src={node?.thumbnailUrl || "/first-cutscene.jpg"}
-        alt="node thumbnail"
+        src={lore?.thumbnailUrl || "/first-cutscene.jpg"}
+        alt="lore thumbnail"
         width={230}
         height={130}
         className="z-0 h-full w-full rounded-lg object-cover"
@@ -46,4 +46,4 @@ const Node = ({ node, refs, className }: Props) => {
 </div> */
 }
 
-export default Node;
+export default Lore;

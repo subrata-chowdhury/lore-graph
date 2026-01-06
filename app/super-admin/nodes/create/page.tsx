@@ -1,16 +1,16 @@
 "use client";
 import fetcher from "@/libs/fetcher";
-import { NodeType } from "@/types/nodeTypes";
-import NodeForm from "@/app/_components/Forms/NodeForm";
+import { LoreType } from "@/types/loreTypes";
+import LoreForm from "@/app/_components/Forms/LoreForm";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
 type Props = {};
 
-const NodeFormPage = (props: Props) => {
-  const [nodeData, setNodeData] = useState<
+const LoreFormPage = (props: Props) => {
+  const [loreData, setLoreData] = useState<
     Omit<
-      NodeType,
+      LoreType,
       "_id" | "createdAt" | "updatedAt" | "likesCount" | "viewsCount" | "createdBy" | "createdById"
     >
   >({
@@ -21,16 +21,16 @@ const NodeFormPage = (props: Props) => {
     visibility: "private",
   });
 
-  async function saveNode() {
+  async function saveLore() {
     try {
       const { body, error } = await fetcher.post<
-        typeof nodeData,
+        typeof loreData,
         { success: boolean; error?: string }
-      >("/super-admin/nodes/new", nodeData);
+      >("/super-admin/lores/new", loreData);
 
       if (body?.success) {
-        toast.success("Node created successfully");
-        setNodeData({
+        toast.success("Lore created successfully");
+        setLoreData({
           title: "",
           description: "",
           tags: [],
@@ -40,7 +40,7 @@ const NodeFormPage = (props: Props) => {
           thumbnailUrl: "",
         });
       } else {
-        toast.error(error || body?.error || "Failed to create node");
+        toast.error(error || body?.error || "Failed to create lore");
       }
     } catch (error) {
       console.error(error);
@@ -48,7 +48,7 @@ const NodeFormPage = (props: Props) => {
     }
   }
 
-  return <NodeForm nodeData={nodeData} onNodeDataChange={setNodeData} onSave={saveNode} />;
+  return <LoreForm loreData={loreData} onLoreDataChange={setLoreData} onSave={saveLore} />;
 };
 
-export default NodeFormPage;
+export default LoreFormPage;

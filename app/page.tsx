@@ -4,12 +4,12 @@ import nbg from "@/assets/night.webp";
 import Menubar from "./_components/Menubar";
 import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import Edge from "./_components/Edge";
-import Node from "./_components/Node";
+import Lore from "./_components/Lore";
 import calculateEdges from "../libs/edgeCalculationLogic";
 import PinchZoomWrapper from "./_components/PinchZoomFeature";
-import { NodeType } from "../types/nodeTypes";
-import NodeModal from "./_components/NodeModal/NodeModal";
-import { conData, lvlData, nData } from "./data/nodeData";
+import { LoreType } from "../types/loreTypes";
+import LoreModal from "./_components/LoreModal/LoreModal";
+import { conData, lvlData, nData } from "./data/loreData";
 
 export default function Home() {
   return (
@@ -31,7 +31,7 @@ export default function Home() {
 }
 
 export function GraphView() {
-  const [nodeContainerSize, setNodeContainerSize] = useState({
+  const [loreContainerSize, setLoreContainerSize] = useState({
     width: 0,
     height: 0,
   });
@@ -42,7 +42,7 @@ export function GraphView() {
       paddingLeft?: number;
     }[]
   >([]);
-  const [nodes, setNodes] = useState<Map<string, NodeType>>(new Map());
+  const [lores, setLores] = useState<Map<string, LoreType>>(new Map());
   const [levels, setLevels] = useState<{ _id: string; next: string[] }[][]>([]);
   const connectionMap = useRef<Map<string, { _id: string; next: string[] }>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -52,7 +52,7 @@ export function GraphView() {
     console.log("calculation started", new Date().getTime());
 
     // fetch nData
-    setNodes(nData);
+    setLores(nData);
 
     // fetch connection data
     const cMap = new Map(conData.map((item) => [item._id, item]));
@@ -77,10 +77,10 @@ export function GraphView() {
     const calculateEdgesAndUpdate = () => {
       if (levels.length > 0) {
         const result = calculateEdges({
-          nodes: levels.flat(),
+          lores: levels.flat(),
           levels,
           containerRef,
-          htmlNodesRef: refs,
+          htmlLoresRef: refs,
         });
         if (!result) return;
         setEdges(result);
@@ -94,7 +94,7 @@ export function GraphView() {
     calculateEdgesAndUpdate();
 
     const getMainContainerWidth = () => {
-      setNodeContainerSize({
+      setLoreContainerSize({
         width: containerRef.current?.scrollWidth || 0,
         height: containerRef.current?.scrollHeight || 0,
       });
@@ -112,7 +112,7 @@ export function GraphView() {
 
   return (
     <>
-      <NodeModal />
+      <LoreModal />
       <div className="fixed top-5 left-1/2 z-10 -translate-x-1/2 cursor-pointer rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/15">
         Genshin Impact Timeline Visualizer
       </div>
@@ -121,8 +121,8 @@ export function GraphView() {
           {/* Edges SVGs */}
           <svg
             className="pointer-events-none absolute top-0 left-0"
-            width={nodeContainerSize.width}
-            height={nodeContainerSize.height}
+            width={loreContainerSize.width}
+            height={loreContainerSize.height}
           >
             {edges.map((edge) => (
               <Edge
@@ -134,15 +134,15 @@ export function GraphView() {
             ))}
           </svg>
 
-          {/* Node boxes */}
+          {/* Lore boxes */}
           {levels.map((level, i) => (
             <div key={i} className="flex flex-col justify-center gap-20">
-              {level.map((node) => {
-                const n = nodes.get(node._id)!;
+              {level.map((lore) => {
+                const n = lores.get(lore._id)!;
                 return (
-                  <Node
-                    key={node._id}
-                    node={{ ...n, _id: node._id, next: node.next }}
+                  <Lore
+                    key={lore._id}
+                    lore={{ ...n, _id: lore._id, next: lore.next }}
                     refs={refs}
                   />
                 );

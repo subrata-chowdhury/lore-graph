@@ -51,10 +51,10 @@ function InputBox({
                 comment={{
                   _id: "fake_id",
                   content: comment.length > 40 ? comment.slice(0, 40) + "..." : comment,
-                  nodeId: "fake_node_id",
+                  loreId: "fake_lore_id",
                   likesCount: 0,
                   replyCount: 0,
-                  parentId: replyData ? replyData._id : "fake_node_id",
+                  parentId: replyData ? replyData._id : "fake_lore_id",
                   author: "current_user",
                   authorId: "current_user_id",
                   createdAt: new Date().toISOString(),

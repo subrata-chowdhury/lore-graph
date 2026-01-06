@@ -1,6 +1,6 @@
 "use client";
 import Modal from "@/ui/components/Modal";
-import { useOpenedNodeContext } from "../../contexts/OpenedNodeContext";
+import { useOpenedLoreContext } from "../../contexts/OpenedLoreContext";
 import YouTube, { YouTubeEvent } from "react-youtube";
 import { useEffect, useState } from "react";
 import { PiYoutubeLogo } from "react-icons/pi";
@@ -18,8 +18,8 @@ import { LuRectangleHorizontal } from "react-icons/lu";
 import Title from "@/ui/components/Title";
 import { BsExclamationCircle } from "react-icons/bs";
 
-const NodeModal = () => {
-  const { node, setNode } = useOpenedNodeContext();
+const LoreModal = () => {
+  const { lore, setLore } = useOpenedLoreContext();
   const [loading, setLoading] = useState(true);
   const [showComments, setShowComments] = useState(true);
   const [expandDescription, setExpandDescription] = useState(false);
@@ -58,30 +58,30 @@ const NodeModal = () => {
   };
 
   const socketCleanup = () => {
-    if (!socket || !node) return;
-    // Leave the room for this node
-    socket.emit("leave-node-room", node._id);
+    if (!socket || !lore) return;
+    // Leave the room for this lore
+    socket.emit("leave-lore-room", lore._id);
     socket.off("room-count-update");
   };
 
   useEffect(() => {
-    if (!socket || !node) return;
-    // Join the room for this node
-    socket.emit("join-node-room", node._id);
+    if (!socket || !lore) return;
+    // Join the room for this lore
+    socket.emit("join-lore-room", lore._id);
     // Listen for room count updates
     socket.on("room-count-update", (count: number) => {
       setLiveViewers(count);
     });
-    // Cleanup on unmount or node change
+    // Cleanup on unmount or lore change
     return () => socketCleanup();
-  }, [socket, node]);
+  }, [socket, lore]);
 
   return (
     <>
-      {node && (
+      {lore && (
         <Modal
           onClose={() => {
-            setNode(null);
+            setLore(null);
             socketCleanup();
           }}
           className="bg-transparent!"
@@ -105,9 +105,9 @@ const NodeModal = () => {
                 showComments ? "rounded-r-none" : "rounded-r-lg"
               }`}
             >
-              {node.type === "youtube" && (
+              {lore.type === "youtube" && (
                 <YouTube
-                  videoId={node.src}
+                  videoId={lore.src}
                   opts={opts}
                   onReady={onReady}
                   onStateChange={onStateChange}
@@ -122,16 +122,16 @@ const NodeModal = () => {
                 </div>
               )}
               <div className={`flex flex-col p-4 ${isInFullscreen ? "" : "max-w-160"}`}>
-                <div className="mb-1 font-semibold">{node.title || "N/A"}</div>
+                <div className="mb-1 font-semibold">{lore.title || "N/A"}</div>
                 <div className="mr-auto mb-1 flex w-full items-center gap-2">
-                  {node.createdById && (
-                    <Link href={`/users/${node.createdById}`}>
+                  {lore.createdById && (
+                    <Link href={`/users/${lore.createdById}`}>
                       <Title
                         title={
                           <div className="flex items-center gap-2">
                             <div className="text-xs">
                               Content added by{" "}
-                              <span className="font-semibold">{node.createdBy || "Unknown"}</span>
+                              <span className="font-semibold">{lore.createdBy || "Unknown"}</span>
                             </div>
                           </div>
                         }
@@ -141,9 +141,9 @@ const NodeModal = () => {
                       </Title>
                     </Link>
                   )}
-                  {node.type === "youtube" && (
+                  {lore.type === "youtube" && (
                     <Link
-                      href={`https://youtu.be/${node.src}`}
+                      href={`https://youtu.be/${lore.src}`}
                       target="_blank"
                       className="flex cursor-pointer items-center gap-1 rounded-full bg-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/20"
                     >
@@ -154,7 +154,7 @@ const NodeModal = () => {
                   <div className="ml-auto flex cursor-pointer rounded-full bg-black/10 px-3 py-1.75">
                     <button className="flex items-center gap-1 border-r border-black/20 pr-1.5 text-xs font-semibold">
                       <FiThumbsUp size={18} />
-                      {node.likesCount || 0}
+                      {lore.likesCount || 0}
                     </button>
                     <button className="flex items-center gap-1 pl-1.5 text-xs font-semibold">
                       <FiThumbsDown size={18} />
@@ -178,30 +178,30 @@ const NodeModal = () => {
                 </div>
                 <div className="rounded-lg bg-black/10 p-2 px-3 text-sm">
                   <div className="flex gap-2 font-semibold">
-                    <div>{numberFormatter(node.viewsCount || 0)} views</div>
+                    <div>{numberFormatter(lore.viewsCount || 0)} views</div>
                     <div className="ml-2 flex gap-2">
                       <div className="animate-radar my-auto h-1.5 w-1.5 rounded-full bg-green-600"></div>
                       {liveViewers} Live viewer
                     </div>
                     <div className="ml-2">
-                      {new Date(node.updatedAt || "").toLocaleDateString() || ""}
+                      {new Date(lore.updatedAt || "").toLocaleDateString() || ""}
                     </div>
                   </div>
                   <div
                     className="wrap-break-word whitespace-pre-wrap"
                     onClick={() => setExpandDescription((val) => !val)}
                   >
-                    {node.description?.length > 100
+                    {lore.description?.length > 100
                       ? expandDescription
-                        ? node.description
-                        : node.description.slice(0, 200) + "..."
-                      : node.description}
-                    {node.description?.length > 100 && (
+                        ? lore.description
+                        : lore.description.slice(0, 200) + "..."
+                      : lore.description}
+                    {lore.description?.length > 100 && (
                       <span className="ml-2 cursor-pointer text-sm font-semibold text-black">
                         {expandDescription ? "Show Less" : "Show More"}
                       </span>
                     )}
-                    {!node.description && <div>No Description</div>}
+                    {!lore.description && <div>No Description</div>}
                   </div>
                 </div>
               </div>
@@ -223,4 +223,4 @@ const NodeModal = () => {
   );
 };
 
-export default NodeModal;
+export default LoreModal;

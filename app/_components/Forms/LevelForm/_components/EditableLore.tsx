@@ -1,42 +1,42 @@
-import { NodeType } from "@/types/nodeTypes";
+import { LoreType } from "@/types/loreTypes";
 import { RefObject, useState } from "react";
 import { PiGraphDuotone } from "react-icons/pi";
 import Modal from "@/ui/components/Modal";
-import Node from "@/app/_components/Node";
+import Lore from "@/app/_components/Lore";
 import { BiMinus, BiPencil, BiPlus, BiTrash } from "react-icons/bi";
 import Title from "@/ui/components/Title";
 import { TbTrash } from "react-icons/tb";
 import { CgClose } from "react-icons/cg";
 
-interface NodeTypeWithNext extends NodeType {
+interface LoreTypeWithNext extends LoreType {
   next: string[];
 }
 
-type EditableNodeProp = {
+type EditableLoreProp = {
   onEditClick: () => void;
   onDeleteClick: () => void;
-  node: NodeTypeWithNext;
+  lore: LoreTypeWithNext;
   refs: RefObject<{ [key: string]: HTMLDivElement | null }>;
   onConnectClick: () => void;
   onConnectCancelClick: () => void;
   connectionOf?: string;
   onSecondConnectClick: () => void;
-  nodes: Map<string, NodeType>;
+  lores: Map<string, LoreType>;
   onDeleteConnction: (parentId: string, childId: string) => void;
 };
 
-export default function EditableNode({
+export default function EditableLore({
   onDeleteClick = () => {},
   onEditClick = () => {},
-  node,
+  lore,
   refs,
   onConnectClick,
   onConnectCancelClick,
   connectionOf,
   onSecondConnectClick,
-  nodes,
+  lores,
   onDeleteConnction,
-}: EditableNodeProp) {
+}: EditableLoreProp) {
   const [showConnections, setShowConnections] = useState(false);
 
   return (
@@ -57,10 +57,10 @@ export default function EditableNode({
           </div>
           <div className="absolute top-1/2 right-0 flex translate-x-1/2 -translate-y-1/2 flex-col gap-1">
             <Title
-              title={connectionOf !== node._id ? "Create Connection" : "Turn off connect mode"}
+              title={connectionOf !== lore._id ? "Create Connection" : "Turn off connect mode"}
               className="shadow"
             >
-              {connectionOf !== node._id ? (
+              {connectionOf !== lore._id ? (
                 <div className="rounded-lg bg-white p-2 shadow" onClick={() => onConnectClick()}>
                   <BiPlus />
                 </div>
@@ -83,9 +83,9 @@ export default function EditableNode({
             </Title>
           </div>
         </div>
-        {connectionOf && connectionOf !== node._id && (
+        {connectionOf && connectionOf !== lore._id && (
           <div className="absolute top-1/2 left-0 z-10 -translate-x-1/2 -translate-y-1/2">
-            <Title title="Connect to this node" className="shadow">
+            <Title title="Connect to this lore" className="shadow">
               <div
                 className="rounded-lg bg-white p-2 shadow"
                 onClick={() => onSecondConnectClick()}
@@ -95,15 +95,15 @@ export default function EditableNode({
             </Title>
           </div>
         )}
-        <Node node={node} refs={refs} />
+        <Lore lore={lore} refs={refs} />
         {showConnections && (
           <ConnectionModal
-            connections={node.next || []}
+            connections={lore.next || []}
             isOpen={showConnections}
             onClose={() => setShowConnections(false)}
-            nodes={nodes}
+            lores={lores}
             onDeleteConnction={(id) => {
-              onDeleteConnction(node._id, id);
+              onDeleteConnction(lore._id, id);
               setShowConnections(false);
             }}
           />
@@ -117,19 +117,19 @@ const ConnectionModal = ({
   connections = [],
   isOpen,
   onClose = () => {},
-  nodes,
+  lores,
   onDeleteConnction,
 }: {
   connections: string[];
   isOpen: boolean;
   onClose: () => void;
-  nodes: Map<string, NodeType>;
+  lores: Map<string, LoreType>;
   onDeleteConnction: (id: string) => void;
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="flex items-center justify-between border-b border-black/20 p-4 px-5">
-        <span className="font-semibold">Connected Nodes</span>
+        <span className="font-semibold">Connected Lores</span>
         <button onClick={onClose} className="cursor-pointer text-sm text-gray-500 hover:text-black">
           <CgClose size={20} />
         </button>
@@ -137,22 +137,22 @@ const ConnectionModal = ({
       <div className="max-h-[80vh] overflow-auto p-4">
         {connections?.length > 0 &&
           connections.map((connection) => {
-            const node = nodes.get(connection);
-            if (!node) return;
+            const lore = lores.get(connection);
+            if (!lore) return;
             return (
               <div
                 className="flex gap-2 rounded-lg bg-black/10 p-3 pr-4"
-                key={node._id || connection}
+                key={lore._id || connection}
               >
                 <div>
-                  <img src={node?.thumbnailUrl} className="aspect-video w-25 rounded-md" />
+                  <img src={lore?.thumbnailUrl} className="aspect-video w-25 rounded-md" />
                 </div>
                 <div>
-                  <div className="truncate text-xs font-semibold">{node.title}</div>
-                  <div className="truncate text-xs text-black/50">{node._id}</div>
+                  <div className="truncate text-xs font-semibold">{lore.title}</div>
+                  <div className="truncate text-xs text-black/50">{lore._id}</div>
                 </div>
                 <div className="ml-auto">
-                  <TbTrash className="cursor-pointer" onClick={() => onDeleteConnction(node._id)} />
+                  <TbTrash className="cursor-pointer" onClick={() => onDeleteConnction(lore._id)} />
                 </div>
               </div>
             );

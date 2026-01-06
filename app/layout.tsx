@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "./contexts/AppContext";
-import { OpenedNodeProvider } from "./contexts/OpenedNodeContext";
+import { OpenedLoreProvider } from "./contexts/OpenedLoreContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { ToastContainer } from "react-toastify";
 
@@ -41,7 +41,7 @@ export default function RootLayout({
         />
         <SocketProvider>
           <AppProvider>
-            <OpenedNodeProvider>{children}</OpenedNodeProvider>
+            <OpenedLoreProvider>{children}</OpenedLoreProvider>
           </AppProvider>
         </SocketProvider>
       </body>

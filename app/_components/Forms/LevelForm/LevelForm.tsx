@@ -2,13 +2,13 @@
 import Edge from "@/app/_components/Edge";
 import PinchZoomWrapper from "@/app/_components/PinchZoomFeature";
 import calculateEdges from "@/libs/edgeCalculationLogic";
-import { NodeType } from "@/types/nodeTypes";
+import { LoreType } from "@/types/loreTypes";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BiMinus, BiPencil, BiPlus, BiTrash } from "react-icons/bi";
-import NodeFinder from "./_components/NodeFinder";
+import LoreFinder from "./_components/LoreFinder";
 import Title from "@/ui/components/Title";
 import { toast } from "react-toastify";
-import EditableNode from "./_components/EditableNode";
+import EditableLore from "./_components/EditableLore";
 import Input from "@/ui/components/Inputs/Input";
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 
 const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
   const [levelName, setLevelName] = useState<string>("");
-  const [nodeContainerSize, setNodeContainerSize] = useState({
+  const [loreContainerSize, setLoreContainerSize] = useState({
     width: 0,
     height: 0,
   });
@@ -29,92 +29,92 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
       paddingLeft?: number;
     }[]
   >([]);
-  const [nodes, setNodes] = useState<Map<string, NodeType>>(new Map());
+  const [lores, setLores] = useState<Map<string, LoreType>>(new Map());
   const [levels, setLevels] = useState<{ _id: string; next: string[] }[][]>([]);
-  const [showNodeSelector, setShowNodeSelector] = useState<null | {
+  const [showLoreSelector, setShowLoreSelector] = useState<null | {
     col: number;
     row: number;
   }>(null);
-  const [connectStart, setConnectStart] = useState<{ nodeId: string } | null>(null);
+  const [connectStart, setConnectStart] = useState<{ loreId: string } | null>(null);
   const connectionMap = useRef<Map<string, { _id: string; next: string[] }>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const handleNodeSelect = (node: NodeType) => {
-    if (showNodeSelector) {
-      // Check if node already exists in any level
-      if (levels.some((level) => level.some((n) => n._id === node._id))) {
-        toast.warn("This node is already added to the graph. You can't add it again.");
+  const handleLoreSelect = (lore: LoreType) => {
+    if (showLoreSelector) {
+      // Check if lore already exists in any level
+      if (levels.some((level) => level.some((n) => n._id === lore._id))) {
+        toast.warn("This lore is already added to the graph. You can't add it again.");
         return;
       }
       // Deep copy levels
       const newLevels = levels.map((lvl) => lvl.map((n) => ({ ...n, next: [...n.next] })));
 
-      if (newLevels[showNodeSelector.col].length === showNodeSelector.row) {
-        newLevels[showNodeSelector.col].push({ _id: node._id, next: [] });
+      if (newLevels[showLoreSelector.col].length === showLoreSelector.row) {
+        newLevels[showLoreSelector.col].push({ _id: lore._id, next: [] });
       } else {
-        const prevNode = newLevels[showNodeSelector.col][showNodeSelector.row];
-        const prevId = prevNode._id;
+        const prevLore = newLevels[showLoreSelector.col][showLoreSelector.row];
+        const prevId = prevLore._id;
 
-        // Replace node but keep connections
-        newLevels[showNodeSelector.col][showNodeSelector.row] = {
-          _id: node._id,
-          next: prevNode.next,
+        // Replace lore but keep connections
+        newLevels[showLoreSelector.col][showLoreSelector.row] = {
+          _id: lore._id,
+          next: prevLore.next,
         };
 
-        // Update incoming connections from other nodes
+        // Update incoming connections from other lores
         newLevels.forEach((lvl) => {
           lvl.forEach((n) => {
             const idx = n.next.indexOf(prevId);
             if (idx !== -1) {
-              n.next[idx] = node._id;
+              n.next[idx] = lore._id;
             }
           });
         });
       }
 
       setLevels(newLevels);
-      if (!nodes.has(node._id))
-        setNodes((prev) => {
+      if (!lores.has(lore._id))
+        setLores((prev) => {
           const newMap = new Map(prev);
-          newMap.set(node._id, node);
+          newMap.set(lore._id, lore);
           return newMap;
         });
-      setShowNodeSelector(null);
+      setShowLoreSelector(null);
     }
   };
 
-  const handleConnect = (nodeId: string | undefined, nextId: string) => {
-    if (!nodeId) return;
+  const handleConnect = (loreId: string | undefined, nextId: string) => {
+    if (!loreId) return;
 
-    const parentNode = levels.flat().find((n) => n._id === nodeId);
+    const parentLore = levels.flat().find((n) => n._id === loreId);
 
-    if (parentNode && parentNode.next.includes(nextId)) {
+    if (parentLore && parentLore.next.includes(nextId)) {
       toast.warn("This connection already exists.");
       setConnectStart(null);
       return;
     }
 
-    const nodeIdLevel = levels.findIndex((level) => level.some((n) => n._id === nodeId));
+    const loreIdLevel = levels.findIndex((level) => level.some((n) => n._id === loreId));
     const nextIdLevel = levels.findIndex((level) => level.some((n) => n._id === nextId));
 
-    if (nodeIdLevel === -1 || nextIdLevel === -1) {
-      toast.error("One of the nodes is not found in any level.");
+    if (loreIdLevel === -1 || nextIdLevel === -1) {
+      toast.error("One of the lores is not found in any level.");
       setConnectStart(null);
       return;
     }
 
-    if (nextIdLevel <= nodeIdLevel) {
-      toast.warn("Cannot connect to a node in the same or a previous level.");
+    if (nextIdLevel <= loreIdLevel) {
+      toast.warn("Cannot connect to a lore in the same or a previous level.");
       setConnectStart(null);
       return;
     }
 
     const newLevels = levels.map((lvl) => lvl.map((n) => ({ ...n, next: [...n.next] })));
 
-    const nodeToUpdate = newLevels[nodeIdLevel].find((n) => n._id === nodeId);
-    if (nodeToUpdate) {
-      nodeToUpdate.next.push(nextId);
+    const loreToUpdate = newLevels[loreIdLevel].find((n) => n._id === loreId);
+    if (loreToUpdate) {
+      loreToUpdate.next.push(nextId);
       setLevels(newLevels);
     }
 
@@ -123,13 +123,13 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
 
   const calculateEdgesAndUpdate = () => {
     if (levels.length > 0) {
-      const flatNodes = levels.flat();
+      const flatLores = levels.flat();
 
       const result = calculateEdges({
-        nodes: flatNodes,
+        lores: flatLores,
         levels,
         containerRef,
-        htmlNodesRef: refs,
+        htmlLoresRef: refs,
       });
       if (!result) return;
       setEdges(result);
@@ -141,23 +141,23 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     console.log("calculation finished", new Date().getTime());
   };
 
-  const handleNodeDelete = (nodeId: string) => {
-    // Filter out the node from levels
+  const handleLoreDelete = (loreId: string) => {
+    // Filter out the lore from levels
     const newLevels = levels.map((lvl) =>
-      lvl.filter((n) => n._id !== nodeId).map((n) => ({ ...n, next: [...n.next] }))
+      lvl.filter((n) => n._id !== loreId).map((n) => ({ ...n, next: [...n.next] }))
     );
 
-    // Remove connections to this node
+    // Remove connections to this lore
     newLevels.forEach((lvl) => {
       lvl.forEach((n) => {
-        n.next = n.next.filter((id) => id !== nodeId);
+        n.next = n.next.filter((id) => id !== loreId);
       });
     });
 
     setLevels(newLevels);
-    setNodes((prev) => {
+    setLores((prev) => {
       const newMap = new Map(prev);
-      newMap.delete(nodeId);
+      newMap.delete(loreId);
       return newMap;
     });
   };
@@ -182,7 +182,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
 
   useEffect(() => {
     // fetch nData
-    setNodes(new Map());
+    setLores(new Map());
 
     // fetch connection data
     connectionMap.current = new Map();
@@ -212,7 +212,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     calculateEdgesAndUpdate();
 
     const getMainContainerWidth = () => {
-      setNodeContainerSize({
+      setLoreContainerSize({
         width: containerRef.current?.scrollWidth || 0,
         height: containerRef.current?.scrollHeight || 0,
       });
@@ -243,7 +243,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
       <div className="flex flex-col">
         <div className={`text-sm font-semibold`}>Levels</div>
         <div className="text-sm text-black/60">
-          Design the levels for this page by adding nodes and connecting them.
+          Design the levels for this page by adding lores and connecting them.
         </div>
       </div>
       <div className="relative mt-4 max-w-[calc(100vw-276px)] flex-1 overflow-auto rounded-lg bg-black/10">
@@ -255,8 +255,8 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
             {/* Edges SVGs */}
             <svg
               className="pointer-events-none absolute top-0 left-0"
-              width={nodeContainerSize.width}
-              height={nodeContainerSize.height}
+              width={loreContainerSize.width}
+              height={loreContainerSize.height}
             >
               {edges.map((edge) => (
                 <Edge
@@ -268,32 +268,32 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
               ))}
             </svg>
 
-            {/* Node boxes */}
+            {/* Lore boxes */}
             {levels.map((level, i) => (
               <div
                 key={i}
                 className="relative flex flex-col justify-center gap-20 border-r border-dashed"
               >
-                {level.map((node, index) => {
-                  const n = nodes.get(node._id)!;
+                {level.map((lore, index) => {
+                  const n = lores.get(lore._id)!;
                   return (
-                    <EditableNode
-                      key={node._id + index}
-                      node={{ ...n, _id: node._id, next: node.next }}
+                    <EditableLore
+                      key={lore._id + index}
+                      lore={{ ...n, _id: lore._id, next: lore.next }}
                       refs={refs}
-                      onDeleteClick={() => handleNodeDelete(node._id)}
-                      onEditClick={() => setShowNodeSelector({ col: i, row: index })}
-                      onConnectClick={() => setConnectStart({ nodeId: node._id })}
+                      onDeleteClick={() => handleLoreDelete(lore._id)}
+                      onEditClick={() => setShowLoreSelector({ col: i, row: index })}
+                      onConnectClick={() => setConnectStart({ loreId: lore._id })}
                       onConnectCancelClick={() => setConnectStart(null)}
-                      connectionOf={connectStart?.nodeId}
-                      onSecondConnectClick={() => handleConnect(connectStart?.nodeId, node._id)}
-                      nodes={nodes}
+                      connectionOf={connectStart?.loreId}
+                      onSecondConnectClick={() => handleConnect(connectStart?.loreId, lore._id)}
+                      lores={lores}
                       onDeleteConnction={removeConnection}
                     />
                   );
                 })}
                 <div
-                  onClick={() => setShowNodeSelector({ col: i, row: level.length })}
+                  onClick={() => setShowLoreSelector({ col: i, row: level.length })}
                   className="mr-12 flex aspect-video w-57.5 cursor-pointer items-center justify-center rounded-lg border border-black/10 bg-white p-1"
                 >
                   <BiPlus size={24} />
@@ -350,10 +350,10 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
           Add
         </button>
       </div>
-      <NodeFinder
-        isOpen={!!showNodeSelector}
-        onClose={() => setShowNodeSelector(null)}
-        onSelect={handleNodeSelect}
+      <LoreFinder
+        isOpen={!!showLoreSelector}
+        onClose={() => setShowLoreSelector(null)}
+        onSelect={handleLoreSelect}
       />
     </>
   );

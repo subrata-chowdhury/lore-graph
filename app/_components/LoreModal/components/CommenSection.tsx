@@ -6,7 +6,7 @@ import numberFormatter from "@/libs/numberFormatter";
 import Comment from "./Comment";
 import InputBox from "./InputBox";
 import { useEffect, useState } from "react";
-import { useOpenedNodeContext } from "@/app/contexts/OpenedNodeContext";
+import { useOpenedLoreContext } from "@/app/contexts/OpenedLoreContext";
 import { useSocket } from "@/app/contexts/SocketContext";
 import { toast } from "react-toastify";
 
@@ -23,7 +23,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
     total: 1200,
     limit: 100,
   });
-  const { node } = useOpenedNodeContext();
+  const { lore } = useOpenedLoreContext();
   const socket = useSocket();
 
   function socketCleanup() {
@@ -32,7 +32,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
 
   function checkForNewComments() {
     socket?.on("new-comment", (newComment: CommentType) => {
-      if (newComment.nodeId === node?._id) {
+      if (newComment.loreId === lore?._id) {
         setComments((prevComments) => [newComment, ...prevComments]);
       }
     });
@@ -47,10 +47,10 @@ export default function CommentSection({ onClose = () => {} }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!socket || !node) return;
+    if (!socket || !lore) return;
     checkForNewComments();
     return () => socketCleanup();
-  }, [socket, node]);
+  }, [socket, lore]);
 
   return (
     <motion.div
@@ -84,14 +84,14 @@ export default function CommentSection({ onClose = () => {} }: Props) {
           replyData={replyCommentData}
           onCancelReply={() => setReplyCommentData(null)}
           onCommentSubmit={(comment) => {
-            if (!node) return;
+            if (!lore) return;
             const newComment: CommentType = {
               _id: Math.random().toString(36).substring(2, 9),
               author: "CurrentUser", // Replace with actual user data
               authorId: "currentUserId", // Replace with actual user ID
               content: comment,
               createdAt: new Date().toISOString(),
-              nodeId: node._id,
+              loreId: lore._id,
               parentId: replyCommentData?._id || null,
               likesCount: 0,
               replyCount: 0,
@@ -113,7 +113,7 @@ export const dummyComments: CommentType[] = [
     authorId: "user1",
     content: "This is a great video!",
     createdAt: new Date().toISOString(),
-    nodeId: "node1",
+    loreId: "lore1",
     parentId: null,
     likesCount: 10,
     replyCount: 0,
@@ -125,7 +125,7 @@ export const dummyComments: CommentType[] = [
     authorId: "user2",
     content: "I learned a lot from this video.",
     createdAt: new Date().toISOString(),
-    nodeId: "node1",
+    loreId: "lore1",
     parentId: null,
     likesCount: 5,
     replyCount: 1,
@@ -137,7 +137,7 @@ export const dummyComments: CommentType[] = [
     authorId: "user3",
     content: "I learned a lot from this video.",
     createdAt: new Date().toISOString(),
-    nodeId: "node1",
+    loreId: "lore1",
     parentId: "2",
     likesCount: 5,
     replyCount: 0,
@@ -149,7 +149,7 @@ export const dummyComments: CommentType[] = [
     authorId: "user4",
     content: "I learned a lot from this video.",
     createdAt: new Date().toISOString(),
-    nodeId: "node1",
+    loreId: "lore1",
     parentId: "4",
     likesCount: 5,
     replyCount: 1,

@@ -1,4 +1,4 @@
-import { NodeType } from "@/types/nodeTypes";
+import { LoreType } from "@/types/loreTypes";
 
 export const conData: { _id: string; next: string[] }[] = [
   { _id: "a", next: ["b"] },
@@ -20,7 +20,7 @@ export const conData: { _id: string; next: string[] }[] = [
   { _id: "n", next: [] },
 ];
 
-export const nData: Map<string, NodeType> = new Map([
+export const nData: Map<string, LoreType> = new Map([
   [
     "a",
     {
@@ -31,7 +31,7 @@ export const nData: Map<string, NodeType> = new Map([
   [
     "b",
     {
-      title: "Node B",
+      title: "Lore B",
       description: `On the Insert tab, the galleries include items that are designed to coordinate with the overall look of your document. You can use these galleries to insert tables, headers, footers, lists, cover pages, and other document building blocks. When you create pictures, charts, or diagrams, they also coordinate with your current document look.
 
     You can easily change the formatting of selected text in the document text by choosing a look for the selected text from the Quick Styles gallery on the Home tab. You can also format text directly by using the other controls on the Home tab. Most controls offer a choice of using the look from the current theme or using a format that you specify directly.
@@ -45,10 +45,10 @@ export const nData: Map<string, NodeType> = new Map([
       createdBy: "UserNameHandler",
       createdById: "user123",
       likesCount: 7890,
-      tags: ["example", "node"],
+      tags: ["example", "lore"],
     },
   ],
-]) as Map<string, NodeType>;
+]) as Map<string, LoreType>;
 
 export const lvlData: string[][] = [
   ["a"],

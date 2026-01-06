@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IComment extends Document {
-  nodeId: string; // The ID of the video / post this belongs to (INDEX THIS)
+  loreId: string; // The ID of the video / post this belongs to (INDEX THIS)
   parentId: string | null; // null = top-level comment; ID = reply to another comment
   author: string;
   authorId: string; // Reference to User (Indexed)
@@ -14,11 +14,11 @@ export interface IComment extends Document {
 
 const CommentSchema: Schema = new Schema(
   {
-    nodeId: {
+    loreId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       index: true,
-      ref: "Node",
+      ref: "Lore",
     },
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -53,7 +53,6 @@ const CommentSchema: Schema = new Schema(
   }
 );
 
-const Comment =
-  mongoose.models.Comment || mongoose.model<IComment>("Comment", CommentSchema);
+const Comment = mongoose.models.Comment || mongoose.model<IComment>("Comment", CommentSchema);
 
 export default Comment;

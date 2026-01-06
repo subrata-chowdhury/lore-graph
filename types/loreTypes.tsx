@@ -1,4 +1,4 @@
-export type NodeType = {
+export type LoreType = {
   _id: string;
   src?: string;
   thumbnailUrl?: string;
@@ -9,24 +9,24 @@ export type NodeType = {
   viewsCount: number;
   likesCount: number;
   visibility: "public" | "private";
-  // next: string[]; // Array of Node IDs
+  // next: string[]; // Array of Lore IDs
   createdBy: string; // Reference to User (Indexed)
   createdById: string; // Reference to User ID (Indexed)
   createdAt: string;
   updatedAt: string;
 };
 
-export type NodeLikeType = {
+export type LoreLikeType = {
   _id: string;
-  nodeId: string; // Reference to Node (Indexed)
+  loreId: string; // Reference to Lore (Indexed)
   userId: string; // Reference to User (Indexed)
   createdAt: string;
   updatedAt: string;
 };
 
-export type NodeViewType = {
+export type LoreViewType = {
   _id: string;
-  nodeId: string; // Reference to Node (Indexed)
+  loreId: string; // Reference to Lore (Indexed)
   userId: string | null; // Reference to User (Indexed) or null for anonymous views
   createdAt: string;
   updatedAt: string;

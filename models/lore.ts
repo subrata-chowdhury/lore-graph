@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface INode extends Document {
+export interface ILore extends Document {
   src?: string;
   thumbnailUrl?: string;
   title: string;
@@ -16,7 +16,7 @@ export interface INode extends Document {
   updatedAt: Date;
 }
 
-const NodeSchema: Schema = new Schema(
+const LoreSchema: Schema = new Schema(
   {
     src: {
       type: String,
@@ -72,14 +72,14 @@ const NodeSchema: Schema = new Schema(
     },
   },
   {
-    collection: "nodes",
+    collection: "lores",
     timestamps: true,
   }
 );
 
 // Add text index for searching
-NodeSchema.index({ title: "text", description: "text", tags: "text" });
+LoreSchema.index({ title: "text", description: "text", tags: "text" });
 
-const Node = mongoose.models.Node || mongoose.model<INode>("Node", NodeSchema);
+const Lore = mongoose.models.Lore || mongoose.model<ILore>("Lore", LoreSchema);
 
-export default Node;
+export default Lore;
