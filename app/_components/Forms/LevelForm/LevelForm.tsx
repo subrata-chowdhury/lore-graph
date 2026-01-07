@@ -10,6 +10,7 @@ import Title from "@/ui/components/Title";
 import { toast } from "react-toastify";
 import EditableLore from "./_components/EditableLore";
 import Input from "@/ui/components/Inputs/Input";
+import fetcher from "@/libs/fetcher";
 
 type Props = {
   onAdd: ({ id, title }: { id: string; title: string }) => void;
@@ -22,6 +23,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     width: 0,
     height: 0,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [edges, setEdges] = useState<
     {
       from: { x: number; y: number };
@@ -337,17 +339,35 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
           Cancel
         </button>
         <button
-          onClick={() => {
+          disabled={isSubmitting}
+          onClick={async () => {
             if (levelName.length <= 0) {
               toast.error("Level name is required.");
               return;
             }
-            console.log(levels);
-            onAdd({ id: new Date().getTime().toString(), title: levelName });
+
+            setIsSubmitting(true);
+            try {
+              const { body: data, error } = await fetcher.post<
+                { name: string; levels: { _id: string; next: string[] }[][] },
+                { _id: string; name: string }
+              >("/super-admin/levels", { name: levelName, levels });
+
+              if (error) throw new Error(error);
+              if (data) {
+                toast.success("Level created successfully");
+                onAdd({ id: data._id, title: data.name });
+              }
+            } catch (error: any) {
+              console.error(error);
+              toast.error(error.message || "Error creating level");
+            } finally {
+              setIsSubmitting(false);
+            }
           }}
-          className="cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70"
+          className={`cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70 ${isSubmitting ? "opacity-50" : ""}`}
         >
-          Add
+          {isSubmitting ? "Saving..." : "Add"}
         </button>
       </div>
       <LoreFinder

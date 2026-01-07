@@ -19,8 +19,9 @@ export type PageType = {
   description: string;
   tags: string[];
   authorId: string;
-  rating: number;
-  rated: number;
+  rating?: number;
+  rated?: number;
+  likes: number;
   views: number;
   bgImgUrl?: string;
   createdAt: Date;

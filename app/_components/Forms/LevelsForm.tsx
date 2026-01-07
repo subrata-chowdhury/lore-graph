@@ -6,9 +6,10 @@ import { TbTrash } from "react-icons/tb";
 type Props = {
   levels: PageType["lvls"];
   onLevelsChange: (newLevels: PageType["lvls"]) => void;
+  onSave?: () => void;
 };
 
-const LevelsForm = ({ levels, onLevelsChange = () => {} }: Props) => {
+const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Props) => {
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
 
   return (
@@ -41,13 +42,21 @@ const LevelsForm = ({ levels, onLevelsChange = () => {} }: Props) => {
                 </div>
               );
             })}
-            <div className="mt-4">
+            <div className="mt-4 flex gap-3">
               <button
                 onClick={() => setShowNewLevelForm(true)}
-                className="cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70"
+                className="cursor-pointer rounded-full bg-black/20 px-5 py-2 text-sm font-semibold hover:bg-black/30"
               >
                 Add Level
               </button>
+              {levels.length > 0 && (
+                <button
+                  onClick={() => onSave()}
+                  className="cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70"
+                >
+                  Next
+                </button>
+              )}
             </div>
           </>
         )}

@@ -6,8 +6,16 @@ import React, { useRef, useState } from "react";
 import { BiPencil, BiTrash } from "react-icons/bi";
 
 type Props = {
-  pageData: Omit<PageType, "_id" | "createdAt" | "updatedAt">;
-  onPageDataChange: (updatedPage: Omit<PageType, "_id" | "createdAt" | "updatedAt">) => void;
+  pageData: Omit<
+    PageType,
+    "_id" | "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+  >;
+  onPageDataChange: (
+    updatedPage: Omit<
+      PageType,
+      "_id" | "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+    >
+  ) => void;
   onSave?: () => void;
 };
 
@@ -52,7 +60,9 @@ const PageForm = ({ pageData, onPageDataChange, onSave = () => {} }: Props) => {
             label="Slug (required)"
             description="The slug is the part of a URL which identifies a page on a website in an easy-to-read form."
             value={pageData?.slug || ""}
-            onChange={(val) => onPageDataChange({ ...pageData, slug: val })}
+            onChange={(val) =>
+              onPageDataChange({ ...pageData, slug: val?.toLowerCase().replace(/\s+/g, "-") })
+            }
             placeholder="Enter page slug"
             max={50}
             containerClass="mb-4"
@@ -70,7 +80,7 @@ const PageForm = ({ pageData, onPageDataChange, onSave = () => {} }: Props) => {
       </div>
       <div className="flex flex-col">
         <div
-          className="group relative flex aspect-video h-auto w-100 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50"
+          className="group relative flex aspect-video h-auto w-75 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50 xl:w-100"
           onClick={() => {
             imgInputRef.current?.click();
           }}
