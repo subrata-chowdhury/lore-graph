@@ -11,7 +11,14 @@ const LoreFormPage = (props: Props) => {
   const [loreData, setLoreData] = useState<
     Omit<
       LoreType,
-      "_id" | "createdAt" | "updatedAt" | "likesCount" | "viewsCount" | "createdBy" | "createdById"
+      | "_id"
+      | "createdAt"
+      | "updatedAt"
+      | "likesCount"
+      | "dislikesCount"
+      | "viewsCount"
+      | "createdBy"
+      | "createdById"
     >
   >({
     title: "",

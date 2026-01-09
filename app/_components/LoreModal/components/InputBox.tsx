@@ -53,6 +53,7 @@ function InputBox({
                   content: comment.length > 40 ? comment.slice(0, 40) + "..." : comment,
                   loreId: "fake_lore_id",
                   likesCount: 0,
+                  dislikesCount: 0,
                   replyCount: 0,
                   parentId: replyData ? replyData._id : "fake_lore_id",
                   author: "current_user",

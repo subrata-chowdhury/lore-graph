@@ -15,12 +15,26 @@ import { toast } from "react-toastify";
 type Props = {
   loreData: Omit<
     LoreType,
-    "_id" | "createdAt" | "updatedAt" | "likesCount" | "viewsCount" | "createdBy" | "createdById"
+    | "_id"
+    | "createdAt"
+    | "updatedAt"
+    | "likesCount"
+    | "dislikesCount"
+    | "viewsCount"
+    | "createdBy"
+    | "createdById"
   >;
   onLoreDataChange: (
     updatedLore: Omit<
       LoreType,
-      "_id" | "createdAt" | "updatedAt" | "likesCount" | "viewsCount" | "createdBy" | "createdById"
+      | "_id"
+      | "createdAt"
+      | "updatedAt"
+      | "likesCount"
+      | "dislikesCount"
+      | "viewsCount"
+      | "createdBy"
+      | "createdById"
     >
   ) => void;
   onSave?: () => void;
@@ -253,6 +267,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
               ...loreData,
               viewsCount: 0,
               likesCount: 0,
+              dislikesCount: 0,
               _id: "demo-lore-id",
               next: [],
               createdBy: "user",

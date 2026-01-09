@@ -4,9 +4,12 @@ import Lore from "@/models/lore";
 import LoreDislike from "@/models/loreDislike";
 import mongoose from "mongoose";
 
-export async function POST(request: NextRequest, { params }: { params: { loreId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ loreId: string }> }
+) {
   const userId = request.headers.get("x-user");
-  const { loreId } = params;
+  const { loreId } = await params;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -4,9 +4,12 @@ import Comment from "@/models/comment";
 import CommentDislike from "@/models/commentDislike";
 import mongoose from "mongoose";
 
-export async function POST(request: NextRequest, { params }: { params: { commentId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ commentId: string }> }
+) {
   const userId = request.headers.get("x-user");
-  const { commentId } = params;
+  const { commentId } = await params;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
