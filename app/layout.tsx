@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { AppProvider } from "./contexts/AppContext";
-import { OpenedLoreProvider } from "./contexts/OpenedLoreContext";
-import { SocketProvider } from "./contexts/SocketContext";
+import { AppProvider } from "../contexts/AppContext";
+import { OpenedLoreProvider } from "../contexts/OpenedLoreContext";
+import { SocketProvider } from "../contexts/SocketContext";
 import { ToastContainer } from "react-toastify";
 
 const inter = Inter({

@@ -1,6 +1,7 @@
 // Backend Types
 export type AuthTokenPayloadType = {
   userId: string;
+  username: string;
   verified: string;
   ip: string;
   deviceInfo: string;

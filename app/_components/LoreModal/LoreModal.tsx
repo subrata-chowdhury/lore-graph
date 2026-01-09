@@ -1,6 +1,6 @@
 "use client";
 import Modal from "@/ui/components/Modal";
-import { useOpenedLoreContext } from "../../contexts/OpenedLoreContext";
+import { useOpenedLoreContext } from "../../../contexts/OpenedLoreContext";
 import YouTube, { YouTubeEvent } from "react-youtube";
 import { useEffect, useState } from "react";
 import { PiYoutubeLogo } from "react-icons/pi";
@@ -13,10 +13,11 @@ import { AnimatePresence } from "framer-motion";
 import { CommentType } from "@/types/commentTypes";
 import { IoIosArrowBack } from "react-icons/io";
 import numberFormatter from "@/libs/numberFormatter";
-import { useSocket } from "@/app/contexts/SocketContext";
+import { useSocket } from "@/contexts/SocketContext";
 import { LuRectangleHorizontal } from "react-icons/lu";
 import Title from "@/ui/components/Title";
 import { BsExclamationCircle } from "react-icons/bs";
+import { getYouTubeID } from "@/utils/videoIdGetter";
 
 const LoreModal = () => {
   const { lore, setLore } = useOpenedLoreContext();
@@ -107,17 +108,17 @@ const LoreModal = () => {
             >
               {lore.type === "youtube" && (
                 <YouTube
-                  videoId={lore.src}
+                  videoId={getYouTubeID(lore.src || "") || ""}
                   opts={opts}
                   onReady={onReady}
                   onStateChange={onStateChange}
                   className={`aspect-video rounded-t-md ${
-                    isInFullscreen ? "h-full max-h-[85vh] w-full" : "h-90 min-h-90 w-160"
+                    isInFullscreen ? "h-full max-h-[85vh] w-full" : "h-90 min-h-90"
                   } ${loading ? "hidden" : ""} ${showComments ? "rounded-r-md" : ""} `}
                 />
               )}
               {loading && (
-                <div className="flex aspect-video w-160 animate-pulse items-center justify-center bg-black/10">
+                <div className="flex aspect-video w-full min-w-160 animate-pulse items-center justify-center bg-black/10">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-800 border-b-transparent"></div>
                 </div>
               )}
@@ -143,7 +144,7 @@ const LoreModal = () => {
                   )}
                   {lore.type === "youtube" && (
                     <Link
-                      href={`https://youtu.be/${lore.src}`}
+                      href={`${lore.src}`}
                       target="_blank"
                       className="flex cursor-pointer items-center gap-1 rounded-full bg-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/20"
                     >

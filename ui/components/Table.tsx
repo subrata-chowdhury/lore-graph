@@ -157,7 +157,7 @@ export function MainTable<T>({
               {config.map((configObj, innerIndex) => (
                 <td
                   key={innerIndex}
-                  className={`min-h-12 items-center pl-4 ${configObj.hideAble ? "hidden md:flex" : ""}`}
+                  className={`min-h-12 items-center pl-4 ${configObj.hideAble ? "hidden md:table-cell" : ""}`}
                 >
                   {configObj.component
                     ? React.createElement(configObj.component, { data: obj, index })

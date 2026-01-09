@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { useOpenedLoreContext } from "../contexts/OpenedLoreContext";
+import { useOpenedLoreContext } from "../../contexts/OpenedLoreContext";
 import { LoreType } from "../../types/loreTypes";
 
 interface LoreTypeWithNext extends LoreType {
@@ -29,12 +29,12 @@ const Lore = ({ lore, refs, className }: Props) => {
       onClick={() => setLore(lore)}
       className={`flex aspect-video w-[230px] cursor-pointer items-center justify-center rounded-lg bg-white p-1 ${className || ""}`}
     >
-      <Image
+      <img
         src={lore?.thumbnailUrl || "/first-cutscene.jpg"}
         alt="lore thumbnail"
         width={230}
         height={130}
-        className="z-0 h-full w-full rounded-lg object-cover"
+        className="z-0 aspect-video h-full w-full rounded-lg object-cover"
       />
     </div>
   );

@@ -55,14 +55,12 @@ export default function AdminLogin() {
   return (
     <div className="flex h-screen flex-col gap-0 md:flex-row">
       <div className="hidden h-full w-full flex-col items-center justify-center gap-4 bg-gray-200 md:flex md:w-1/2 dark:bg-white/10">
-        <h1 className="text-center text-2xl font-semibold">
-          Welcome Back to Lore Graph Super Admin
-        </h1>
-        <div className="text-center">This page is not for normal users please leave.</div>
+        <h1 className="text-center text-2xl font-semibold">Welcome Back to Lore Graph</h1>
+        <div className="text-center"></div>
       </div>
       <div className="absolute flex h-full w-full flex-col items-center justify-center md:relative md:h-auto md:w-1/2">
         <h1 className="w-11/12 max-w-112.5 ps-0 pb-3 text-center text-2xl font-semibold md:w-9/12 md:pb-0 md:pl-6 md:text-start">
-          Log In to Super Admin
+          Log In to Lore Graph
         </h1>
         <form className="flex w-11/12 max-w-112.5 flex-col gap-4 rounded-md bg-transparent p-6 md:w-9/12">
           <Input

@@ -38,7 +38,6 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     row: number;
   }>(null);
   const [connectStart, setConnectStart] = useState<{ loreId: string } | null>(null);
-  const connectionMap = useRef<Map<string, { _id: string; next: string[] }>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -185,9 +184,6 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
   useEffect(() => {
     // fetch nData
     setLores(new Map());
-
-    // fetch connection data
-    connectionMap.current = new Map();
 
     // set levels data
     setLevels([[]]);

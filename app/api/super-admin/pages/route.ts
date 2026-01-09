@@ -7,19 +7,10 @@ export async function POST(req: Request) {
     await dbConnect();
 
     const body = await req.json();
-    const {
-      title,
-      description,
-      slug,
-      tags,
-      lvls,
-      bgImgUrl,
-      visibility,
-      authorId: bodyAuthorId,
-    } = body;
+    const { title, description, slug, tags, lvls, bgImgUrl, visibility } = body;
 
     // Try to get authorId from headers (if middleware sets it) or body
-    const authorId = req.headers.get("x-user") || bodyAuthorId;
+    const authorId = req.headers.get("x-user");
 
     if (!authorId) {
       return NextResponse.json({ message: "Author ID is required" }, { status: 400 });

@@ -7,6 +7,7 @@ export interface IComment extends Document {
   authorId: string; // Reference to User (Indexed)
   content: string;
   likesCount: number;
+  dislikesCount: number;
   replyCount: number;
   createdAt: string;
   updatedAt: string;
@@ -39,6 +40,10 @@ const CommentSchema: Schema = new Schema(
       required: true,
     },
     likesCount: {
+      type: Number,
+      default: 0,
+    },
+    dislikesCount: {
       type: Number,
       default: 0,
     },

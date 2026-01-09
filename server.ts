@@ -14,6 +14,7 @@ app.prepare().then(() => {
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
+  (global as any).io = io;
 
   io.on("connection", (socket) => {
     const filter = new Filter();
@@ -32,28 +33,6 @@ app.prepare().then(() => {
       const count = io.sockets.adapter.rooms.get(loreId)?.size || 0;
       io.to(loreId).emit("room-count-update", count);
       console.log(`User ${socket.id} left room: ${loreId}`);
-    });
-
-    // 3. Handling a new comment
-    socket.on("send-comment", async (commentData) => {
-      // Save to MongoDB first
-      try {
-        if (filter.isProfane(commentData.content)) {
-          socket.emit("error", {
-            message: "Failed to save comment.",
-          });
-          return;
-        }
-        // const newComment = await new Comment(commentData);
-        // await newComment.save();
-        // ONLY emit to users inside this specific loreId room
-        io.to(commentData.loreId).emit("new-comment", commentData);
-      } catch (error) {
-        socket.emit("error", {
-          message: "Failed to save comment.",
-        });
-        console.error("Error saving comment:", error);
-      }
     });
 
     socket.on("disconnecting", () => {

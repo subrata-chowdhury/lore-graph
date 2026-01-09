@@ -27,6 +27,10 @@ type Props = {
 };
 
 const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: Props) => {
+  const [error, setError] = useState({
+    field: "",
+    msg: "",
+  });
   const imgInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -37,20 +41,33 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
     }
   }
 
-  function fetchVideoDetails() {
+  async function fetchVideoDetails() {
     const youtubeId = getYouTubeID(loreData?.src || "");
     if (youtubeId) {
-      fetcher
+      await fetcher
         .get<{
           data: {
             title: string;
             description: string;
             thumbnails: string;
             tags: string[];
+            isEmbeddable: boolean;
+            isPublic: boolean;
           };
         }>(`/super-admin/video-details?videoId=${youtubeId}`)
         .then((data) => {
-          if (data.body?.data)
+          if (data.body?.data) {
+            setError({ field: "", msg: "" });
+            if (!data.body.data.isEmbeddable) {
+              setError({ field: "src", msg: "This video is not embeddable" });
+              toast.error("This video is not embeddable");
+              return;
+            }
+            if (!data.body.data.isPublic) {
+              setError({ field: "src", msg: "This video is not public" });
+              toast.error("This video is not public");
+              return;
+            }
             onLoreDataChange({
               ...loreData,
               title: data.body.data.title,
@@ -58,10 +75,11 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
               thumbnailUrl: data.body.data.thumbnails,
               tags: data.body.data.tags || [],
             });
+          }
         })
         .catch((err) => {
           console.log(err);
-          toast.error("Error fetching video details");
+          // toast.error("Error fetching video details");
         });
     }
   }
@@ -125,13 +143,20 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
               containerClass="mb-4 flex-1"
               labelClass="text-sm font-semibold"
               inputClass="text-sm"
+              error={error.field === "src" ? error.msg : ""}
             />
             <button
               disabled={!loreData?.src}
               className={`mt-auto mb-4 rounded-full bg-black/20 px-5 py-2 text-sm font-semibold hover:bg-black/25 ${
                 !loreData?.src ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={fetchVideoDetails}
+              } ${error.field === "src" ? "mb-9" : ""}`}
+              onClick={() =>
+                toast.promise(fetchVideoDetails, {
+                  pending: "Fetching video details...",
+                  success: "Details fetched successfully",
+                  error: "Error fetching video details",
+                })
+              }
             >
               Fetch Details
             </button>
@@ -210,7 +235,13 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
           ) : (
             "Select thumbnail"
           )}
-          <input type="file" className="hidden" ref={imgInputRef} onChange={handleImageChange} />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={imgInputRef}
+            onChange={handleImageChange}
+          />
         </div>
         <div className="mt-5">
           <div className={`text-sm font-semibold`}>Demo Lore View</div>

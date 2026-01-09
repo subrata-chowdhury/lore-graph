@@ -23,6 +23,8 @@ export async function GET(request: Request) {
         description: videoDetails.description,
         thumbnails: videoDetails.thumbnails,
         tags: videoDetails.tags,
+        isEmbeddable: videoDetails.isEmbeddable,
+        isPublic: videoDetails.isPublic,
       },
       success: true,
     });
@@ -35,7 +37,7 @@ export async function GET(request: Request) {
 }
 
 async function getFullDetails(videoId: string, apiKey: string) {
-  const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${apiKey}`;
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails,status&id=${videoId}&key=${apiKey}`;
 
   const response = await fetch(url);
   const data = await response.json();
@@ -49,6 +51,8 @@ async function getFullDetails(videoId: string, apiKey: string) {
       duration: video.contentDetails.duration,
       thumbnails: video.snippet.thumbnails.high.url,
       tags: video.snippet.tags,
+      isEmbeddable: video.status.embeddable,
+      isPublic: video.status.privacyStatus === "public",
     };
   }
 }

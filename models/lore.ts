@@ -9,6 +9,7 @@ export interface ILore extends Document {
   type: "video" | "youtube" | "post";
   viewsCount: number;
   likesCount: number;
+  dislikesCount: number;
   visibility: "public" | "private";
   createdBy: string; // User's name
   createdById: mongoose.Schema.Types.ObjectId; // Reference to User ID (Indexed)
@@ -50,6 +51,10 @@ const LoreSchema: Schema = new Schema(
       default: 0,
     },
     likesCount: {
+      type: Number,
+      default: 0,
+    },
+    dislikesCount: {
       type: Number,
       default: 0,
     },

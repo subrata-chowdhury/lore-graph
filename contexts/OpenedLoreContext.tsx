@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { LoreType } from "../../types/loreTypes";
+import { LoreType } from "../types/loreTypes";
 
 interface OpenedLoreState {
   lore: LoreType | null;

@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
     // Assuming you have a function to generate a token
     const token = await new SignJWT({
       userId: user._id.toString(),
+      username: user.username,
       verified: user.verified,
       ip: requestInfo.ip,
       deviceInfo: requestInfo.agent,

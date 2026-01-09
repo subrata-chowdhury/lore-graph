@@ -13,6 +13,8 @@ export async function proxy(request: NextRequest) {
     { url: "/api/super-admin/auth/login", method: "POST" },
     { url: "/api/auth/signup", method: "POST" },
     { url: "/api/lores", method: "GET" },
+    { url: "/api/pages", method: "GET" },
+    { url: "/api/comments", method: "GET" },
   ];
   const excludeTokenVerificationPatterns = [/^\/api\/tests\/.*/, /^\/api\/labs\/.*/];
   if (
@@ -25,31 +27,22 @@ export async function proxy(request: NextRequest) {
   }
 
   let userType: "super-admin" | "user" = "user";
-  if (request.nextUrl.pathname.includes("/super-admin")) userType = "super-admin";
+  const isSuperAdminPath = request.nextUrl.pathname.includes("/super-admin");
 
   let token = null;
-  switch (userType) {
-    case "super-admin":
-      token = await generateFullTokenFromChunks("super_admin_session");
-      if (!token) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  if (isSuperAdminPath) {
+    userType = "super-admin";
+    token = await generateFullTokenFromChunks("super_admin_session");
+  } else {
+    // Try user session first, fallback to super-admin session for user APIs
+    token = await generateFullTokenFromChunks("session");
+    if (!token) {
+      const adminToken = await generateFullTokenFromChunks("super_admin_session");
+      if (adminToken) {
+        token = adminToken;
+        userType = "super-admin";
       }
-      break;
-
-    case "user": {
-      token = await generateFullTokenFromChunks("session");
-      if (!token) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-      }
-      break;
     }
-
-    default:
-      token = await generateFullTokenFromChunks("session");
-      if (!token) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-      }
-      break;
   }
 
   let user: AuthTokenPayloadType | boolean = false;
@@ -73,6 +66,7 @@ export async function proxy(request: NextRequest) {
     }
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user", user.userId);
+    requestHeaders.set("x-username", user.username);
     requestHeaders.set("x-user-role", userType);
 
     return NextResponse.next({

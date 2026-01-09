@@ -8,6 +8,7 @@ export type LoreType = {
   type: "video" | "youtube" | "post";
   viewsCount: number;
   likesCount: number;
+  dislikesCount: number;
   visibility: "public" | "private";
   // next: string[]; // Array of Lore IDs
   createdBy: string; // Reference to User (Indexed)
@@ -17,6 +18,14 @@ export type LoreType = {
 };
 
 export type LoreLikeType = {
+  _id: string;
+  loreId: string; // Reference to Lore (Indexed)
+  userId: string; // Reference to User (Indexed)
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LoreDislikeType = {
   _id: string;
   loreId: string; // Reference to Lore (Indexed)
   userId: string; // Reference to User (Indexed)

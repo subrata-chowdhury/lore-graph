@@ -104,7 +104,13 @@ const PageForm = ({ pageData, onPageDataChange, onSave = () => {} }: Props) => {
           ) : (
             "Select Background Image"
           )}
-          <input type="file" className="hidden" ref={imgInputRef} onChange={handleImageChange} />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={imgInputRef}
+            onChange={handleImageChange}
+          />
         </div>
         <div className="mt-4">
           <button

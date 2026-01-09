@@ -6,9 +6,10 @@ import numberFormatter from "@/libs/numberFormatter";
 import Comment from "./Comment";
 import InputBox from "./InputBox";
 import { useEffect, useState } from "react";
-import { useOpenedLoreContext } from "@/app/contexts/OpenedLoreContext";
-import { useSocket } from "@/app/contexts/SocketContext";
+import { useOpenedLoreContext } from "@/contexts/OpenedLoreContext";
+import { useSocket } from "@/contexts/SocketContext";
 import { toast } from "react-toastify";
+import fetcher from "@/libs/fetcher";
 
 type Props = {
   onClose?: () => void;
@@ -18,38 +19,94 @@ export default function CommentSection({ onClose = () => {} }: Props) {
   const [replyCommentData, setReplyCommentData] = useState<CommentType | null>(null);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentPageniation, setCommentPagination] = useState({
-    page: 1,
-    pageSize: 20,
-    total: 1200,
-    limit: 100,
+    page: 0,
+    pageSize: 0,
+    total: 0,
+    limit: 10,
+    totalCommentsIncludeingReply: 0,
   });
   const { lore } = useOpenedLoreContext();
   const socket = useSocket();
+  const [loading, setLoading] = useState(false);
 
-  function socketCleanup() {
-    socket?.off("new-comment");
+  async function postComment(commentData: {
+    content: string;
+    loreId: string;
+    parentId: string | null;
+  }) {
+    const res = await fetcher.post("/comments", commentData);
+    if (res.status !== 201) {
+      toast.error(res.error || "Failed to post comment");
+    }
   }
 
-  function checkForNewComments() {
-    socket?.on("new-comment", (newComment: CommentType) => {
-      if (newComment.loreId === lore?._id) {
-        setComments((prevComments) => [newComment, ...prevComments]);
+  useEffect(() => {
+    if (lore?._id) {
+      fetchComments(1);
+    }
+  }, [lore?._id]);
+
+  async function fetchComments(page = 1) {
+    if (!lore?._id) return;
+    setLoading(true);
+    const res = await fetcher.get<{
+      data: CommentType[];
+      pagination: {
+        page: number;
+        pageSize: number;
+        total: number;
+        limit: number;
+        totalCommentsIncludeingReply: number;
+      };
+    }>(`/comments?loreId=${lore._id}&page=${page}&limit=${commentPageniation.pageSize}`);
+    setLoading(false);
+    if (res.status === 200 && res.body) {
+      if (page === 1) {
+        setComments(res.body.data);
+      } else {
+        setComments((prev) => [...prev, ...(res.body?.data || [])]);
       }
-    });
-  }
-
-  function postComment(commentData: CommentType) {
-    socket?.emit("send-comment", commentData);
+      setCommentPagination((prev) => ({
+        ...prev,
+        total: res.body?.pagination.total || 0,
+        page: res.body?.pagination.page || 0,
+        totalCommentsIncludeingReply: res.body?.pagination.totalCommentsIncludeingReply || 0,
+      }));
+    } else {
+      toast.error(res.error || "Failed to fetch comments");
+    }
   }
 
   useEffect(() => {
-    setComments(dummyComments);
-  }, []);
+    if (!socket || !lore?._id) return;
 
-  useEffect(() => {
-    if (!socket || !lore) return;
-    checkForNewComments();
-    return () => socketCleanup();
+    const handleNewComment = (newComment: CommentType) => {
+      if (newComment.loreId === lore._id) {
+        // Update total count in header
+        setCommentPagination((prev) => ({ ...prev, total: prev.total + 1 }));
+
+        const isTopLevel = !newComment.parentId || newComment.parentId === lore._id;
+        console.log(newComment);
+        if (isTopLevel) {
+          // Add to top-level comments list
+          setComments((prevComments) => [newComment, ...prevComments]);
+        } else {
+          // Increment reply count for the parent comment if it's in the current list
+          setComments((prevComments) =>
+            prevComments.map((comment) =>
+              comment._id === newComment.parentId
+                ? { ...comment, replyCount: (comment.replyCount || 0) + 1 }
+                : comment
+            )
+          );
+        }
+      }
+    };
+
+    socket.on("new-comment", handleNewComment);
+    return () => {
+      socket.off("new-comment", handleNewComment);
+    };
   }, [socket, lore]);
 
   return (
@@ -65,7 +122,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
           {(commentPageniation.total || 0) > 0 && (
             <span className="text-xs font-normal">
               {" "}
-              ({numberFormatter(commentPageniation.total)})
+              ({numberFormatter(commentPageniation.totalCommentsIncludeingReply)})
             </span>
           )}
         </h3>
@@ -75,8 +132,8 @@ export default function CommentSection({ onClose = () => {} }: Props) {
         {comments.length <= 0 && (
           <p className="my-auto py-2 text-center text-xs font-medium text-black/40">No Comments</p>
         )}
-        {comments.map((comment, index) => (
-          <Comment key={index} comment={comment} onReplyClick={setReplyCommentData} />
+        {comments.map((comment) => (
+          <Comment key={comment._id} comment={comment} onReplyClick={setReplyCommentData} />
         ))}
       </div>
       {socket && (
@@ -85,19 +142,11 @@ export default function CommentSection({ onClose = () => {} }: Props) {
           onCancelReply={() => setReplyCommentData(null)}
           onCommentSubmit={(comment) => {
             if (!lore) return;
-            const newComment: CommentType = {
-              _id: Math.random().toString(36).substring(2, 9),
-              author: "CurrentUser", // Replace with actual user data
-              authorId: "currentUserId", // Replace with actual user ID
+            postComment({
               content: comment,
-              createdAt: new Date().toISOString(),
               loreId: lore._id,
               parentId: replyCommentData?._id || null,
-              likesCount: 0,
-              replyCount: 0,
-              updatedAt: new Date().toISOString(),
-            };
-            postComment(newComment);
+            });
             setReplyCommentData(null);
           }}
         />
@@ -105,54 +154,3 @@ export default function CommentSection({ onClose = () => {} }: Props) {
     </motion.div>
   );
 }
-
-export const dummyComments: CommentType[] = [
-  {
-    _id: "1",
-    author: "User1",
-    authorId: "user1",
-    content: "This is a great video!",
-    createdAt: new Date().toISOString(),
-    loreId: "lore1",
-    parentId: null,
-    likesCount: 10,
-    replyCount: 0,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "2",
-    author: "User2",
-    authorId: "user2",
-    content: "I learned a lot from this video.",
-    createdAt: new Date().toISOString(),
-    loreId: "lore1",
-    parentId: null,
-    likesCount: 5,
-    replyCount: 1,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "3",
-    author: "User3",
-    authorId: "user3",
-    content: "I learned a lot from this video.",
-    createdAt: new Date().toISOString(),
-    loreId: "lore1",
-    parentId: "2",
-    likesCount: 5,
-    replyCount: 0,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "4",
-    author: "User4",
-    authorId: "user4",
-    content: "I learned a lot from this video.",
-    createdAt: new Date().toISOString(),
-    loreId: "lore1",
-    parentId: "4",
-    likesCount: 5,
-    replyCount: 1,
-    updatedAt: new Date().toISOString(),
-  },
-];

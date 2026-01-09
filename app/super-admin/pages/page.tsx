@@ -14,8 +14,8 @@ import Modal from "@/ui/components/Modal";
 import { CgClose } from "react-icons/cg";
 
 const Pages = () => {
-  const [data, setLabData] = useState<PageType[]>(dummyData);
-  const [analytics, setAnalytics] = useState<{ totalLabs: number }>({ totalLabs: 0 });
+  const [data, setData] = useState<PageType[]>([]);
+  const [analytics, setAnalytics] = useState<{ totalPages: number }>({ totalPages: 0 });
 
   const [limit, setLimit] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,47 +33,49 @@ const Pages = () => {
   //     getAnalytics();
   // }, [])
 
-  const fetchLabs = useCallback(async () => {
+  const fetchPages = useCallback(async () => {
     setLoading(true);
-    const filterData: { location?: string; name?: string } = { location: location, name: name };
-    if (location === "All") delete filterData.location;
-    if (name === "") delete filterData.name;
+    const params = new URLSearchParams();
+    params.set("page", currentPage.toString());
+    params.set("limit", limit.toString());
+    if (name) params.set("search", name);
+    if (location && location !== "All") params.set("tags", location);
 
     const res = await fetcher.get<{
       pages: PageType[];
       pagination: { pages: number; currentPage: number; pageSize: number; totalPages: number };
-    }>(`/pages?filter=${JSON.stringify(filterData)}&limit=${limit}&page=${currentPage}`);
+    }>(`/pages?${params.toString()}`);
     if (res.status !== 200) return;
     if (res.body) {
-      setLabData(res.body.pages);
+      setData(res.body.pages);
       setTotalPages(res.body.pagination.totalPages || 1);
       setCurrentPage(res.body.pagination.currentPage);
       setLimit(res.body.pagination.pageSize);
-      setAnalytics({ totalLabs: res.body.pagination.pages });
+      setAnalytics({ totalPages: res.body.pagination.pages });
     }
     setLoading(false);
   }, [location, name, currentPage, limit]);
 
   useEffect(() => {
-    // fetchLabs();
-  }, [location, name, currentPage, limit, fetchLabs]);
+    fetchPages();
+  }, [location, name, currentPage, limit, fetchPages]);
 
   // async function getAnalytics() {
-  //     const res = await fetcher.get<{ totalLabs: number }>('/labs/analytics');
+  //     const res = await fetcher.get<{ totalPages: number }>('/pages/analytics');
   //     if (res.status !== 200) return;
   //     if (res.body) {
   //         setAnalytics({
-  //             totalLabs: res.body.totalLabs || 0
+  //             totalPages: res.body.totalPages || 0
   //         });
   //     };
   // }
 
-  async function deleteLab(id: string) {
-    if (!window.confirm("Are you sure you want to delete this lab?")) return;
+  async function deletePage(id: string) {
+    if (!window.confirm("Are you sure you want to delete this page?")) return;
     setLoading(true);
-    // const res = await fetcher.delete(`/admin/labs/${id}`);
+    // const res = await fetcher.delete(`/admin/pages/${id}`);
     // if (res.status !== 200) return;
-    // await fetchLabs();
+    // await fetchPages();
   }
 
   return (
@@ -114,6 +116,7 @@ const Pages = () => {
               {
                 heading: "Tags",
                 selector: "tags",
+                hideAble: true,
                 component: ({ data, index }) => (
                   <div
                     className="text-xs"
@@ -157,13 +160,13 @@ const Pages = () => {
                   <div className="flex w-fit items-center">
                     <button
                       className="cursor-pointer rounded-full p-2 transition-all hover:bg-black/10"
-                      onClick={() => navigate.push("/admin/labs/edit/about/" + data._id)}
+                      onClick={() => navigate.push("/admin/pages/edit/about/" + data._id)}
                     >
                       <LuPencil />
                     </button>
                     <button
                       className="cursor-pointer rounded-full p-2 transition-all hover:bg-black/10"
-                      onClick={() => deleteLab(data._id as string)}
+                      onClick={() => deletePage(data._id as string)}
                     >
                       <BiTrash />
                     </button>
@@ -279,106 +282,5 @@ const cards = [
     icon: <BiUser size={24} />,
     selector: "churnRate",
     timeframe: "Since last month",
-  },
-];
-
-const dummyData: PageType[] = [
-  {
-    _id: "1",
-    title: "Introduction to Lore Graph",
-    lvls: [],
-    slug: "introduction-to-lore-graph",
-    description: "A beginner's guide to Lore Graph.",
-    tags: ["beginner", "guide", "lore-graph"],
-    authorId: "admin1",
-    rating: 4.5,
-    rated: 150,
-    views: 2500,
-    createdAt: new Date("2023-01-15"),
-    updatedAt: new Date("2023-01-20"),
-  },
-  {
-    _id: "2",
-    title: "Advanced Lore Graph Techniques",
-    lvls: [],
-    slug: "advanced-lore-graph-techniques",
-    description: "Explore advanced techniques in Lore Graph.",
-    tags: ["advanced", "techniques"],
-    authorId: "admin2",
-    rating: 4.8,
-    rated: 200,
-    views: 10000000,
-    createdAt: new Date("2023-02-10"),
-    updatedAt: new Date("2023-02-15"),
-  },
-  {
-    _id: "2",
-    title: "Advanced Lore Graph Techniques",
-    lvls: [],
-    slug: "advanced-lore-graph-techniques",
-    description: "Explore advanced techniques in Lore Graph.",
-    tags: ["advanced", "techniques"],
-    authorId: "admin2",
-    rating: 4.8,
-    rated: 200,
-    views: 10000000,
-    createdAt: new Date("2023-02-10"),
-    updatedAt: new Date("2023-02-15"),
-  },
-  {
-    _id: "2",
-    title: "Advanced Lore Graph Techniques",
-    lvls: [],
-    slug: "advanced-lore-graph-techniques",
-    description: "Explore advanced techniques in Lore Graph.",
-    tags: ["advanced", "techniques"],
-    authorId: "admin2",
-    rating: 4.8,
-    rated: 200,
-    views: 10000000,
-    createdAt: new Date("2023-02-10"),
-    updatedAt: new Date("2023-02-15"),
-  },
-  {
-    _id: "2",
-    title: "Advanced Lore Graph Techniques",
-    lvls: [],
-    slug: "advanced-lore-graph-techniques",
-    description: "Explore advanced techniques in Lore Graph.",
-    tags: ["advanced", "techniques"],
-    authorId: "admin2",
-    rating: 4.8,
-    rated: 200,
-    views: 10000000,
-    createdAt: new Date("2023-02-10"),
-    updatedAt: new Date("2023-02-15"),
-  },
-  {
-    _id: "2",
-    title: "Advanced Lore Graph Techniques",
-    lvls: [],
-    slug: "advanced-lore-graph-techniques",
-    description: "Explore advanced techniques in Lore Graph.",
-    tags: ["advanced", "techniques"],
-    authorId: "admin2",
-    rating: 4.8,
-    rated: 200,
-    views: 10000000,
-    createdAt: new Date("2023-02-10"),
-    updatedAt: new Date("2023-02-15"),
-  },
-  {
-    _id: "2",
-    title: "Advanced Lore Graph Techniques",
-    lvls: [],
-    slug: "advanced-lore-graph-techniques",
-    description: "Explore advanced techniques in Lore Graph.",
-    tags: ["advanced", "techniques"],
-    authorId: "admin2",
-    rating: 4.8,
-    rated: 200,
-    views: 10000000,
-    createdAt: new Date("2023-02-10"),
-    updatedAt: new Date("2023-02-15"),
   },
 ];

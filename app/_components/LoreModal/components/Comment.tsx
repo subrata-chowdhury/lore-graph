@@ -3,7 +3,8 @@ import { CommentType } from "@/types/commentTypes";
 import { useState } from "react";
 import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import { HiReply } from "react-icons/hi";
-import { dummyComments } from "./CommenSection";
+import fetcher from "@/libs/fetcher";
+import { toast } from "react-toastify";
 
 function Comment({
   comment,
@@ -19,12 +20,19 @@ function Comment({
   const [subComments, setSubComments] = useState<CommentType[]>([]);
   const [showReplies, setShowReplies] = useState(false);
   const [expandComment, setExpandComment] = useState(false);
+  const [loadingReplies, setLoadingReplies] = useState(false);
 
-  function fetchReplies() {
-    // Fetch replies from server based on comment._id
-    // For demo purposes, we'll use dummy data
-    const replies: CommentType[] = dummyComments.filter((c) => c.parentId === comment._id);
-    setSubComments(replies);
+  async function fetchReplies() {
+    setLoadingReplies(true);
+    const res = await fetcher.get<{ data: CommentType[] }>(
+      `/comments?loreId=${comment.loreId}&parentId=${comment._id}`
+    );
+    setLoadingReplies(false);
+    if (res.status === 200 && res.body) {
+      setSubComments(res.body.data);
+    } else {
+      toast.error(res.error || "Failed to fetch replies");
+    }
   }
 
   return (
@@ -68,8 +76,10 @@ function Comment({
             <div
               className="mt-1 flex cursor-pointer items-center rounded-full px-1.5 py-1 text-[10px] leading-2.5 font-semibold hover:bg-black/10"
               onClick={() => {
+                if (subComments.length === 0) {
+                  fetchReplies();
+                }
                 setShowReplies((val) => !val);
-                fetchReplies();
               }}
             >
               {comment.replyCount || 0}&nbsp;<div> replies</div>

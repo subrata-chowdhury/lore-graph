@@ -6,12 +6,20 @@ export type CommentType = {
   authorId: string; // Reference to User (Indexed)
   content: string;
   likesCount: number;
+  dislikesCount: number;
   replyCount: number;
   createdAt: string;
   updatedAt: string;
 };
 
 export type CommentLikeType = {
+  _id: string;
+  commentId: string; // Reference to Comment (Indexed)
+  userId: string; // Reference to User (Indexed)
+  createdAt: string;
+};
+
+export type CommentDislikeType = {
   _id: string;
   commentId: string; // Reference to Comment (Indexed)
   userId: string; // Reference to User (Indexed)

@@ -130,7 +130,11 @@ function PinchZoomWrapper(props: { children: React.ReactNode }) {
         </Title>
       </div>
 
-      <div ref={contentRef} style={contentStyles} className={`max-h-screen w-full overflow-auto`}>
+      <div
+        ref={contentRef}
+        style={contentStyles}
+        className={`h-full max-h-screen w-full overflow-auto`}
+      >
         {props.children}
       </div>
     </div>
