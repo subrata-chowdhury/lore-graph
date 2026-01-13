@@ -11,8 +11,10 @@ import PinchZoomWrapper from "@/app/_components/PinchZoomFeature";
 import Edge from "@/app/_components/Edge";
 import Lore from "@/app/_components/Lore";
 import { PageType } from "@/types/types";
+import { usePathname, useRouter } from "next/navigation";
+import { GoTriangleDown } from "react-icons/go";
 
-export default function Graph({
+export default function GraphPage({
   pageData,
   lvlData,
   nData,
@@ -23,13 +25,13 @@ export default function Graph({
 }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <Image
+      {/* <Image
         src={nbg}
         alt="Night Background"
         width={540}
         height={268}
         className="fixed top-0 left-0 -z-20 min-h-screen w-full"
-      />
+      /> */}
       <div className="fixed top-0 left-0 -z-10 min-h-screen w-full bg-black/70"></div>
       <div className="flex h-screen w-screen">
         <Menubar />
@@ -117,9 +119,7 @@ export function GraphView({
   return (
     <>
       <LoreModal />
-      <div className="fixed top-3 left-1/2 z-10 -translate-x-1/2 cursor-pointer rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/15">
-        {pageData.title}
-      </div>
+      <Levels levels={pageData.lvls} />
       <PinchZoomWrapper>
         <div
           ref={containerRef}
@@ -158,6 +158,44 @@ export function GraphView({
           ))}
         </div>
       </PinchZoomWrapper>
+    </>
+  );
+}
+
+function Levels({ levels }: { levels: PageType["lvls"] }) {
+  const [showLevels, setShowLevels] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLevelChange = (level: number) => {
+    setShowLevels(false);
+    router.push(`${pathname}?level=${level}`);
+  };
+
+  return (
+    <>
+      <div
+        onClick={() => setShowLevels((val) => !val)}
+        className="fixed top-3 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer items-center gap-2 rounded-lg bg-white/10 px-4 py-2 pr-2 text-sm font-medium text-white"
+      >
+        {levels[0].title}
+        <div className="rounded-full p-1 hover:bg-white/15">
+          <GoTriangleDown className={`transition-all ${showLevels ? "rotate-180" : ""}`} />
+        </div>
+      </div>
+      {showLevels && (
+        <div className="fixed top-14 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-3 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white">
+          {levels.map((level, idx) => (
+            <div
+              key={level.id}
+              onClick={() => handleLevelChange(idx)}
+              className="hover:text-white/80"
+            >
+              {level.title}
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

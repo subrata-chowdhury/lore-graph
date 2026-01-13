@@ -8,12 +8,12 @@ import { BiPencil, BiTrash } from "react-icons/bi";
 type Props = {
   pageData: Omit<
     PageType,
-    "_id" | "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+    "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
   >;
   onPageDataChange: (
     updatedPage: Omit<
       PageType,
-      "_id" | "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+      "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
     >
   ) => void;
   onSave?: () => void;

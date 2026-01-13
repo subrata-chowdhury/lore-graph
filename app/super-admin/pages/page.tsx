@@ -125,7 +125,10 @@ const Pages = () => {
                     }}
                   >
                     {data.tags.slice(0, 2).map((tag) => (
-                      <span key={tag} className="mr-1 rounded-full bg-black/10 px-2.5 py-1">
+                      <span
+                        key={tag}
+                        className="mr-1 rounded-full bg-black/10 px-2.5 py-1 text-nowrap"
+                      >
                         {tag}
                       </span>
                     ))}
@@ -160,7 +163,7 @@ const Pages = () => {
                   <div className="flex w-fit items-center">
                     <button
                       className="cursor-pointer rounded-full p-2 transition-all hover:bg-black/10"
-                      onClick={() => navigate.push("/admin/pages/edit/about/" + data._id)}
+                      onClick={() => navigate.push("/super-admin/pages/" + data._id)}
                     >
                       <LuPencil />
                     </button>

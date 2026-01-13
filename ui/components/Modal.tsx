@@ -12,7 +12,7 @@ function Modal({ children, onClose = () => {}, className = "", isOpen = true }: 
       onClick={onClose}
     >
       <div
-        className={`flex flex-col overflow-hidden rounded-md bg-white shadow-md dark:bg-black ${className}`}
+        className={`flex flex-col overflow-hidden rounded-md bg-white dark:bg-black ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

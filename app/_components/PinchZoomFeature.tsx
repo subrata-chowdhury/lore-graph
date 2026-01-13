@@ -112,19 +112,28 @@ function PinchZoomWrapper(props: { children: React.ReactNode }) {
       className="relative h-full w-full overflow-auto"
     >
       {/* Toolbar for Manual Zoom */}
-      <div className="fixed right-2 bottom-2 z-10 flex gap-2">
+      <div className="absolute right-8 bottom-3 z-10 flex gap-2">
         <Title title="Zoom In">
-          <button onClick={handleZoomIn} className="cursor-pointer rounded bg-white/80 px-2 py-2">
+          <button
+            onClick={handleZoomIn}
+            className="cursor-pointer rounded bg-white/20 px-2 py-2 text-white"
+          >
             <PiPlus size={14} />
           </button>
         </Title>
         <Title title="Zoom Out">
-          <button onClick={handleZoomOut} className="cursor-pointer rounded bg-white/80 px-2 py-2">
+          <button
+            onClick={handleZoomOut}
+            className="cursor-pointer rounded bg-white/20 px-2 py-2 text-white"
+          >
             <BiMinus size={14} />
           </button>
         </Title>
         <Title title="Reset Zoom">
-          <button onClick={handleReset} className="cursor-pointer rounded bg-white/80 px-3 py-2">
+          <button
+            onClick={handleReset}
+            className="cursor-pointer rounded bg-white/20 px-3 py-2 text-white"
+          >
             <TbReload size={14} />
           </button>
         </Title>

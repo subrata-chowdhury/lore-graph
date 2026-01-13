@@ -3,7 +3,7 @@ import Edge from "@/app/_components/Edge";
 import PinchZoomWrapper from "@/app/_components/PinchZoomFeature";
 import calculateEdges from "@/libs/edgeCalculationLogic";
 import { LoreType } from "@/types/loreTypes";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BiMinus, BiPencil, BiPlus, BiTrash } from "react-icons/bi";
 import LoreFinder from "./_components/LoreFinder";
 import Title from "@/ui/components/Title";
@@ -13,11 +13,12 @@ import Input from "@/ui/components/Inputs/Input";
 import fetcher from "@/libs/fetcher";
 
 type Props = {
+  id?: string | null;
   onAdd: ({ id, title }: { id: string; title: string }) => void;
   onCancel: () => void;
 };
 
-const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
+const LevelForm = ({ id, onAdd = () => {}, onCancel = () => {} }: Props) => {
   const [levelName, setLevelName] = useState<string>("");
   const [loreContainerSize, setLoreContainerSize] = useState({
     width: 0,
@@ -181,12 +182,45 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
     setLevels(newLevels);
   };
 
-  useEffect(() => {
-    // fetch nData
-    setLores(new Map());
+  const fetchData = useCallback(async (id: string) => {
+    // fetch level data
+    try {
+      const res = await fetcher.get<{
+        success: boolean;
+        data: { _id: string; name: string; levels: { _id: string; next: string[] }[][] };
+      }>(`/levels/${id}`);
+      if (res.body?.success) {
+        const { name, levels } = res.body.data;
+        setLevelName(name);
+        setLevels(levels);
+      } else {
+        toast.error("Error fetching level data.");
+      }
+      const res2 = await fetcher.get<{
+        success: boolean;
+        data: LoreType[];
+      }>(`/levels/${id}/lores`);
+      if (res2.body?.success) {
+        setLores(new Map(res2.body.data.map((lore) => [lore._id, lore])));
+      } else {
+        toast.error("Error fetching lores for level.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error fetching data.");
+    }
+  }, []);
 
-    // set levels data
-    setLevels([[]]);
+  useEffect(() => {
+    if (id) {
+      fetchData(id);
+    } else {
+      // fetch nData
+      setLores(new Map());
+
+      // set levels data
+      setLevels([[]]);
+    }
 
     const handleContextMenu = (event: MouseEvent) => {
       // 1. Prevent the default browser menu
@@ -204,7 +238,7 @@ const LevelForm = ({ onAdd = () => {}, onCancel = () => {} }: Props) => {
       document.removeEventListener("contextmenu", handleContextMenu);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, []);
+  }, [id]);
 
   useLayoutEffect(() => {
     calculateEdgesAndUpdate();

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
-import Lore from "@/models/lore";
-import LoreDislike from "@/models/loreDislike";
+import Lore from "@/models/Lore";
+import LoreDislike from "@/models/LoreDislike";
 import mongoose from "mongoose";
 
 export async function POST(

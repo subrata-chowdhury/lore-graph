@@ -4,8 +4,8 @@ import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 import dbConnect from "@/config/db";
 import crypto from "crypto";
-import SuperAdmin from "@/models/superAdmin";
-import Session from "@/models/session";
+import SuperAdmin from "@/models/SuperAdmin";
+import Session from "@/models/Session";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();

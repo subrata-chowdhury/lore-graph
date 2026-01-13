@@ -10,7 +10,7 @@ export type AuthTokenPayloadType = {
 
 // Frontend
 export type PageType = {
-  _id: string;
+  _id?: string;
   title: string;
   lvls: {
     id: string;
@@ -25,6 +25,6 @@ export type PageType = {
   likes: number;
   views: number;
   bgImgUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };

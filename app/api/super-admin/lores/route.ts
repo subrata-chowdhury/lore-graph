@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();
+    const userId = request.headers.get("x-user");
 
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get("page") || "1");
@@ -17,7 +18,9 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort") || "createdAt";
     const order = searchParams.get("order") === "asc" ? 1 : -1;
 
-    const query: any = {};
+    const query: any = {
+      createdById: userId,
+    };
 
     // Text search using the index defined in the model
     if (search) {

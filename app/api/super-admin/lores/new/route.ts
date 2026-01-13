@@ -1,7 +1,7 @@
 import dbConnect from "@/config/db";
-import Lore from "@/models/lore";
-import User from "@/models/user";
-import SuperAdmin from "@/models/superAdmin";
+import Lore from "@/models/Lore";
+import User from "@/models/User";
+import SuperAdmin from "@/models/SuperAdmin";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

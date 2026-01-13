@@ -1,5 +1,5 @@
 import dbConnect from "@/config/db";
-import Page from "@/models/page";
+import Page from "@/models/Page";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "createdAt";
     const order = searchParams.get("order") === "asc" ? 1 : -1;
+    const author = searchParams.get("author");
 
     const query: any = {};
 
@@ -22,6 +23,9 @@ export async function GET(req: NextRequest) {
         { slug: { $regex: search, $options: "i" } },
         ...(mongoose.Types.ObjectId.isValid(search) ? [{ _id: search }] : []),
       ];
+    }
+    if (author) {
+      query.authorId = author;
     }
 
     const skip = (page - 1) * limit;

@@ -1,4 +1,4 @@
-import Level from "@/models/level";
+import Level from "@/models/Level";
 import dbConnect from "@/config/db";
 import { NextResponse } from "next/server";
 

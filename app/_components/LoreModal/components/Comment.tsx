@@ -5,6 +5,7 @@ import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import { HiReply } from "react-icons/hi";
 import fetcher from "@/libs/fetcher";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 function Comment({
   comment,
@@ -42,7 +43,9 @@ function Comment({
       </div>
       <div className="flex max-w-68 flex-1 flex-col">
         <div className="mb-0.5 flex items-center justify-start">
-          <span className="text-xs font-semibold">{comment.author}</span>
+          <Link href={`/@${comment.author}`} target="_blank" className="text-xs font-semibold">
+            {comment.author}
+          </Link>
           <span className="ml-2 border-l border-black/20 pl-2 text-[10px] text-black/40">
             {new Date(comment.createdAt).toLocaleDateString()}
           </span>

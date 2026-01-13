@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
-import Comment from "@/models/comment";
-import CommentLike from "@/models/commentLike";
+import Comment from "@/models/Comment";
+import CommentLike from "@/models/CommentLike";
 import mongoose from "mongoose";
 
 export async function POST(

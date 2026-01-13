@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-import User from "@/models/user"; // Assuming you have a User model defined
+import User from "@/models/User"; // Assuming you have a User model defined
 import { SignJWT } from "jose";
 import dbConnect from "@/config/db";
 import crypto from "crypto";
-import Session from "@/models/session";
+import Session from "@/models/Session";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();

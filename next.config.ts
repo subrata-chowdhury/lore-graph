@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        // Matches /@username (e.g., /@user)
+        source: "/@:username",
+        // Serves the page at app/user/[username]/page.tsx
+        destination: "/users/:username",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

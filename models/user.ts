@@ -6,6 +6,9 @@ export interface IUser extends Document {
   password: string;
   username: string;
   country?: string;
+  followersCount: number;
+  followingCount: number;
+
   verified: boolean;
   otp?: string;
   otpExpiry?: Date;
@@ -36,6 +39,8 @@ const UserSchema: Schema = new Schema(
       unique: true,
     },
     country: { type: String, required: false },
+    followersCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
     verified: { type: Boolean, default: false },
     otp: { type: String, required: false },
     otpExpiry: { type: Date, required: false },

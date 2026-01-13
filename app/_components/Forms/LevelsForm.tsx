@@ -2,6 +2,7 @@ import { PageType } from "@/types/types";
 import React, { useState } from "react";
 import LevelForm from "./LevelForm/LevelForm";
 import { TbTrash } from "react-icons/tb";
+import { LuPencil } from "react-icons/lu";
 
 type Props = {
   levels: PageType["lvls"];
@@ -10,12 +11,13 @@ type Props = {
 };
 
 const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Props) => {
-  const [showNewLevelForm, setShowNewLevelForm] = useState(false);
+  const [showLevelForm, setShowLevelForm] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null); // for edit feature
 
   return (
     <>
       <div className="flex flex-1 flex-col overflow-auto bg-white p-6 px-8">
-        {!showNewLevelForm && (
+        {!showLevelForm && (
           <>
             <div className="flex flex-col">
               <div className={`text-sm font-semibold`}>Levels</div>
@@ -30,7 +32,13 @@ const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Pr
                     <div className="truncate text-sm leading-none font-semibold">{lvl.title}</div>
                     <div className="truncate text-xs leading-none text-black/50">{lvl.id}</div>
                   </div>
-                  <div>
+                  <div className="flex gap-1">
+                    <LuPencil
+                      onClick={() => {
+                        setShowLevelForm(true);
+                        setSelectedId(lvl.id);
+                      }}
+                    />
                     <TbTrash
                       className="cursor-pointer"
                       onClick={() => {
@@ -44,7 +52,7 @@ const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Pr
             })}
             <div className="mt-4 flex gap-3">
               <button
-                onClick={() => setShowNewLevelForm(true)}
+                onClick={() => setShowLevelForm(true)}
                 className="cursor-pointer rounded-full bg-black/20 px-5 py-2 text-sm font-semibold hover:bg-black/30"
               >
                 Add Level
@@ -60,13 +68,14 @@ const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Pr
             </div>
           </>
         )}
-        {showNewLevelForm && (
+        {showLevelForm && (
           <LevelForm
+            id={selectedId}
             onAdd={(newLevel) => {
               onLevelsChange([...levels, newLevel]);
-              setShowNewLevelForm(false);
+              setShowLevelForm(false);
             }}
-            onCancel={() => setShowNewLevelForm(false)}
+            onCancel={() => setShowLevelForm(false)}
           />
         )}
       </div>

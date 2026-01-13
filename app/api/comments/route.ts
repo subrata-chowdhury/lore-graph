@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
-import Comment, { IComment } from "@/models/comment";
+import Comment, { IComment } from "@/models/Comment";
 import { Filter } from "bad-words";
 
 export async function GET(request: NextRequest) {
