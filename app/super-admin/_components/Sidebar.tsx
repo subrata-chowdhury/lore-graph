@@ -18,7 +18,13 @@ const menus: { name: string; url: string; icon: React.FC<IconBaseProps>; matcher
   {
     name: "Pages",
     url: "/super-admin/pages",
-    matcher: ["/super-admin/pages", "/super-admin/pages/new", "/super-admin/pages/edit"],
+    matcher: ["/super-admin/pages", "/super-admin/pages/new"],
+    icon: HiOutlineRectangleGroup,
+  },
+  {
+    name: "Lores",
+    url: "/super-admin/lores",
+    matcher: ["/super-admin/lores", "/super-admin/lores/new"],
     icon: HiOutlineRectangleGroup,
   },
   {
@@ -58,7 +64,7 @@ const Sidebar = () => {
               href={menu.url}
               className={`flex min-h-6 w-full ${minimal ? "" : "min-w-45"} items-center gap-2 rounded-lg ${minimal ? "px-3.5" : "px-4"} py-3 text-sm leading-tight transition-all duration-200 hover:bg-black/10 ${
                 menu.matcher
-                  ? menu.matcher.includes(pathname)
+                  ? menu.matcher.some((path) => pathname.startsWith(path))
                     ? "bg-black/20 font-semibold"
                     : ""
                   : pathname === menu.url

@@ -9,6 +9,10 @@ import ProfilePic from "./_components/ProfilePic";
 import Page from "@/models/Page";
 import Link from "next/link";
 import BannerImage from "./_components/BannerImage";
+import { LuMail } from "react-icons/lu";
+import { LuCalendarDays } from "react-icons/lu";
+import { GrLocation } from "react-icons/gr";
+import { getCountryDetails } from "@/utils/getCountryDetails";
 
 type Props = {
   params: Promise<{
@@ -70,12 +74,6 @@ const UserPage = async ({ params }: Props) => {
               </div>
               <p className="font-medium text-gray-500 dark:text-gray-400">@{user.username}</p>
 
-              {user.country && (
-                <p className="mt-1 flex items-center justify-center gap-1 text-sm text-gray-500 sm:justify-start dark:text-gray-400">
-                  <span>📍</span> {user.country}
-                </p>
-              )}
-
               <div className="mt-3 flex items-center justify-center gap-6 sm:justify-start">
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-gray-900 dark:text-white">
@@ -101,36 +99,16 @@ const UserPage = async ({ params }: Props) => {
               <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">About</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <LuCalendarDays size={20} className="text-gray-400" />
                   <span>Joined {new Date(user.createdAt).toDateString()}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <LuMail size={20} className="text-gray-400" />
                   <span>{user.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                  <GrLocation size={20} className="text-gray-400" />
+                  <span>{getCountryDetails(user.country)?.label || "Unknown"}</span>
                 </div>
               </div>
             </div>

@@ -32,7 +32,7 @@ export default function GraphPage({
         height={268}
         className="fixed top-0 left-0 -z-20 min-h-screen w-full"
       /> */}
-      <div className="fixed top-0 left-0 -z-10 min-h-screen w-full bg-black/70"></div>
+      <div className="fixed top-0 left-0 -z-10 min-h-screen w-full bg-black/5"></div>
       <div className="flex h-screen w-screen">
         <Menubar />
         <GraphView lvlData={lvlData} nData={nData} pageData={pageData} />
@@ -176,20 +176,20 @@ function Levels({ levels }: { levels: PageType["lvls"] }) {
     <>
       <div
         onClick={() => setShowLevels((val) => !val)}
-        className="fixed top-3 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer items-center gap-2 rounded-lg bg-white/10 px-4 py-2 pr-2 text-sm font-medium text-white"
+        className="fixed top-3 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer items-center gap-2 rounded-lg bg-black/10 px-4 py-2 pr-2 text-sm font-medium text-black"
       >
         {levels[0].title}
-        <div className="rounded-full p-1 hover:bg-white/15">
+        <div className="rounded-full p-1 transition-all hover:bg-black/15">
           <GoTriangleDown className={`transition-all ${showLevels ? "rotate-180" : ""}`} />
         </div>
       </div>
       {showLevels && (
-        <div className="fixed top-14 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-3 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white">
+        <div className="fixed top-14 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-3 rounded-lg bg-black/10 px-4 py-2 text-sm font-medium text-black">
           {levels.map((level, idx) => (
             <div
               key={level.id}
               onClick={() => handleLevelChange(idx)}
-              className="hover:text-white/80"
+              className="hover:text-black/80"
             >
               {level.title}
             </div>

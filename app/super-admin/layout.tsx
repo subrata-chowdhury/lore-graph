@@ -22,9 +22,9 @@ const SuperAdminLayout = async (props: Props) => {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex h-screen flex-1 flex-col bg-black/3">
+      <div className="flex h-screen min-h-0 min-w-0 flex-1 flex-col bg-black/3">
         <Topbar />
-        <div className="flex flex-1 flex-col overflow-auto">{props.children}</div>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">{props.children}</div>
       </div>
     </div>
   );

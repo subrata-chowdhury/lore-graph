@@ -2,6 +2,7 @@
 import Lore from "@/app/_components/Lore";
 import fetcher from "@/libs/fetcher";
 import { LoreType } from "@/types/loreTypes";
+import { Optional } from "@/types/types";
 import Dropdown from "@/ui/components/Dropdown";
 import Input from "@/ui/components/Inputs/Input";
 import TagInput from "@/ui/components/Inputs/TagInput";
@@ -13,21 +14,9 @@ import { FiDownload } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 type Props = {
-  loreData: Omit<
-    LoreType,
-    | "_id"
-    | "createdAt"
-    | "updatedAt"
-    | "likesCount"
-    | "dislikesCount"
-    | "viewsCount"
-    | "createdBy"
-    | "createdById"
-  >;
-  onLoreDataChange: (
-    updatedLore: Omit<
+  loreData: Optional<
+    Omit<
       LoreType,
-      | "_id"
       | "createdAt"
       | "updatedAt"
       | "likesCount"
@@ -35,6 +24,22 @@ type Props = {
       | "viewsCount"
       | "createdBy"
       | "createdById"
+    >,
+    "_id"
+  >;
+  onLoreDataChange: (
+    updatedLore: Optional<
+      Omit<
+        LoreType,
+        | "createdAt"
+        | "updatedAt"
+        | "likesCount"
+        | "dislikesCount"
+        | "viewsCount"
+        | "createdBy"
+        | "createdById"
+      >,
+      "_id"
     >
   ) => void;
   onSave?: () => void;
@@ -210,7 +215,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
           This thumbnail will be shown as a preview of the lore.
         </div>
         <div
-          className="group relative flex aspect-video h-auto w-100 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50"
+          className="group relative flex aspect-video h-auto w-80 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50 xl:w-100"
           onClick={() => {
             imgInputRef.current?.click();
           }}
@@ -275,7 +280,9 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             }}
-            className="w-100! border border-black/15"
+            className="border border-black/15"
+            titleClassName="bg-white!"
+            containerClassName="mb-12.5"
           />
         </div>
         <div className="mt-4">
@@ -283,7 +290,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
             onClick={onSave}
             className="cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70"
           >
-            Continue
+            {loreData?._id ? "Save" : "Continue"}
           </button>
         </div>
       </div>

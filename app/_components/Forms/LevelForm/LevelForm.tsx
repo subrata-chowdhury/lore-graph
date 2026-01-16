@@ -278,7 +278,7 @@ const LevelForm = ({ id, onAdd = () => {}, onCancel = () => {} }: Props) => {
           Design the levels for this page by adding lores and connecting them.
         </div>
       </div>
-      <div className="relative mt-4 max-w-[calc(100vw-276px)] flex-1 overflow-auto rounded-lg bg-black/10">
+      <div className="relative mt-4 flex-1 overflow-auto rounded-lg bg-black/10">
         <PinchZoomWrapper>
           <div
             ref={containerRef}

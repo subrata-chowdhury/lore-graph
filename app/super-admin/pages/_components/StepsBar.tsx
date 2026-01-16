@@ -1,6 +1,4 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+// "use client";
 import React from "react";
 import { FaCircleCheck } from "react-icons/fa6";
 
@@ -11,7 +9,6 @@ const StepsBar = ({
   step: number;
   onStepChange: (step: number) => void;
 }) => {
-  const pathName = usePathname();
   return (
     <div className="relative flex justify-between px-8 py-1">
       <div

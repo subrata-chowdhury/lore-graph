@@ -11,9 +11,7 @@ const Edge = ({ from, to, cornerSize = 10, paddingLeft = 0 }: Props) => {
   const x2 = to.x;
   const y2 = to.y;
   if (y1 === y2) {
-    return (
-      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={`rgba(255,255,255,0.4)`} strokeWidth="2" />
-    );
+    return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={`rgba(0,0,0,0.2)`} strokeWidth="2" />;
   }
   // Determine direction
   const horizontalDir = x2 > x1 ? 1 : -1;
@@ -50,7 +48,7 @@ const Edge = ({ from, to, cornerSize = 10, paddingLeft = 0 }: Props) => {
         H ${x2}
     `;
 
-  return <path d={path} stroke={`rgba(255,255,255,0.4)`} strokeWidth="2" fill="none" />;
+  return <path d={path} stroke={`rgba(0,0,0,0.2)`} strokeWidth="2" fill="none" />;
 };
 
 export default Edge;

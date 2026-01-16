@@ -32,8 +32,9 @@ const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Pr
                     <div className="truncate text-sm leading-none font-semibold">{lvl.title}</div>
                     <div className="truncate text-xs leading-none text-black/50">{lvl.id}</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     <LuPencil
+                      className="cursor-pointer"
                       onClick={() => {
                         setShowLevelForm(true);
                         setSelectedId(lvl.id);

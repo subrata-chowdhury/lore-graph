@@ -5,7 +5,6 @@ type Props = {
   children: React.ReactNode;
   className?: string;
   containerClassName?: string;
-  width?: number;
   onClick?: () => void;
 };
 

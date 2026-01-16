@@ -93,6 +93,12 @@ export default function AdminLogin() {
           >
             {loading ? "Loading..." : "Login"}
           </button>
+          <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <Link href="/sign-up" className="font-medium text-blue-600">
+              Sign Up
+            </Link>
+          </div>
         </form>
       </div>
     </div>
