@@ -377,27 +377,47 @@ const LevelForm = ({ id, onAdd = () => {}, onCancel = () => {} }: Props) => {
             }
 
             setIsSubmitting(true);
-            try {
-              const { body: data, error } = await fetcher.post<
-                { name: string; levels: { _id: string; next: string[] }[][] },
-                { _id: string; name: string }
-              >("/super-admin/levels", { name: levelName, levels });
+            if (id) {
+              try {
+                const { body: data, error } = await fetcher.put<
+                  { name: string; levels: { _id: string; next: string[] }[][]; _id: string },
+                  { _id: string; name: string }
+                >(`/levels/${id}`, { name: levelName, levels, _id: id });
 
-              if (error) throw new Error(error);
-              if (data) {
-                toast.success("Level created successfully");
-                onAdd({ id: data._id, title: data.name });
+                if (error) throw new Error(error);
+                if (data) {
+                  toast.success("Level updated successfully");
+                  onAdd({ id: data._id, title: data.name });
+                }
+              } catch (error: any) {
+                console.error(error);
+                toast.error(error.message || "Error updating level");
+              } finally {
+                setIsSubmitting(false);
               }
-            } catch (error: any) {
-              console.error(error);
-              toast.error(error.message || "Error creating level");
-            } finally {
-              setIsSubmitting(false);
-            }
+            } else
+              try {
+                const { body: data, error } = await fetcher.post<
+                  { name: string; levels: { _id: string; next: string[] }[][] },
+                  { _id: string; name: string }
+                >("/super-admin/levels", { name: levelName, levels });
+
+                if (error) throw new Error(error);
+                if (data) {
+                  toast.success("Level created successfully");
+                  onAdd({ id: data._id, title: data.name });
+                }
+              } catch (error: any) {
+                console.error(error);
+                toast.error(error.message || "Error creating level");
+              } finally {
+                setIsSubmitting(false);
+              }
           }}
           className={`cursor-pointer rounded-full bg-black/80 px-5 py-2 text-sm font-semibold text-white hover:bg-black/70 ${isSubmitting ? "opacity-50" : ""}`}
         >
-          {isSubmitting ? "Saving..." : "Add"}
+          {!id && (isSubmitting ? "Saving..." : "Add")}
+          {id && (isSubmitting ? "Updating..." : "Save")}
         </button>
       </div>
       <LoreFinder

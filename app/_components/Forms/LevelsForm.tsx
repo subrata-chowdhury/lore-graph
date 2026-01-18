@@ -3,14 +3,22 @@ import React, { useState } from "react";
 import LevelForm from "./LevelForm/LevelForm";
 import { TbTrash } from "react-icons/tb";
 import { LuPencil } from "react-icons/lu";
+import fetcher from "@/libs/fetcher";
+import { toast } from "react-toastify";
 
 type Props = {
   levels: PageType["lvls"];
   onLevelsChange: (newLevels: PageType["lvls"]) => void;
   onSave?: () => void;
+  onLevelDelete?: (id: string) => void;
 };
 
-const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Props) => {
+const LevelsForm = ({
+  levels,
+  onLevelsChange = () => {},
+  onSave = () => {},
+  onLevelDelete = () => {},
+}: Props) => {
   const [showLevelForm, setShowLevelForm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null); // for edit feature
 
@@ -42,9 +50,23 @@ const LevelsForm = ({ levels, onLevelsChange = () => {}, onSave = () => {} }: Pr
                     />
                     <TbTrash
                       className="cursor-pointer"
-                      onClick={() => {
-                        const newLevels = levels.filter((level) => level.id !== lvl.id);
-                        onLevelsChange(newLevels);
+                      onClick={async () => {
+                        // delete level
+                        try {
+                          const res = await fetcher.delete<{}, { success: boolean }>(
+                            `/levels/${lvl.id}`
+                          );
+                          if (!res.body?.success) {
+                            toast.error("Error deleting level");
+                            return;
+                          }
+                          if (res.body.success) {
+                            toast.success("Level deleted successfully");
+                            onLevelDelete(lvl.id);
+                          }
+                        } catch (error) {
+                          console.error(error);
+                        }
                       }}
                     />
                   </div>

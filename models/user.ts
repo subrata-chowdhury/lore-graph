@@ -8,6 +8,11 @@ export interface IUser extends Document {
   country?: string;
   followersCount: number;
   followingCount: number;
+  about?: string;
+  links?: {
+    type: "YouTube" | "Twittch" | "Instagram" | "TikTok" | "X" | "Facebook" | "Other";
+    url: string;
+  }[];
 
   verified: boolean;
   otp?: string;
@@ -37,6 +42,20 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: true,
       unique: true,
+    },
+    about: { type: String, required: false },
+    links: {
+      type: [
+        {
+          type: {
+            type: String,
+            enum: ["YouTube", "Twittch", "Instagram", "TikTok", "X", "Facebook", "Other"],
+            required: true,
+          },
+          url: { type: String, required: true },
+        },
+      ],
+      default: [],
     },
     country: { type: String, required: false },
     followersCount: { type: Number, default: 0 },

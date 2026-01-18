@@ -18,6 +18,7 @@ import { LuRectangleHorizontal } from "react-icons/lu";
 import Title from "@/ui/components/Title";
 import { BsExclamationCircle } from "react-icons/bs";
 import { getYouTubeID } from "@/utils/videoIdGetter";
+import { getInitials } from "@/utils/getInitials";
 
 const LoreModal = () => {
   const { lore, setLore } = useOpenedLoreContext();
@@ -138,7 +139,9 @@ const LoreModal = () => {
                         }
                         className="left-0 [&>*:last-child]:left-0 [&>*:last-child]:translate-x-2"
                       >
-                        <div className="h-7 w-7 rounded-full bg-black/10"></div>
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[10px] font-semibold">
+                          {getInitials(lore.createdBy || "")}
+                        </div>
                       </Title>
                     </Link>
                   )}

@@ -104,7 +104,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
   }
 
   return (
-    <div className="flex flex-1 justify-between gap-8 bg-white p-6 px-8">
+    <div className="flex min-h-0 min-w-0 flex-1 justify-between gap-8 overflow-auto bg-white p-6 px-8">
       <div>
         <div className="mb-4 flex gap-6">
           <div>

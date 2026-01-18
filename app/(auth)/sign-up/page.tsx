@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import fetcher from "@/libs/fetcher";
 import Link from "next/link";
 import PasswordInput from "@/ui/components/Inputs/PasswordInput";
@@ -7,6 +7,8 @@ import Input from "@/ui/components/Inputs/Input";
 import { toast } from "react-toastify";
 import { encryptData } from "@/libs/encryption";
 import { useRouter } from "next/navigation";
+import { Metadata } from "next";
+import debounce from "@/libs/debouncer";
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
@@ -39,6 +41,21 @@ export default function SignUpPage() {
         setError({ field: "confirmPassword", msg: "Passwords do not match" });
         return;
       }
+
+      if (password.length < 8) {
+        setError({ field: "password", msg: "Password must be at least 8 characters" });
+        return;
+      }
+      if (password.length > 100) {
+        setError({ field: "password", msg: "Password must be less than 100 characters" });
+        return;
+      }
+      // Advanced Validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setError({ field: "email", msg: "Invalid email format" });
+        return;
+      }
       setError({ field: "", msg: "" });
       setStage(2);
       return;
@@ -47,8 +64,17 @@ export default function SignUpPage() {
         setError({ field: "name", msg: "Name is required" });
         return;
       }
+      if (name.length < 2 || name.length > 50) {
+        setError({ field: "name", msg: "Name must be between 2 and 50 characters" });
+        return;
+      }
       if (!username.trim()) {
         setError({ field: "username", msg: "Username is required" });
+        return;
+      }
+      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+      if (!usernameRegex.test(username)) {
+        setError({ field: "username", msg: "Invalid username format" });
         return;
       }
     }
@@ -85,6 +111,32 @@ export default function SignUpPage() {
       setLoading(false);
     }
   }
+
+  const checkAvailabilityOfUsername = useCallback(async (username: string) => {
+    if (!username) {
+      return;
+    }
+    try {
+      const res = await fetcher.get<{ success: boolean; exists: boolean }>(
+        `/users/${username}/availability`
+      );
+      if (res.body?.success) {
+        if (res.body?.exists) {
+          setError({ field: "username", msg: "Username already exists" });
+        } else {
+          setError({ field: "username", msg: "" });
+        }
+      } else {
+      }
+    } catch (error) {
+      console.error("Error checking username:", error);
+    }
+  }, []);
+
+  const debouncedUsernameCheck = useMemo(
+    () => debounce((username: string) => checkAvailabilityOfUsername(username), 500),
+    []
+  );
 
   return (
     <div className="flex h-screen flex-col gap-0 md:flex-row">
@@ -138,7 +190,10 @@ export default function SignUpPage() {
               <Input
                 label="Username"
                 value={username}
-                onChange={(val) => setUsername(val.trim())}
+                onChange={(val) => {
+                  setUsername(val.trim());
+                  debouncedUsernameCheck(val.trim());
+                }}
                 error={error.field === "username" ? error.msg : ""}
                 name="username"
                 placeholder="eg., johndoe"
@@ -146,7 +201,7 @@ export default function SignUpPage() {
             </>
           )}
           <button
-            className="bg-primary rounded p-2 text-white dark:bg-white/15"
+            className="bg-primary cursor-pointer rounded p-2 text-white dark:bg-white/15"
             onClick={signup}
             disabled={loading}
           >

@@ -2,11 +2,9 @@ import Level from "@/models/Level";
 import type { ILevel } from "@/models/Level";
 import type { IPage } from "@/models/Page";
 import Page from "@/models/Page";
-import React from "react";
 import GraphPage from "./_components/GraphPage";
 import type { ILore } from "@/models/Lore";
 import Lore from "@/models/Lore";
-import NotFoundPage from "../not-found";
 import { Metadata } from "next";
 import { cache } from "react";
 import dbConnect from "@/config/db";
@@ -46,7 +44,7 @@ const MainPage = async ({ params, searchParams }: Props) => {
   if ((level && currentLevel < 0) || currentLevel >= pageData.lvls.length) currentLevel = 0;
   const lvlData = (await Level.findById(pageData.lvls[currentLevel]?.id).lean()) as ILevel;
 
-  if (!lvlData) return <NotFoundPage />;
+  if (!lvlData) return notFound();
 
   const neededNodes = lvlData.levels.flat().map((l) => l._id);
   const lores = (await Lore.find({ _id: { $in: neededNodes } }).lean()) as ILore[];

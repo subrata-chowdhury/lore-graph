@@ -77,9 +77,9 @@ export async function POST(request: Request) {
       );
     }
 
-    let user = await User.findById(userId).select("name");
+    let user = await User.findById(userId).select("username");
     if (!user) {
-      user = await SuperAdmin.findById(userId).select("name");
+      user = await SuperAdmin.findById(userId).select("username");
     }
 
     if (!user) {
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       src: src ? src.trim() : undefined,
       thumbnailUrl: thumbnailUrl,
       tags: Array.isArray(tags) ? tags.map((t: string) => t.trim()) : [],
-      createdBy: user.name,
+      createdBy: user.username,
       createdById: userId,
     });
 

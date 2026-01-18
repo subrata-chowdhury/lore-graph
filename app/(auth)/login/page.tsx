@@ -7,6 +7,7 @@ import Input from "@/ui/components/Inputs/Input";
 import { toast } from "react-toastify";
 import { encryptData } from "@/libs/encryption";
 import { useRouter } from "next/navigation";
+import { useAppContext } from "@/contexts/AppContext";
 
 export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { fetchUserDetails } = useAppContext();
 
   async function login(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -35,7 +37,7 @@ export default function AdminLogin() {
       .post<
         { email: string; password: string },
         { user: { verified: boolean; institution: string; type: string }; token: string }
-      >("/super-admin/auth/login", { email, password: await encryptData(password) })
+      >("/auth/login", { email, password: await encryptData(password) })
       .then(async (res) => {
         if (res.status !== 200) {
           toast.error(res.error || "Error signing up");
@@ -45,8 +47,11 @@ export default function AdminLogin() {
           // Store token securely
           // document.cookie = `superAdminToken=${res.body.token}; path=/; secure; samesite=strict`;
           const urlParams = new URLSearchParams(window.location.search);
-          const redirectUrl = urlParams.get("redirect") || "/super-admin";
-          setTimeout(() => router.replace(redirectUrl), 300);
+          const redirectUrl = urlParams.get("redirect") || "/";
+          setTimeout(() => {
+            router.replace(redirectUrl);
+            fetchUserDetails();
+          }, 300);
         }
       });
     setLoading(false);

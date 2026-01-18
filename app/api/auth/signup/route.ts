@@ -18,25 +18,34 @@ export async function POST(request: NextRequest) {
   country = country?.trim();
 
   if (!name || !username || !email || !password) {
-    return new NextResponse("Name, Username, Email and Password are required", { status: 400 });
+    return NextResponse.json(
+      { error: "Name, Username, Email and Password are required", success: false },
+      { status: 400 }
+    );
   }
 
   // Advanced Validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return new NextResponse("Invalid email address", { status: 400 });
+    return NextResponse.json({ error: "Invalid email address", success: false }, { status: 400 });
   }
 
   const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
   if (!usernameRegex.test(username)) {
-    return new NextResponse(
-      "Username must be 3-20 characters and alphanumeric (underscores allowed)",
+    return NextResponse.json(
+      {
+        error: "Username must be 3-20 characters and alphanumeric (underscores allowed)",
+        success: false,
+      },
       { status: 400 }
     );
   }
 
   if (name.length < 2 || name.length > 50) {
-    return new NextResponse("Name must be between 2 and 50 characters", { status: 400 });
+    return NextResponse.json(
+      { error: "Name must be between 2 and 50 characters", success: false },
+      { status: 400 }
+    );
   }
 
   await dbConnect();
@@ -48,7 +57,16 @@ export async function POST(request: NextRequest) {
   const decryptedPassword = crypto.privateDecrypt(process.env.PRIVATE_KEY, buffer).toString("utf8");
 
   if (decryptedPassword.length < 8) {
-    return new NextResponse("Password must be at least 8 characters long", { status: 400 });
+    return NextResponse.json(
+      { error: "Password must be at least 8 characters long", success: false },
+      { status: 400 }
+    );
+  }
+  if (decryptedPassword.length > 100) {
+    return NextResponse.json(
+      { error: "Password cannot exceed 100 characters", success: false },
+      { status: 400 }
+    );
   }
 
   const hashedPassword = await hash(decryptedPassword, 10);
@@ -76,13 +94,16 @@ export async function POST(request: NextRequest) {
       });
     }
     // User already exists, return an error response
-    return new NextResponse("User already exists. Please log in.", { status: 400 });
+    return NextResponse.json(
+      { error: "User already exists. Please log in.", success: false },
+      { status: 400 }
+    );
   }
 
   const existingUsername = await User.findOne({ username });
 
   if (existingUsername) {
-    return new NextResponse("Username already taken", { status: 400 });
+    return NextResponse.json({ error: "Username already taken", success: false }, { status: 400 });
   }
 
   const newUser = new User({
@@ -95,8 +116,11 @@ export async function POST(request: NextRequest) {
 
   try {
     await newUser.save();
-    return NextResponse.json({ message: "User created successfully" }, { status: 201 });
-  } catch {
-    return new NextResponse("Error saving user", { status: 500 });
+    return NextResponse.json(
+      { message: "User created successfully", success: true },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    return NextResponse.json({ error: "Error saving user", success: false }, { status: 500 });
   }
 }

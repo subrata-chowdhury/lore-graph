@@ -6,6 +6,7 @@ import verifyToken from "@/libs/tokenVerify";
 import { redirect } from "next/navigation";
 import { AuthTokenPayloadType } from "@/types/types";
 import { generateFullTokenFromChunks } from "@/libs/splittedCookieGetter";
+import { Metadata } from "next";
 
 type Props = {
   children: React.ReactNode;
@@ -62,3 +63,12 @@ async function validateToken() {
     return null;
   }
 }
+
+export const metadata: Metadata = {
+  title: "Super Admin | Lore Graph",
+  description: "Super Admin Dashboard for Lore Graph",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

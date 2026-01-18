@@ -1,18 +1,14 @@
 "use client";
-import Image from "next/image";
 import nbg from "@/assets/night.webp";
 import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import { LoreType } from "@/types/loreTypes";
-import Menubar from "@/app/_components/Menubar";
-// import { conData, lvlData, nData } from "@/data/loreData";
 import calculateEdges from "@/libs/edgeCalculationLogic";
 import LoreModal from "@/app/_components/LoreModal/LoreModal";
 import PinchZoomWrapper from "@/app/_components/PinchZoomFeature";
 import Edge from "@/app/_components/Edge";
 import Lore from "@/app/_components/Lore";
 import { PageType } from "@/types/types";
-import { usePathname, useRouter } from "next/navigation";
-import { GoTriangleDown } from "react-icons/go";
+import Levels from "./Levels";
 
 export default function GraphPage({
   pageData,
@@ -24,7 +20,7 @@ export default function GraphPage({
   nData: LoreType[];
 }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
+    <>
       {/* <Image
         src={nbg}
         alt="Night Background"
@@ -33,11 +29,8 @@ export default function GraphPage({
         className="fixed top-0 left-0 -z-20 min-h-screen w-full"
       /> */}
       <div className="fixed top-0 left-0 -z-10 min-h-screen w-full bg-black/5"></div>
-      <div className="flex h-screen w-screen">
-        <Menubar />
-        <GraphView lvlData={lvlData} nData={nData} pageData={pageData} />
-      </div>
-    </div>
+      <GraphView lvlData={lvlData} nData={nData} pageData={pageData} />
+    </>
   );
 }
 
@@ -158,44 +151,6 @@ export function GraphView({
           ))}
         </div>
       </PinchZoomWrapper>
-    </>
-  );
-}
-
-function Levels({ levels }: { levels: PageType["lvls"] }) {
-  const [showLevels, setShowLevels] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-
-  const handleLevelChange = (level: number) => {
-    setShowLevels(false);
-    router.push(`${pathname}?level=${level}`);
-  };
-
-  return (
-    <>
-      <div
-        onClick={() => setShowLevels((val) => !val)}
-        className="fixed top-3 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer items-center gap-2 rounded-lg bg-black/10 px-4 py-2 pr-2 text-sm font-medium text-black"
-      >
-        {levels[0].title}
-        <div className="rounded-full p-1 transition-all hover:bg-black/15">
-          <GoTriangleDown className={`transition-all ${showLevels ? "rotate-180" : ""}`} />
-        </div>
-      </div>
-      {showLevels && (
-        <div className="fixed top-14 left-1/2 z-10 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-3 rounded-lg bg-black/10 px-4 py-2 text-sm font-medium text-black">
-          {levels.map((level, idx) => (
-            <div
-              key={level.id}
-              onClick={() => handleLevelChange(idx)}
-              className="hover:text-black/80"
-            >
-              {level.title}
-            </div>
-          ))}
-        </div>
-      )}
     </>
   );
 }

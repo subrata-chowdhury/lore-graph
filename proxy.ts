@@ -4,28 +4,25 @@ import verifyToken from "@/libs/tokenVerify";
 import { AuthTokenPayloadType } from "./types/types";
 import { generateFullTokenFromChunks } from "./libs/splittedCookieGetter";
 
-export async function proxy(request: NextRequest) {
-  const excludeTokenVerification: {
-    url: string;
-    method: string;
-  }[] = [
-    { url: "/api/auth/login", method: "POST" },
-    { url: "/api/super-admin/auth/login", method: "POST" },
-    { url: "/api/auth/signup", method: "POST" },
-    { url: "/api/lores", method: "GET" },
-    { url: "/api/pages", method: "GET" },
-    { url: "/api/comments", method: "GET" },
-  ];
-  const excludeTokenVerificationPatterns = [/^\/api\/tests\/.*/, /^\/api\/labs\/.*/];
-  if (
-    excludeTokenVerification.some(
-      (item) => item.url === request.nextUrl.pathname && item.method === request.method
-    ) ||
-    excludeTokenVerificationPatterns.some((pattern) => pattern.test(request.nextUrl.pathname))
-  ) {
-    return NextResponse.next();
-  }
+const excludeTokenVerification: {
+  url: string;
+  method: string;
+}[] = [
+  { url: "/api/auth/login", method: "POST" },
+  { url: "/api/super-admin/auth/login", method: "POST" },
+  { url: "/api/auth/signup", method: "POST" },
+  { url: "/api/lores", method: "GET" },
+  { url: "/api/pages", method: "GET" },
+  { url: "/api/comments", method: "GET" },
+  { url: "/api/users/self", method: "GET" },
+];
+const excludeTokenVerificationPatterns = [
+  /^\/api\/tests\/.*/,
+  /^\/api\/labs\/.*/,
+  /^\/api\/users\/.*\/availability$/,
+];
 
+export async function proxy(request: NextRequest) {
   let userType: "super-admin" | "user" = "user";
   const isSuperAdminPath = request.nextUrl.pathname.includes("/super-admin");
 
@@ -49,6 +46,14 @@ export async function proxy(request: NextRequest) {
   if (token) {
     user = await verifyToken<AuthTokenPayloadType>(token, userType);
     if (!user) {
+      if (
+        excludeTokenVerification.some(
+          (item) => item.url === request.nextUrl.pathname && item.method === request.method
+        ) ||
+        excludeTokenVerificationPatterns.some((pattern) => pattern.test(request.nextUrl.pathname))
+      ) {
+        return NextResponse.next();
+      }
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 

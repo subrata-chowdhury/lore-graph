@@ -90,6 +90,12 @@ const CreatePage = () => {
             levels={pageData.lvls}
             onLevelsChange={(newLevels) => setPageData((prev) => ({ ...prev, lvls: newLevels }))}
             onSave={() => setCurrentStep(3)}
+            onLevelDelete={(id) => {
+              const newPageData = { ...pageData };
+              const newLevels = newPageData.lvls.filter((lvl) => lvl.id !== id);
+              newPageData.lvls = newLevels;
+              saveHandler(newPageData);
+            }}
           />
         )}
         {currentStep === 3 && (

@@ -5,8 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { TbLogout } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
-import { FiCheck, FiCopy } from "react-icons/fi";
-import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
   profileData?: {
@@ -36,10 +34,10 @@ const ProfilePopup = ({ profileData: profile, onClose = () => {} }: Props) => {
         className="fixed top-0 left-0 z-10 h-screen w-screen cursor-auto"
         onClick={onClose}
       ></div>
-      <div className="absolute top-14 right-0 z-20 min-h-82 w-[320px] rounded-2xl border border-black/10 shadow-lg bg-white">
+      <div className="absolute top-14 right-0 z-20 min-h-82 w-[320px] rounded-2xl border border-black/10 bg-white shadow-lg">
         <div
           onClick={() => router.push("/" + pathname.split("/")[1] + "/profile")}
-          className="mb-4 flex flex-col gap-2 px-4 text-center "
+          className="mb-4 flex flex-col gap-2 px-4 text-center"
         >
           <div className="m-auto mt-8 flex h-10 w-10 items-center justify-center rounded-full bg-black/10 text-sm font-bold">
             {profile?.profileImageUrl ? (
@@ -62,13 +60,13 @@ const ProfilePopup = ({ profileData: profile, onClose = () => {} }: Props) => {
         <div className="mt-1 flex flex-col px-4">
           <Link
             href={"/" + pathname.split("/")[1] + "/profile/edit/personal-settings"}
-            className="flex h-16 cursor-pointer items-center gap-2 border-t border-black/10 p-2 hover:bg-black/5 rounded-lg"
+            className="flex h-16 cursor-pointer items-center gap-2 rounded-lg border-t border-black/10 p-2 hover:bg-black/5"
           >
             <IoSettingsOutline size={20} />
             Settings
           </Link>
           <div
-            className="flex h-16 cursor-pointer items-center gap-2 border-t border-black/10 p-2 hover:bg-black/5 rounded-lg "
+            className="flex h-16 cursor-pointer items-center gap-2 rounded-lg border-t border-black/10 p-2 hover:bg-black/5"
             onClick={handleLogout}
           >
             <TbLogout size={20} />
