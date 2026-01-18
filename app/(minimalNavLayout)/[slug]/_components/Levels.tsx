@@ -1,19 +1,23 @@
 "use client";
 import { PageType } from "@/types/types";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GoTriangleDown } from "react-icons/go";
 
 export default function Levels({ levels }: { levels: PageType["lvls"] }) {
   const [showLevels, setShowLevels] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const currentLevel = parseInt(new URL(window.location.href).searchParams.get("level") || "0");
+  const [currentLevel, setCurrentLevel] = useState(0);
 
   const handleLevelChange = (level: number) => {
     setShowLevels(false);
     router.push(`${pathname}?level=${level}`);
   };
+
+  useEffect(() => {
+    setCurrentLevel(parseInt(new URL(window.location.href).searchParams.get("level") || "0"));
+  }, []);
 
   return (
     <>

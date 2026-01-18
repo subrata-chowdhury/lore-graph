@@ -23,6 +23,16 @@ const excludeTokenVerificationPatterns = [
 ];
 
 export async function proxy(request: NextRequest) {
+  let isOpenApi = false;
+  if (
+    excludeTokenVerification.some(
+      (item) => item.url === request.nextUrl.pathname && item.method === request.method
+    ) ||
+    excludeTokenVerificationPatterns.some((pattern) => pattern.test(request.nextUrl.pathname))
+  ) {
+    isOpenApi = true;
+  }
+
   let userType: "super-admin" | "user" = "user";
   const isSuperAdminPath = request.nextUrl.pathname.includes("/super-admin");
 
@@ -46,12 +56,7 @@ export async function proxy(request: NextRequest) {
   if (token) {
     user = await verifyToken<AuthTokenPayloadType>(token, userType);
     if (!user) {
-      if (
-        excludeTokenVerification.some(
-          (item) => item.url === request.nextUrl.pathname && item.method === request.method
-        ) ||
-        excludeTokenVerificationPatterns.some((pattern) => pattern.test(request.nextUrl.pathname))
-      ) {
+      if (isOpenApi) {
         return NextResponse.next();
       }
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -78,6 +83,9 @@ export async function proxy(request: NextRequest) {
       request: { headers: requestHeaders },
     });
   } else {
+    if (isOpenApi) {
+      return NextResponse.next();
+    }
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 }

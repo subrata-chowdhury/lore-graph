@@ -19,6 +19,14 @@ const nextConfig: NextConfig = {
         // Serves the page at app/user/[username]/page.tsx
         destination: "/users/:username",
       },
+      {
+        source: "/@:username/followings",
+        destination: "/users/:username/followings",
+      },
+      {
+        source: "/@:username/followers",
+        destination: "/users/:username/followers",
+      },
     ];
   },
 };

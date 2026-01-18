@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import ProfilePopup from "./ProfilePopup";
+import ProfilePopup from "../users/[username]/_components/ProfilePopup";
 import { useAppContext } from "@/contexts/AppContext";
 import { getInitials } from "@/utils/getInitials";
 import { IoSearch } from "react-icons/io5";
@@ -8,9 +8,7 @@ import debounce from "@/libs/debouncer";
 import { FaHashnode } from "react-icons/fa6";
 import Link from "next/link";
 
-type Props = {};
-
-const Topbar = (props: Props) => {
+const Topbar = () => {
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const { user } = useAppContext();
 
