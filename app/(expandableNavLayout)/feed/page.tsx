@@ -1,9 +1,15 @@
 import React from "react";
+import Topbar from "../_components/Topbar";
 
 type Props = {};
 
 const FeedPage = (props: Props) => {
-  return <div>FeedPage</div>;
+  return (
+    <>
+      <Topbar />
+      FeedPage
+    </>
+  );
 };
 
 export default FeedPage;

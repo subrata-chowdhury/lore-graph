@@ -6,6 +6,7 @@ import { getInitials } from "@/utils/getInitials";
 import { IoSearch } from "react-icons/io5";
 import debounce from "@/libs/debouncer";
 import { FaHashnode } from "react-icons/fa6";
+import { FaRegBell } from "react-icons/fa";
 import Link from "next/link";
 
 const Topbar = () => {
@@ -20,22 +21,31 @@ const Topbar = () => {
 
   return (
     <div className="flex h-16 w-full items-center gap-2 border-b border-black/20 bg-white px-4">
-      <div className="ml-2 flex h-10 w-80 items-center rounded-full border border-black/20 bg-white px-4 text-sm outline-none focus:outline-none">
+      <div className="group/search ml-2 flex h-10 w-80 items-center rounded-full border border-black/20 bg-white px-4 text-sm outline-none focus-within:border-black/70 focus:outline-none">
         <input
           type="text"
           placeholder="type @ to search users"
           className="h-full w-full bg-transparent pr-2 focus:outline-none"
           onChange={(e) => debouncedSearch(e.target.value)}
         />
-        <IoSearch size={20} className="cursor-pointer text-gray-400" />
+        <IoSearch
+          size={20}
+          className="cursor-pointer text-gray-400 group-focus-within/search:text-black/70"
+        />
       </div>
-      <div className="relative ml-auto">
+      <div className="relative ml-auto flex gap-3">
+        <div className="my-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-black/50">
+          <FaRegBell size={18} />
+        </div>
         {user ? (
           <div
             onClick={() => setShowProfilePopup(!showProfilePopup)}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-black/10 text-sm font-bold"
+            className="flex h-10 cursor-pointer gap-2 rounded-full bg-black/10 px-1 pr-4 font-semibold"
           >
-            {getInitials(user?.name || "")}
+            <div className="my-auto flex h-8 w-8 items-center justify-center rounded-full bg-black/10 text-xs font-bold">
+              {getInitials(user?.name || "")}
+            </div>
+            <div className="my-auto text-sm">@{user?.name}</div>
           </div>
         ) : (
           <Link

@@ -40,7 +40,7 @@ export default function ProfilePic({
     />
   ) : (
     <div
-      className={`flex h-full w-full items-center justify-center bg-gray-300 text-5xl font-bold text-gray-400 dark:bg-gray-700 dark:text-gray-300 ${className}`}
+      className={`flex h-full w-full items-center justify-center bg-black/20 text-5xl font-bold text-black/60 dark:bg-gray-700 dark:text-gray-300 ${className}`}
     >
       {getInitials(userName || "")}
     </div>
