@@ -15,6 +15,7 @@ const excludeTokenVerification: {
   { url: "/api/pages", method: "GET" },
   { url: "/api/comments", method: "GET" },
   { url: "/api/users/self", method: "GET" },
+  { url: "/api/pages/popular", method: "GET" },
 ];
 const excludeTokenVerificationPatterns = [
   /^\/api\/tests\/.*/,

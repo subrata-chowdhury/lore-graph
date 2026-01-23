@@ -3,6 +3,10 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IFollow extends Document {
   follower: mongoose.Types.ObjectId; // WHO is following
   following: mongoose.Types.ObjectId; // WHO is being followed
+  followerName: string;
+  followerUsername: string;
+  followingName: string;
+  followingUsername: string;
   createdAt: Date;
 }
 
@@ -19,6 +23,26 @@ const FollowSchema: Schema<IFollow> = new Schema(
       ref: "User",
       required: true,
       index: true, // Faster queries to find "Who follows Y?"
+    },
+    followerName: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    followerUsername: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    followingName: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    followingUsername: {
+      type: String,
+      required: true,
+      index: true,
     },
   },
   { timestamps: { createdAt: true, updatedAt: false } } // We only need createdAt

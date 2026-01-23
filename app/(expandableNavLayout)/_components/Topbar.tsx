@@ -8,10 +8,15 @@ import debounce from "@/libs/debouncer";
 import { FaHashnode } from "react-icons/fa6";
 import { FaRegBell } from "react-icons/fa";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { HiMenuAlt2 } from "react-icons/hi";
+import { useSidebar } from "../_contexts/SidebarContext";
 
 const Topbar = () => {
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const pathName = usePathname();
   const { user } = useAppContext();
+  const { toggleSidebar } = useSidebar();
 
   const handleSearch = (value: string) => {
     console.log(value);
@@ -20,7 +25,10 @@ const Topbar = () => {
   const debouncedSearch = useMemo(() => debounce(handleSearch, 500), []);
 
   return (
-    <div className="flex h-16 w-full items-center gap-2 border-b border-black/20 bg-white px-4">
+    <div className="flex h-16 w-full items-center gap-2 border-b border-black/20 bg-white px-4 py-2">
+      <div className="cursor-pointer md:hidden" onClick={toggleSidebar}>
+        <HiMenuAlt2 size={24} />
+      </div>
       <div className="group/search ml-2 flex h-10 w-80 items-center rounded-full border border-black/20 bg-white px-4 text-sm outline-none focus-within:border-black/70 focus:outline-none">
         <input
           type="text"
@@ -34,22 +42,22 @@ const Topbar = () => {
         />
       </div>
       <div className="relative ml-auto flex gap-3">
-        <div className="my-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-black/50">
+        <div className="my-auto hidden h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-black/50 md:flex">
           <FaRegBell size={18} />
         </div>
         {user ? (
           <div
             onClick={() => setShowProfilePopup(!showProfilePopup)}
-            className="flex h-10 cursor-pointer gap-2 rounded-full bg-black/10 px-1 pr-4 font-semibold"
+            className="flex h-10 cursor-pointer gap-2 rounded-full bg-black/10 px-1 font-semibold md:pr-4"
           >
             <div className="my-auto flex h-8 w-8 items-center justify-center rounded-full bg-black/10 text-xs font-bold">
               {getInitials(user?.name || "")}
             </div>
-            <div className="my-auto text-sm">@{user?.name}</div>
+            <div className="my-auto hidden text-sm md:flex">@{user?.name}</div>
           </div>
         ) : (
           <Link
-            href={"/sign-up"}
+            href={"/sign-up?redirect=" + encodeURIComponent(pathName || "/")}
             className="flex cursor-pointer items-center gap-2 rounded-full bg-black/10 px-3 py-2 text-xs font-semibold"
           >
             <FaHashnode size={18} />

@@ -1,5 +1,7 @@
 import React from "react";
 import Sidebar from "./_components/Sidebar";
+import Topbar from "./_components/Topbar";
+import { SidebarProvider } from "./_contexts/SidebarContext";
 
 type Props = {
   children: React.ReactNode;
@@ -8,8 +10,13 @@ type Props = {
 const layout = ({ children }: Props) => {
   return (
     <div className="flex">
-      <Sidebar />
-      <div className="flex h-screen min-h-0 min-w-0 flex-1 flex-col bg-black/3">{children}</div>
+      <SidebarProvider>
+        <Sidebar />
+        <div className="flex h-screen min-h-0 min-w-0 flex-1 flex-col bg-black/3">
+          <Topbar />
+          {children}
+        </div>
+      </SidebarProvider>
     </div>
   );
 };

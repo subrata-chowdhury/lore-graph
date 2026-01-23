@@ -20,7 +20,7 @@ const Title: React.FC<Props> = ({
     <div className="group/title relative flex flex-col items-center">
       <div
         className={
-          "absolute -top-2 z-10 hidden w-fit -translate-y-full rounded bg-gray-200 p-2 px-3 text-xs text-nowrap group-hover/title:block " +
+          "absolute -top-2 z-10 hidden w-fit -translate-y-full rounded bg-gray-200 p-2 px-3 text-xs text-nowrap group-hover/title:block group-active/title:block " +
           className
         }
       >

@@ -7,6 +7,8 @@ interface AppState {
   theme: "light" | "dark";
   toggleTheme: () => void;
   user: UserType | null;
+  basicSettings: { sidebarMinimal: boolean; showFeedback: boolean };
+  setBasicSettings: (settings: { sidebarMinimal: boolean; showFeedback: boolean }) => void;
   setUser: (user: UserType | null) => void;
   fetchUserDetails: () => Promise<void>;
 }
@@ -15,6 +17,10 @@ const AppContext = createContext<AppState | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [basicSettings, setBasicSettings] = useState({
+    sidebarMinimal: true,
+    showFeedback: true,
+  });
   const [user, setUser] = useState<UserType | null>(null);
 
   const toggleTheme = () => {
@@ -38,6 +44,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toggleTheme,
     user,
     setUser,
+    basicSettings,
+    setBasicSettings,
     fetchUserDetails: getUserDetails,
   };
 
