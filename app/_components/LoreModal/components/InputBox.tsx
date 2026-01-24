@@ -60,6 +60,8 @@ function InputBox({
                   authorId: "current_user_id",
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
+                  isLiked: false,
+                  isDisliked: false,
                 }}
               />
             </>
