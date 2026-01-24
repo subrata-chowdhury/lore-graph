@@ -16,8 +16,12 @@ type Props = {
 };
 
 export default function CommentSection({ onClose = () => {} }: Props) {
-  const [replyCommentData, setReplyCommentData] = useState<CommentType | null>(null);
-  const [comments, setComments] = useState<CommentType[]>([]);
+  const [replyCommentData, setReplyCommentData] = useState<
+    (CommentType & { isLiked: boolean; isDisliked: boolean }) | null
+  >(null);
+  const [comments, setComments] = useState<
+    (CommentType & { isLiked: boolean; isDisliked: boolean })[]
+  >([]);
   const [commentPageniation, setCommentPagination] = useState({
     page: 0,
     pageSize: 0,
@@ -50,7 +54,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
     if (!lore?._id) return;
     setLoading(true);
     const res = await fetcher.get<{
-      data: CommentType[];
+      data: (CommentType & { isLiked: boolean; isDisliked: boolean })[];
       pagination: {
         page: number;
         pageSize: number;
@@ -58,7 +62,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
         limit: number;
         totalCommentsIncludeingReply: number;
       };
-    }>(`/comments?loreId=${lore._id}&page=${page}&limit=${commentPageniation.pageSize}`);
+    }>(`/comments?loreId=${lore._id}&page=${page}&limit=${commentPageniation.limit}`);
     setLoading(false);
     if (res.status === 200 && res.body) {
       if (page === 1) {
@@ -80,13 +84,14 @@ export default function CommentSection({ onClose = () => {} }: Props) {
   useEffect(() => {
     if (!socket || !lore?._id) return;
 
-    const handleNewComment = (newComment: CommentType) => {
+    const handleNewComment = (
+      newComment: CommentType & { isLiked: boolean; isDisliked: boolean }
+    ) => {
       if (newComment.loreId === lore._id) {
         // Update total count in header
         setCommentPagination((prev) => ({ ...prev, total: prev.total + 1 }));
 
         const isTopLevel = !newComment.parentId || newComment.parentId === lore._id;
-        console.log(newComment);
         if (isTopLevel) {
           // Add to top-level comments list
           setComments((prevComments) => [newComment, ...prevComments]);
@@ -114,7 +119,7 @@ export default function CommentSection({ onClose = () => {} }: Props) {
       initial={{ x: "-100%" }}
       animate={{ x: "0" }}
       exit={{ x: "-100%" }}
-      className="flex h-full min-w-87.5 flex-col rounded-r-lg bg-white"
+      className="absolute left-0 z-10 flex h-full w-full min-w-87.5 flex-col rounded-lg bg-white lg:static lg:z-auto lg:w-auto lg:rounded-l-none"
     >
       <div className="flex items-center justify-between gap-7 border-b border-black/10 px-4 py-2.5">
         <h3 className="font-semibold">
@@ -128,8 +133,13 @@ export default function CommentSection({ onClose = () => {} }: Props) {
         </h3>
         <CgClose className="cursor-pointer" onClick={onClose} />
       </div>
-      <div className="flex max-w-87.5 flex-1 flex-col overflow-auto px-4 lg:max-w-137.5">
-        {comments.length <= 0 && (
+      <div className="flex flex-1 flex-col overflow-auto px-4 lg:max-w-137.5">
+        {loading && (
+          <div className="flex h-full items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-800 border-b-transparent"></div>
+          </div>
+        )}
+        {comments.length <= 0 && !loading && (
           <p className="my-auto py-2 text-center text-xs font-medium text-black/40">No Comments</p>
         )}
         {comments.map((comment) => (

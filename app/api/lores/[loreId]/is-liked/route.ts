@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
-import Lore from "@/models/Lore";
-import LoreDislike from "@/models/LoreDislike";
+import LoreLike from "@/models/LoreLike";
 import mongoose from "mongoose";
 
-export async function POST(
+export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ loreId: string }> }
 ) {
@@ -12,7 +11,7 @@ export async function POST(
   const { loreId } = await params;
 
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
+    return NextResponse.json({ isLiked: false, success: true }, { status: 200 });
   }
 
   if (!mongoose.Types.ObjectId.isValid(loreId)) {
@@ -25,21 +24,15 @@ export async function POST(
     const objectLoreId = new mongoose.Types.ObjectId(loreId);
     const objectUserId = new mongoose.Types.ObjectId(userId);
 
-    const existingDislike = await LoreDislike.findOne({
+    const existingLike = await LoreLike.findOne({
       loreId: objectLoreId,
       userId: objectUserId,
     });
 
-    if (existingDislike) {
-      // Undislike the lore
-      await LoreDislike.deleteOne({ _id: existingDislike._id });
-      await Lore.findByIdAndUpdate(objectLoreId, { $inc: { dislikesCount: -1 } });
-      return NextResponse.json({ message: "Lore undisliked", success: true }, { status: 200 });
+    if (existingLike) {
+      return NextResponse.json({ isLiked: true, success: true }, { status: 200 });
     } else {
-      // Dislike the lore
-      await LoreDislike.create({ loreId: objectLoreId, userId: objectUserId });
-      await Lore.findByIdAndUpdate(objectLoreId, { $inc: { dislikesCount: 1 } });
-      return NextResponse.json({ message: "Lore disliked", success: true }, { status: 200 });
+      return NextResponse.json({ isLiked: false, success: true }, { status: 200 });
     }
   } catch (error) {
     console.error("Failed to toggle lore dislike:", error);

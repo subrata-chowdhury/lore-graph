@@ -12,11 +12,11 @@ export async function POST(
   const { loreId } = await params;
 
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
   }
 
   if (!mongoose.Types.ObjectId.isValid(loreId)) {
-    return NextResponse.json({ error: "Invalid Lore ID" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid Lore ID", success: false }, { status: 400 });
   }
 
   try {
@@ -34,15 +34,18 @@ export async function POST(
       // Unlike the lore
       await LoreLike.deleteOne({ _id: existingLike._id });
       await Lore.findByIdAndUpdate(objectLoreId, { $inc: { likesCount: -1 } });
-      return NextResponse.json({ message: "Lore unliked" }, { status: 200 });
+      return NextResponse.json({ message: "Lore unliked", success: true }, { status: 200 });
     } else {
       // Like the lore
       await LoreLike.create({ loreId: objectLoreId, userId: objectUserId });
       await Lore.findByIdAndUpdate(objectLoreId, { $inc: { likesCount: 1 } });
-      return NextResponse.json({ message: "Lore liked" }, { status: 200 });
+      return NextResponse.json({ message: "Lore liked", success: true }, { status: 200 });
     }
   } catch (error) {
     console.error("Failed to toggle lore like:", error);
-    return NextResponse.json({ error: "Failed to toggle lore like" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to toggle lore like", success: false },
+      { status: 500 }
+    );
   }
 }

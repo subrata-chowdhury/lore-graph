@@ -2,7 +2,7 @@
 import React from "react";
 
 type Props = {
-  label: string;
+  label?: string;
   description?: string;
   value: string;
   min?: number;
@@ -17,6 +17,7 @@ type Props = {
   containerClass?: string;
   labelClass?: string;
   ref?: React.RefObject<HTMLInputElement | null>;
+  disabled?: boolean;
 };
 
 const Input = ({
@@ -35,6 +36,7 @@ const Input = ({
   containerClass = "",
   labelClass = "",
   ref,
+  disabled = false,
 }: Props) => {
   const valueLength = value?.length || 0;
 
@@ -55,6 +57,7 @@ const Input = ({
           onChange={(e) => onChange(e.target.value)}
           className={`${inputClass} flex-1 bg-transparent outline-0`}
           style={inputStyle}
+          disabled={disabled}
           ref={ref}
         />
         {max && (

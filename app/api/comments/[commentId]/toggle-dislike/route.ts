@@ -12,11 +12,11 @@ export async function POST(
   const { commentId } = await params;
 
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
   }
 
   if (!mongoose.Types.ObjectId.isValid(commentId)) {
-    return NextResponse.json({ error: "Invalid Comment ID" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid Comment ID", success: false }, { status: 400 });
   }
 
   try {
@@ -34,15 +34,18 @@ export async function POST(
       // Undislike the comment
       await CommentDislike.deleteOne({ _id: existingDislike._id });
       await Comment.findByIdAndUpdate(objectCommentId, { $inc: { dislikesCount: -1 } });
-      return NextResponse.json({ message: "Comment undisliked" }, { status: 200 });
+      return NextResponse.json({ message: "Comment undisliked", success: true }, { status: 200 });
     } else {
       // Dislike the comment
       await CommentDislike.create({ commentId: objectCommentId, userId: objectUserId });
       await Comment.findByIdAndUpdate(objectCommentId, { $inc: { dislikesCount: 1 } });
-      return NextResponse.json({ message: "Comment disliked" }, { status: 200 });
+      return NextResponse.json({ message: "Comment disliked", success: true }, { status: 200 });
     }
   } catch (error) {
     console.error("Failed to toggle comment dislike:", error);
-    return NextResponse.json({ error: "Failed to toggle comment dislike" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to toggle comment dislike", success: false },
+      { status: 500 }
+    );
   }
 }

@@ -154,9 +154,9 @@ const UserPage = async ({ params }: Props) => {
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900 dark:text-white">About</h3>
                   {isOwner && (
-                    <div className="flex cursor-pointer">
+                    <Link href={"/settings/profile-informations"} className="flex cursor-pointer">
                       <BiPencil size={16} className="text-gray-500" />
-                    </div>
+                    </Link>
                   )}
                 </div>
                 <div className="space-y-3 text-sm">

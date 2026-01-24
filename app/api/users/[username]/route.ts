@@ -19,3 +19,25 @@ export async function GET(req: Request, { params }: { params: Promise<{ username
     return NextResponse.json({ message: "Internal server error", success: false }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ username: string }> }) {
+  await dbConnect();
+  const { username } = await params;
+  const body = await req.json();
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { $set: body },
+      { new: true, runValidators: true }
+    ).select("name about links");
+
+    if (!updatedUser) {
+      return NextResponse.json({ message: "User not found", success: false }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, data: updatedUser }, { status: 200 });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return NextResponse.json({ message: "Internal server error", success: false }, { status: 500 });
+  }
+}

@@ -19,15 +19,21 @@ import Title from "@/ui/components/Title";
 import { BsExclamationCircle } from "react-icons/bs";
 import { getYouTubeID } from "@/utils/videoIdGetter";
 import { getInitials } from "@/utils/getInitials";
+import fetcher from "@/libs/fetcher";
+import { useAppContext } from "@/contexts/AppContext";
+import { LoreType } from "@/types/loreTypes";
+import { BiSolidLike } from "react-icons/bi";
 
-const LoreModal = () => {
-  const { lore, setLore } = useOpenedLoreContext();
+const LoreModal = ({ lore }: { lore: LoreType }) => {
+  const { setLore } = useOpenedLoreContext();
   const [loading, setLoading] = useState(true);
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(window.innerWidth > 1024);
   const [expandDescription, setExpandDescription] = useState(false);
   const [liveViewers, setLiveViewers] = useState<number>(0);
   const [isInFullscreen, setIsInFullscreen] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
   const socket = useSocket();
+  const { user } = useAppContext();
 
   // 1. Config: Hide default controls
   const opts = {
@@ -60,14 +66,27 @@ const LoreModal = () => {
   };
 
   const socketCleanup = () => {
-    if (!socket || !lore) return;
+    if (!socket) return;
     // Leave the room for this lore
     socket.emit("leave-lore-room", lore._id);
     socket.off("room-count-update");
   };
 
+  const toggleLike = async () => {
+    const res = await fetcher.post<
+      {},
+      {
+        success: boolean;
+      }
+    >(`/lores/${lore?._id}/toggle-like`, {});
+    if (res.body?.success && lore) {
+      setLore({ ...lore, likesCount: isLiked ? lore.likesCount - 1 : lore.likesCount + 1 });
+      setIsLiked((val) => !val);
+    }
+  };
+
   useEffect(() => {
-    if (!socket || !lore) return;
+    if (!socket) return;
     // Join the room for this lore
     socket.emit("join-lore-room", lore._id);
     // Listen for room count updates
@@ -76,7 +95,22 @@ const LoreModal = () => {
     });
     // Cleanup on unmount or lore change
     return () => socketCleanup();
-  }, [socket, lore]);
+  }, [socket]);
+
+  useEffect(() => {
+    const fetchIsLiked = async () => {
+      if (user) {
+        const res = await fetcher.get<{
+          success: boolean;
+          isLiked: boolean;
+        }>(`/lores/${lore._id}/is-liked`);
+        if (res.body?.success) {
+          setIsLiked(res.body.isLiked);
+        }
+      }
+    };
+    fetchIsLiked();
+  }, [user]);
 
   return (
     <>
@@ -86,7 +120,7 @@ const LoreModal = () => {
             setLore(null);
             socketCleanup();
           }}
-          className="bg-transparent!"
+          className="max-w-screen bg-transparent!"
         >
           <div
             className={`flex ${
@@ -97,125 +131,130 @@ const LoreModal = () => {
           >
             <div
               className={`my-auto mr-6 cursor-pointer rounded-full bg-white p-3 ${
-                isInFullscreen ? "hidden" : ""
+                isInFullscreen ? "hidden" : "hidden lg:block"
               }`}
             >
               <IoIosArrowBack size={24} />
             </div>
-            <div
-              className={`scrollbar-hide z-5 flex h-full flex-1 flex-col overflow-y-auto rounded-l-lg bg-white ${
-                showComments ? "rounded-r-none" : "rounded-r-lg"
-              }`}
-            >
-              {lore.type === "youtube" && (
-                <YouTube
-                  videoId={getYouTubeID(lore.src || "") || ""}
-                  opts={opts}
-                  onReady={onReady}
-                  onStateChange={onStateChange}
-                  className={`aspect-video rounded-t-md ${
-                    isInFullscreen ? "h-full max-h-[85vh] w-full" : "h-90 min-h-90"
-                  } ${loading ? "hidden" : ""} ${showComments ? "rounded-r-md" : ""} `}
-                />
-              )}
-              {loading && (
-                <div className="flex aspect-video w-full min-w-160 animate-pulse items-center justify-center bg-black/10">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-800 border-b-transparent"></div>
-                </div>
-              )}
-              <div className={`flex flex-col p-4 ${isInFullscreen ? "" : "max-w-160"}`}>
-                <div className="mb-1 font-semibold">{lore.title || "N/A"}</div>
-                <div className="mr-auto mb-1 flex w-full items-center gap-2">
-                  {lore.createdById && (
-                    <Link href={`/users/${lore.createdById}`}>
-                      <Title
-                        title={
-                          <div className="flex items-center gap-2">
-                            <div className="text-xs">
-                              Content added by{" "}
-                              <span className="font-semibold">{lore.createdBy || "Unknown"}</span>
+            <div className="relative flex h-full max-w-screen">
+              <div
+                className={`scrollbar-hide z-5 flex h-full flex-1 flex-col overflow-y-auto rounded-l-lg bg-white ${
+                  showComments ? "rounded-r-lg lg:rounded-r-none" : "rounded-r-lg"
+                }`}
+              >
+                {lore.type === "youtube" && (
+                  <YouTube
+                    videoId={getYouTubeID(lore.src || "") || ""}
+                    opts={opts}
+                    onReady={onReady}
+                    onStateChange={onStateChange}
+                    className={`aspect-video flex-1 rounded-t-md ${
+                      isInFullscreen ? "h-full max-h-[85vh] w-screen" : "h-90 min-h-90"
+                    } ${loading ? "hidden" : ""} ${showComments ? "rounded-r-md" : ""} `}
+                  />
+                )}
+                {loading && (
+                  <div className="flex aspect-video w-full min-w-160 animate-pulse items-center justify-center bg-black/10">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-800 border-b-transparent"></div>
+                  </div>
+                )}
+                <div className={`flex flex-col p-4 ${isInFullscreen ? "" : "max-w-160"}`}>
+                  <div className="mb-1 font-semibold">{lore.title || "N/A"}</div>
+                  <div className="mr-auto mb-1 flex w-full items-center gap-2">
+                    {lore.createdById && (
+                      <Link href={`/users/${lore.createdById}`}>
+                        <Title
+                          title={
+                            <div className="flex items-center gap-2">
+                              <div className="text-xs">
+                                Content added by{" "}
+                                <span className="font-semibold">{lore.createdBy || "Unknown"}</span>
+                              </div>
                             </div>
+                          }
+                          className="left-0 [&>*:last-child]:left-0 [&>*:last-child]:translate-x-2"
+                        >
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[10px] font-semibold">
+                            {getInitials(lore.createdBy || "")}
                           </div>
-                        }
-                        className="left-0 [&>*:last-child]:left-0 [&>*:last-child]:translate-x-2"
-                      >
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[10px] font-semibold">
-                          {getInitials(lore.createdBy || "")}
-                        </div>
-                      </Title>
-                    </Link>
-                  )}
-                  {lore.type === "youtube" && (
-                    <Link
-                      href={`${lore.src}`}
-                      target="_blank"
-                      className="flex cursor-pointer items-center gap-1 rounded-full bg-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/20"
-                    >
-                      <PiYoutubeLogo className="" size={20} />
-                      <span className="align-middle">YouTube</span>
-                    </Link>
-                  )}
-                  <div className="ml-auto flex cursor-pointer rounded-full bg-black/10 px-3 py-1.75">
-                    <button className="flex items-center gap-1 border-r border-black/20 pr-1.5 text-xs font-semibold">
-                      <FiThumbsUp size={18} />
-                      {lore.likesCount || 0}
-                    </button>
-                    <button className="flex items-center gap-1 pl-1.5 text-xs font-semibold">
-                      <FiThumbsDown size={18} />
-                    </button>
-                  </div>
-                  <button
-                    className="cursor-pointer rounded-lg bg-black/10 px-3 py-2 transition-colors hover:bg-black/20"
-                    onClick={() => setShowComments((val) => !val)}
-                  >
-                    <BsChatSquareText />
-                  </button>
-                  <button
-                    className="cursor-pointer rounded-lg bg-black/10 px-2.5 py-1.5 transition-colors hover:bg-black/20"
-                    onClick={() => setIsInFullscreen(!isInFullscreen)}
-                  >
-                    <LuRectangleHorizontal size={20} />
-                  </button>
-                  <button className="cursor-pointer rounded-lg bg-black/10 px-3 py-2 transition-colors hover:bg-black/20">
-                    <PiShareFatBold />
-                  </button>
-                </div>
-                <div className="rounded-lg bg-black/10 p-2 px-3 text-sm">
-                  <div className="flex gap-2 font-semibold">
-                    <div>{numberFormatter(lore.viewsCount || 0)} views</div>
-                    <div className="ml-2 flex gap-2">
-                      <div className="animate-radar my-auto h-1.5 w-1.5 rounded-full bg-green-600"></div>
-                      {liveViewers} Live viewer
-                    </div>
-                    <div className="ml-2">
-                      {new Date(lore.updatedAt || "").toLocaleDateString() || ""}
-                    </div>
-                  </div>
-                  <div
-                    className="wrap-break-word whitespace-pre-wrap"
-                    onClick={() => setExpandDescription((val) => !val)}
-                  >
-                    {lore.description?.length > 100
-                      ? expandDescription
-                        ? lore.description
-                        : lore.description.slice(0, 200) + "..."
-                      : lore.description}
-                    {lore.description?.length > 100 && (
-                      <span className="ml-2 cursor-pointer text-sm font-semibold text-black">
-                        {expandDescription ? "Show Less" : "Show More"}
-                      </span>
+                        </Title>
+                      </Link>
                     )}
-                    {!lore.description && <div>No Description</div>}
+                    {lore.type === "youtube" && (
+                      <Link
+                        href={`${lore.src}`}
+                        target="_blank"
+                        className="flex cursor-pointer items-center gap-1 rounded-full bg-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/20"
+                      >
+                        <PiYoutubeLogo className="" size={20} />
+                        <span className="align-middle">YouTube</span>
+                      </Link>
+                    )}
+                    <div className="ml-auto flex cursor-pointer rounded-full bg-black/10 px-3 py-1.75">
+                      <button
+                        onClick={toggleLike}
+                        className="flex cursor-pointer items-center gap-1 border-r border-black/20 pr-1.5 text-xs font-semibold"
+                      >
+                        {isLiked ? <BiSolidLike size={18} /> : <FiThumbsUp size={18} />}
+                        {lore.likesCount || 0}
+                      </button>
+                      <button className="flex items-center gap-1 pl-1.5 text-xs font-semibold">
+                        <FiThumbsDown size={18} />
+                      </button>
+                    </div>
+                    <button
+                      className="cursor-pointer rounded-lg bg-black/10 px-3 py-2 transition-colors hover:bg-black/20"
+                      onClick={() => setShowComments((val) => !val)}
+                    >
+                      <BsChatSquareText />
+                    </button>
+                    <button
+                      className="cursor-pointer rounded-lg bg-black/10 px-2.5 py-1.5 transition-colors hover:bg-black/20"
+                      onClick={() => setIsInFullscreen(!isInFullscreen)}
+                    >
+                      <LuRectangleHorizontal size={20} />
+                    </button>
+                    <button className="cursor-pointer rounded-lg bg-black/10 px-3 py-2 transition-colors hover:bg-black/20">
+                      <PiShareFatBold />
+                    </button>
+                  </div>
+                  <div className="rounded-lg bg-black/10 p-2 px-3 text-sm">
+                    <div className="flex gap-2 font-semibold">
+                      <div>{numberFormatter(lore.viewsCount || 0)} views</div>
+                      <div className="ml-2 flex gap-2">
+                        <div className="animate-radar my-auto h-1.5 w-1.5 rounded-full bg-green-600"></div>
+                        {liveViewers} Live viewer
+                      </div>
+                      <div className="ml-2">
+                        {new Date(lore.updatedAt || "").toLocaleDateString() || ""}
+                      </div>
+                    </div>
+                    <div
+                      className="wrap-break-word whitespace-pre-wrap"
+                      onClick={() => setExpandDescription((val) => !val)}
+                    >
+                      {lore.description?.length > 100
+                        ? expandDescription
+                          ? lore.description
+                          : lore.description.slice(0, 200) + "..."
+                        : lore.description}
+                      {lore.description?.length > 100 && (
+                        <span className="ml-2 cursor-pointer text-sm font-semibold text-black">
+                          {expandDescription ? "Show Less" : "Show More"}
+                        </span>
+                      )}
+                      {!lore.description && <div>No Description</div>}
+                    </div>
                   </div>
                 </div>
               </div>
+              <AnimatePresence mode="wait" initial={false}>
+                {showComments && <CommentSection onClose={() => setShowComments(false)} />}
+              </AnimatePresence>
             </div>
-            <AnimatePresence mode="wait" initial={false}>
-              {showComments && <CommentSection onClose={() => setShowComments(false)} />}
-            </AnimatePresence>
             <div
               className={`my-auto ml-6 rotate-180 cursor-pointer rounded-full bg-white p-3 ${
-                isInFullscreen ? "hidden" : ""
+                isInFullscreen ? "hidden" : "hidden lg:block"
               }`}
             >
               <IoIosArrowBack size={24} />
@@ -227,4 +266,8 @@ const LoreModal = () => {
   );
 };
 
-export default LoreModal;
+export default () => {
+  const { lore } = useOpenedLoreContext();
+  if (!lore) return null;
+  return <LoreModal lore={lore} />;
+};

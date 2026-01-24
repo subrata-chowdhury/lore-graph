@@ -12,11 +12,11 @@ export async function POST(
   const { commentId } = await params;
 
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
   }
 
   if (!mongoose.Types.ObjectId.isValid(commentId)) {
-    return NextResponse.json({ error: "Invalid Comment ID" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid Comment ID", success: false }, { status: 400 });
   }
 
   try {
@@ -34,15 +34,18 @@ export async function POST(
       // Unlike the comment
       await CommentLike.deleteOne({ _id: existingLike._id });
       await Comment.findByIdAndUpdate(objectCommentId, { $inc: { likesCount: -1 } });
-      return NextResponse.json({ message: "Comment unliked" }, { status: 200 });
+      return NextResponse.json({ message: "Comment unliked", success: true }, { status: 200 });
     } else {
       // Like the comment
       await CommentLike.create({ commentId: objectCommentId, userId: objectUserId });
       await Comment.findByIdAndUpdate(objectCommentId, { $inc: { likesCount: 1 } });
-      return NextResponse.json({ message: "Comment liked" }, { status: 200 });
+      return NextResponse.json({ message: "Comment liked", success: true }, { status: 200 });
     }
   } catch (error) {
     console.error("Failed to toggle comment like:", error);
-    return NextResponse.json({ error: "Failed to toggle comment like" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to toggle comment like", success: false },
+      { status: 500 }
+    );
   }
 }

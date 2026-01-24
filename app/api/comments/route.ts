@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/config/db";
 import Comment, { IComment } from "@/models/Comment";
+import CommentLike from "@/models/CommentLike";
+import CommentDislike from "@/models/CommentDislike";
 import { Filter } from "bad-words";
+import mongoose from "mongoose";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -10,25 +13,98 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "20", 10);
 
+  const userId = request.headers.get("x-user");
+
   if (!loreId) {
     return NextResponse.json({ error: "loreId is required" }, { status: 400 });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(loreId)) {
+    return NextResponse.json({ error: "Invalid loreId" }, { status: 400 });
+  }
+
+  if (parentId && !mongoose.Types.ObjectId.isValid(parentId)) {
+    return NextResponse.json({ error: "Invalid parentId" }, { status: 400 });
   }
 
   try {
     await dbConnect();
 
-    const query: { loreId: string; parentId?: string | null } = { loreId };
-
-    // Fetching top-level comments for a lore with pagination
-    query.parentId = parentId || null;
+    const objectLoreId = new mongoose.Types.ObjectId(loreId);
+    const objectParentId = parentId ? new mongoose.Types.ObjectId(parentId) : null;
     const skip = (page - 1) * limit;
 
-    const comments = await Comment.find(query).skip(skip).limit(limit).lean();
+    const pipeline: any[] = [
+      {
+        $facet: {
+          comments: [
+            { $match: { loreId: objectLoreId, parentId: objectParentId } },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+            ...(userId
+              ? [
+                  {
+                    $lookup: {
+                      from: CommentLike.collection.name,
+                      let: { commentId: "$_id" },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $and: [
+                                { $eq: ["$commentId", "$$commentId"] },
+                                { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
+                              ],
+                            },
+                          },
+                        },
+                      ],
+                      as: "userLike",
+                    },
+                  },
+                  {
+                    $lookup: {
+                      from: CommentDislike.collection.name,
+                      let: { commentId: "$_id" },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $and: [
+                                { $eq: ["$commentId", "$$commentId"] },
+                                { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
+                              ],
+                            },
+                          },
+                        },
+                      ],
+                      as: "userDislike",
+                    },
+                  },
+                  {
+                    $addFields: {
+                      isLiked: { $gt: [{ $size: "$userLike" }, 0] },
+                      isDisliked: { $gt: [{ $size: "$userDislike" }, 0] },
+                    },
+                  },
+                  { $project: { userLike: 0, userDislike: 0 } },
+                ]
+              : [{ $addFields: { isLiked: false, isDisliked: false } }]),
+          ],
+          totalCount: [
+            { $match: { loreId: objectLoreId, parentId: objectParentId } },
+            { $count: "count" },
+          ],
+          totalCommentsIncludeingReply: [{ $match: { loreId: objectLoreId } }, { $count: "count" }],
+        },
+      },
+    ];
 
-    const total = await Comment.countDocuments(query);
-
-    // total count includeing reply counts
-    const totalCommentsIncludeingReply = await Comment.countDocuments({ loreId: loreId });
+    const result = await Comment.aggregate(pipeline);
+    const commentsWithInteraction = result[0].comments;
+    const total = result[0].totalCount[0]?.count || 0;
+    const totalCommentsIncludeingReply = result[0].totalCommentsIncludeingReply[0]?.count || 0;
 
     const pagination = {
       page,
@@ -38,7 +114,7 @@ export async function GET(request: NextRequest) {
       totalCommentsIncludeingReply,
     };
 
-    return NextResponse.json({ data: comments, pagination });
+    return NextResponse.json({ data: commentsWithInteraction, pagination });
   } catch (error) {
     console.error("Failed to fetch comments:", error);
     return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });

@@ -6,6 +6,8 @@ import { HiReply } from "react-icons/hi";
 import fetcher from "@/libs/fetcher";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { BiSolidLike } from "react-icons/bi";
+import { BiSolidDislike } from "react-icons/bi";
 
 function Comment({
   comment,
@@ -13,21 +15,24 @@ function Comment({
   isSubComment,
   onReplyClick = () => {},
 }: {
-  comment: CommentType;
+  comment: CommentType & { isLiked: boolean; isDisliked: boolean };
   className?: string;
   isSubComment?: boolean;
-  onReplyClick: (comment: CommentType) => void;
+  onReplyClick: (innerComment: CommentType & { isLiked: boolean; isDisliked: boolean }) => void;
 }) {
-  const [subComments, setSubComments] = useState<CommentType[]>([]);
+  const [innerComment, setInnerComment] = useState(comment);
+  const [subComments, setSubComments] = useState<
+    (CommentType & { isLiked: boolean; isDisliked: boolean })[]
+  >([]);
   const [showReplies, setShowReplies] = useState(false);
   const [expandComment, setExpandComment] = useState(false);
   const [loadingReplies, setLoadingReplies] = useState(false);
 
   async function fetchReplies() {
     setLoadingReplies(true);
-    const res = await fetcher.get<{ data: CommentType[] }>(
-      `/comments?loreId=${comment.loreId}&parentId=${comment._id}`
-    );
+    const res = await fetcher.get<{
+      data: (CommentType & { isLiked: boolean; isDisliked: boolean })[];
+    }>(`/comments?loreId=${innerComment.loreId}&parentId=${innerComment._id}`);
     setLoadingReplies(false);
     if (res.status === 200 && res.body) {
       setSubComments(res.body.data);
@@ -36,27 +41,65 @@ function Comment({
     }
   }
 
+  async function toggleLike() {
+    const res = await fetcher.post<
+      {},
+      {
+        success: boolean;
+      }
+    >(`/comments/${innerComment._id}/toggle-like`, {});
+    if (res.body?.success) {
+      const newComment = {
+        ...innerComment,
+        likesCount: innerComment.isLiked
+          ? innerComment.likesCount - 1
+          : innerComment.likesCount + 1,
+        isLiked: !innerComment.isLiked,
+      };
+      setInnerComment(newComment);
+    }
+  }
+
+  async function toggleDislike() {
+    const res = await fetcher.post<
+      {},
+      {
+        success: boolean;
+      }
+    >(`/comments/${innerComment._id}/toggle-dislike`, {});
+    if (res.body?.success) {
+      const newComment = {
+        ...innerComment,
+        dislikesCount: innerComment.isDisliked
+          ? innerComment.dislikesCount - 1
+          : innerComment.dislikesCount + 1,
+        isDisliked: !innerComment.isDisliked,
+      };
+      setInnerComment(newComment);
+    }
+  }
+
   return (
     <div className={`flex gap-3 py-3 ${isSubComment ? "pb-0" : ""} ${className || ""}`}>
       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/10 font-bold">
-        {comment.author.charAt(0).toUpperCase()}
+        {innerComment.author.charAt(0).toUpperCase()}
       </div>
       <div className="flex max-w-68 flex-1 flex-col">
         <div className="mb-0.5 flex items-center justify-start">
-          <Link href={`/@${comment.author}`} target="_blank" className="text-xs font-semibold">
-            {comment.author}
+          <Link href={`/@${innerComment.author}`} target="_blank" className="text-xs font-semibold">
+            {innerComment.author}
           </Link>
           <span className="ml-2 border-l border-black/20 pl-2 text-[10px] text-black/40">
-            {new Date(comment.createdAt).toLocaleDateString()}
+            {new Date(innerComment.createdAt).toLocaleDateString()}
           </span>
         </div>
         <p className="max-w-[95%] text-xs wrap-break-word whitespace-pre-wrap text-black/90">
           {expandComment
-            ? comment.content
-            : comment.content.split("\n").length > 2 || comment.content.length > 100
-              ? comment.content.split("\n").slice(0, 2).join("\n").slice(0, 100) + "..."
-              : comment.content}
-          {(comment.content.split("\n").length > 2 || comment.content.length > 100) && (
+            ? innerComment.content
+            : innerComment.content.split("\n").length > 2 || innerComment.content.length > 100
+              ? innerComment.content.split("\n").slice(0, 2).join("\n").slice(0, 100) + "..."
+              : innerComment.content}
+          {(innerComment.content.split("\n").length > 2 || innerComment.content.length > 100) && (
             <span
               className="ml-2 cursor-pointer text-[11px] font-semibold text-black"
               onClick={() => setExpandComment((val) => !val)}
@@ -67,15 +110,21 @@ function Comment({
         </p>
         <div className="flex gap-2">
           <div className="mt-1 flex w-fit cursor-pointer rounded-full">
-            <button className="flex cursor-pointer items-center gap-1 border-r border-black/20 pr-1.5 text-[10px]">
-              <FiThumbsUp size={12} />
-              <span className="mt-0.5">{comment.likesCount || 0}</span>
+            <button
+              onClick={toggleLike}
+              className="flex cursor-pointer items-center gap-1 border-r border-black/20 pr-1.5 text-[10px]"
+            >
+              {innerComment.isLiked ? <BiSolidLike size={12} /> : <FiThumbsUp size={12} />}
+              <span className="mt-0.5">{innerComment.likesCount || 0}</span>
             </button>
-            <button className="flex cursor-pointer items-center gap-1 pl-1.5 text-[10px]">
-              <FiThumbsDown size={12} />
+            <button
+              onClick={toggleDislike}
+              className="flex cursor-pointer items-center gap-1 pl-1.5 text-[10px]"
+            >
+              {innerComment.isDisliked ? <BiSolidDislike size={12} /> : <FiThumbsDown size={12} />}
             </button>
           </div>
-          {comment.replyCount > 0 && (
+          {innerComment.replyCount > 0 && (
             <div
               className="mt-1 flex cursor-pointer items-center rounded-full px-1.5 py-1 text-[10px] leading-2.5 font-semibold hover:bg-black/10"
               onClick={() => {
@@ -85,12 +134,12 @@ function Comment({
                 setShowReplies((val) => !val);
               }}
             >
-              {comment.replyCount || 0}&nbsp;<div> replies</div>
+              {innerComment.replyCount || 0}&nbsp;<div> replies</div>
             </div>
           )}
           <div
             className="my-auto cursor-pointer rounded p-1 hover:bg-black/10"
-            onClick={() => onReplyClick(comment)}
+            onClick={() => onReplyClick(innerComment)}
           >
             <HiReply size={12} />
           </div>
