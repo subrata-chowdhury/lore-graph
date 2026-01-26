@@ -10,7 +10,7 @@ export async function GET(
     await dbConnect();
     const { loreId } = await params;
 
-    const lore = await Lore.findById(loreId);
+    const lore = await Lore.findOne({ _id: loreId, visibility: "public" });
 
     if (!lore) {
       return NextResponse.json({ error: "Lore not found", success: false }, { status: 404 });

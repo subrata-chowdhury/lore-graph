@@ -22,6 +22,7 @@ type Props = {
       | "likesCount"
       | "dislikesCount"
       | "viewsCount"
+      | "commentsCount"
       | "createdBy"
       | "createdById"
     >,
@@ -36,6 +37,7 @@ type Props = {
         | "likesCount"
         | "dislikesCount"
         | "viewsCount"
+        | "commentsCount"
         | "createdBy"
         | "createdById"
       >,
@@ -120,9 +122,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
                 { label: "YouTube", value: "youtube" },
                 { label: "Post", value: "post" },
               ]}
-              onChange={(option) =>
-                onLoreDataChange({ ...loreData, type: option.value as LoreType["type"] })
-              }
+              onChange={() => toast.info("Experimental feature. Not available yet")}
               containerClassName="text-sm capitalize"
               mainContainerClassName="pl-3"
             />
@@ -200,6 +200,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
           containerClass="mb-4"
           inputClass="resize-none"
           mainInputContainerClass="h-40"
+          max={5000}
         />
         <TagInput
           label="Tags"
@@ -273,6 +274,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
               viewsCount: 0,
               likesCount: 0,
               dislikesCount: 0,
+              commentsCount: 0,
               _id: "demo-lore-id",
               next: [],
               createdBy: "user",

@@ -30,10 +30,10 @@ const CreatePage = () => {
       setIsSubmitting(true);
       if (pageId)
         try {
-          const { error } = await fetcher.put(`/super-admin/pages/${pageId}`, data);
+          const { error } = await fetcher.put(`/pages/${pageId}`, data);
           if (error) throw new Error(error);
           toast.success("Page updated successfully");
-          router.push("/super-admin/pages");
+          router.push("/pages");
         } catch (error: any) {
           toast.error(error?.message || "Failed to update page");
         } finally {
@@ -41,10 +41,10 @@ const CreatePage = () => {
         }
       else
         try {
-          const { error } = await fetcher.post("/super-admin/pages", data);
+          const { error } = await fetcher.post("/pages", data);
           if (error) throw new Error(error);
           toast.success("Page created successfully");
-          router.push("/super-admin/pages");
+          router.push("/pages");
         } catch (error: any) {
           toast.error(error?.message || "Failed to create page");
         } finally {

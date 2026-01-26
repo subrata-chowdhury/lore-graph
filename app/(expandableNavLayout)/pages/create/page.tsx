@@ -1,13 +1,13 @@
 "use client";
 import React, { useCallback, useState } from "react";
 import { PageType } from "@/types/types";
-import StepsBar from "../_components/StepsBar";
 import LevelsForm from "@/app/_components/Forms/LevelsForm";
 import PageForm from "@/app/_components/Forms/PageForm";
 import PageReviewForm from "@/app/_components/Forms/PageReviewForm";
 import fetcher from "@/libs/fetcher";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import StepsBar from "../_components/StepsBar";
 
 const CreatePage = () => {
   const [pageData, setPageData] = useState<
@@ -31,10 +31,10 @@ const CreatePage = () => {
     async (data: typeof pageData) => {
       setIsSubmitting(true);
       try {
-        const { error } = await fetcher.post("/super-admin/pages", data);
+        const { error } = await fetcher.post("/pages", data);
         if (error) throw new Error(error);
         toast.success("Page created successfully");
-        router.push("/super-admin/pages");
+        router.push("/pages");
       } catch (error: any) {
         toast.error(error?.message || "Failed to create page");
       } finally {

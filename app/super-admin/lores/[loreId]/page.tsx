@@ -16,6 +16,7 @@ const LoreFormPage = () => {
       | "likesCount"
       | "dislikesCount"
       | "viewsCount"
+      | "commentsCount"
       | "createdBy"
       | "createdById"
     >

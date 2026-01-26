@@ -26,7 +26,7 @@ const Pagination = ({ currentPage, totalPages, onChange, loading = false }: Prop
             key={i}
             onClick={() => handlePageChange(i)}
             disabled={loading}
-            className={`mx-1 min-w-10 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 dark:border-white/20 dark:text-gray-200 ${currentPage === i ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
+            className={`mx-1 min-w-8 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 text-sm dark:border-white/20 dark:text-gray-200 ${currentPage === i ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
           >
             {i}
           </button>
@@ -43,7 +43,7 @@ const Pagination = ({ currentPage, totalPages, onChange, loading = false }: Prop
           key={1}
           onClick={() => handlePageChange(1)}
           disabled={loading}
-          className={`mx-1 min-w-10 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 dark:border-white/20 dark:text-gray-200 ${currentPage === 1 ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
+          className={`mx-1 min-w-8 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 text-sm dark:border-white/20 dark:text-gray-200 ${currentPage === 1 ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
         >
           1
         </button>
@@ -77,7 +77,7 @@ const Pagination = ({ currentPage, totalPages, onChange, loading = false }: Prop
             key={i}
             onClick={() => handlePageChange(i)}
             disabled={loading}
-            className={`mx-1 min-w-10 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 dark:border-white/20 dark:text-gray-200 ${currentPage === i ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
+            className={`mx-1 min-w-8 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 text-sm dark:border-white/20 dark:text-gray-200 ${currentPage === i ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
           >
             {i}
           </button>
@@ -99,7 +99,7 @@ const Pagination = ({ currentPage, totalPages, onChange, loading = false }: Prop
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
           disabled={loading}
-          className={`mx-1 min-w-10 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 dark:border-white/20 dark:text-gray-200 ${currentPage === totalPages ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
+          className={`mx-1 min-w-8 cursor-pointer rounded border-2 border-gray-300/50 px-3 py-1 text-sm dark:border-white/20 dark:text-gray-200 ${currentPage === totalPages ? "bg-gray-200 text-black dark:bg-white/40" : "bg-white text-black hover:bg-gray-100 dark:bg-transparent hover:dark:bg-white/20"}`}
         >
           {totalPages}
         </button>

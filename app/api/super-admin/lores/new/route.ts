@@ -1,7 +1,5 @@
 import dbConnect from "@/config/db";
 import Lore from "@/models/Lore";
-import User from "@/models/User";
-import SuperAdmin from "@/models/SuperAdmin";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -10,6 +8,7 @@ export async function POST(request: Request) {
 
     const userId = request.headers.get("x-user");
     const userRole = request.headers.get("x-user-role");
+    const username = request.headers.get("x-username");
 
     if (!userId || userRole !== "super-admin") {
       return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
@@ -77,15 +76,6 @@ export async function POST(request: Request) {
       );
     }
 
-    let user = await User.findById(userId).select("username");
-    if (!user) {
-      user = await SuperAdmin.findById(userId).select("username");
-    }
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found", success: false }, { status: 404 });
-    }
-
     const newLore = new Lore({
       title: title.trim(),
       description: description.trim(),
@@ -94,7 +84,7 @@ export async function POST(request: Request) {
       src: src ? src.trim() : undefined,
       thumbnailUrl: thumbnailUrl,
       tags: Array.isArray(tags) ? tags.map((t: string) => t.trim()) : [],
-      createdBy: user.username,
+      createdBy: username,
       createdById: userId,
     });
 

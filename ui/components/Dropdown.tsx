@@ -22,6 +22,7 @@ type Props = {
   }) => React.JSX.Element;
   ref?: React.RefObject<HTMLDivElement | null>;
   loading?: boolean;
+  disabled?: boolean;
 };
 
 function Dropdown({
@@ -36,6 +37,7 @@ function Dropdown({
   optionElement,
   ref,
   loading = false,
+  disabled = false,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const displayLabel = options.find((opt) => opt.value === value)?.label || value;
@@ -44,7 +46,9 @@ function Dropdown({
     <div className={"relative " + containerClassName} style={{ width: width || "fit-content" }}>
       <div
         className={`flex cursor-pointer items-center justify-between gap-1 rounded-md border border-black/15 p-2 pl-3 dark:border-white/20 ${mainContainerClassName}`}
-        onClick={() => (!loading ? setIsOpen(!isOpen) : "")}
+        onClick={() => {
+          if (!loading && !disabled) setIsOpen(!isOpen);
+        }}
         ref={ref}
         style={{ height: height || "40px", width: width || "fit-content" }}
       >

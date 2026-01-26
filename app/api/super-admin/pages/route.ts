@@ -11,6 +11,7 @@ export async function POST(req: Request) {
 
     // Try to get authorId from headers (if middleware sets it) or body
     const authorId = req.headers.get("x-user");
+    const username = req.headers.get("x-username");
 
     if (!authorId) {
       return NextResponse.json({ message: "Author ID is required" }, { status: 400 });
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       bgImgUrl,
       visibility: visibility || "public",
       authorId,
+      authorusername: username,
     });
 
     return NextResponse.json(newPage, { status: 201 });

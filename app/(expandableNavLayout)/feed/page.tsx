@@ -1,12 +1,8 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import Topbar from "../_components/Topbar";
 import fetcher from "@/libs/fetcher";
 import { PageType } from "@/types/types";
 import Link from "next/link";
-
-type Props = {};
 
 type PagesResponse = {
   pages: PageType[];
@@ -18,7 +14,7 @@ type PagesResponse = {
   };
 };
 
-const FeedPage = (props: Props) => {
+const FeedPage = () => {
   const [pages, setPages] = useState<PageType[]>([]);
   const [loading, setLoading] = useState(true);
 

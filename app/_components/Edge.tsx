@@ -10,6 +10,7 @@ const Edge = ({ from, to, cornerSize = 10, paddingLeft = 0 }: Props) => {
   const y1 = from.y;
   const x2 = to.x;
   const y2 = to.y;
+  const rotatePadding = (40 / 100) * (x2 - x1); // added later 25-01-2026
   if (y1 === y2) {
     return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={`rgba(0,0,0,0.2)`} strokeWidth="2" />;
   }
@@ -18,7 +19,7 @@ const Edge = ({ from, to, cornerSize = 10, paddingLeft = 0 }: Props) => {
   const verticalDir = y2 > y1 ? 1 : -1;
 
   // Horizontal end before 1st corner
-  const hEndX = x1 + paddingLeft + horizontalDir * cornerSize;
+  const hEndX = x1 + paddingLeft + rotatePadding + horizontalDir * cornerSize;
 
   // Vertical end before 2nd corner
   const vEndY = y2 - verticalDir * cornerSize;

@@ -1,11 +1,13 @@
 "use client";
 import fetcher from "@/libs/fetcher";
+import { useParams } from "next/navigation";
 import { LoreType } from "@/types/loreTypes";
-import LoreForm from "@/app/_components/Forms/LoreForm";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import LoreForm from "@/app/_components/Forms/LoreForm";
 
 const LoreFormPage = () => {
+  const { loreId } = useParams();
   const [loreData, setLoreData] = useState<
     Omit<
       LoreType,
@@ -27,12 +29,26 @@ const LoreFormPage = () => {
     visibility: "private",
   });
 
+  async function fetchLore() {
+    try {
+      const { body, error } = await fetcher.get<{ data: LoreType }>(`/lores/${loreId}`);
+      if (body && body.data) {
+        setLoreData(body.data);
+      } else {
+        toast.error(error || "Failed to fetch lore");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    }
+  }
+
   async function saveLore() {
     try {
-      const { body, error } = await fetcher.post<
+      const { body, error } = await fetcher.put<
         typeof loreData,
         { success: boolean; error?: string }
-      >("/super-admin/lores/new", loreData);
+      >("/lores/" + loreId, loreData);
 
       if (body?.success) {
         toast.success("Lore created successfully");
@@ -53,6 +69,12 @@ const LoreFormPage = () => {
       toast.error("Something went wrong");
     }
   }
+
+  useEffect(() => {
+    if (loreId) {
+      fetchLore();
+    }
+  }, []);
 
   return <LoreForm loreData={loreData} onLoreDataChange={setLoreData} onSave={saveLore} />;
 };

@@ -5,6 +5,7 @@ import CommentLike from "@/models/CommentLike";
 import CommentDislike from "@/models/CommentDislike";
 import { Filter } from "bad-words";
 import mongoose from "mongoose";
+import Lore from "@/models/Lore";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -138,6 +139,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const lore = await Lore.findById(loreId);
+    if (!lore) {
+      return NextResponse.json({ error: "Lore not found" }, { status: 404 });
+    }
+
     // bad word finder
     const filter = new Filter();
     if (filter.isProfane(content)) {
@@ -151,6 +157,8 @@ export async function POST(request: NextRequest) {
       author: authorUsername,
       authorId,
     });
+    lore.commentsCount++;
+    await lore.save();
 
     await newComment.save();
 

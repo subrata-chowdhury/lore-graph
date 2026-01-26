@@ -12,7 +12,7 @@ const Menubar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="z-10 flex h-screen flex-col justify-between gap-2 border-r border-black/20 bg-black/0 p-3 py-4 pb-2 backdrop-blur-xl">
+    <div className="z-10 flex h-screen max-h-dvh flex-col justify-between gap-2 border-r border-black/20 bg-black/0 p-3 py-4 pb-2 backdrop-blur-xl">
       <Link
         href={"/"}
         className="flex items-center justify-center gap-4 text-center text-lg font-bold"

@@ -39,7 +39,7 @@ const LoresPage = () => {
       success: boolean;
       data: LoreType[];
       pagination: { total: number; page: number; limit: number; totalPages: number };
-    }>(`/lores?${params.toString()}`);
+    }>(`/super-admin/lores?${params.toString()}`);
 
     if (res.status !== 200) {
       setLoading(false);

@@ -27,6 +27,7 @@ export type PageType = {
   likes: number;
   views: number;
   bgImgUrl?: string;
+  visibility: "public" | "private";
   createdAt: string;
   updatedAt: string;
 };

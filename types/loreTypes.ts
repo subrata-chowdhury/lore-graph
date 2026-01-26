@@ -7,6 +7,7 @@ export type LoreType = {
   tags: string[];
   type: "video" | "youtube" | "post";
   viewsCount: number;
+  commentsCount: number;
   likesCount: number;
   dislikesCount: number;
   visibility: "public" | "private";

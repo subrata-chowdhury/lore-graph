@@ -34,14 +34,14 @@ const menus: {
   },
   {
     name: "Pages",
-    url: "/super-admin/pages",
+    url: "/pages",
     matcher: ["/super-admin/pages", "/super-admin/pages/new"],
     icon: HiOutlineRectangleGroup,
     protected: true,
   },
   {
     name: "Lores",
-    url: "/super-admin/lores",
+    url: "/lores",
     matcher: ["/super-admin/lores", "/super-admin/lores/new"],
     icon: HiOutlineRectangleGroup,
     protected: true,
@@ -69,7 +69,7 @@ const Sidebar = () => {
       )}
 
       <div
-        className={`fixed ${isOpen ? "translate-x-0" : "-translate-x-full"} left-0 z-20 flex h-screen flex-col border-r border-black/20 bg-white px-3 pb-3 transition-transform duration-300 md:relative md:translate-x-0`}
+        className={`fixed ${isOpen ? "translate-x-0" : "-translate-x-full"} left-0 z-20 flex h-screen max-h-dvh flex-col border-r border-black/20 bg-white px-3 pb-3 transition-transform duration-300 md:relative md:translate-x-0`}
       >
         <Link
           href={"/"}

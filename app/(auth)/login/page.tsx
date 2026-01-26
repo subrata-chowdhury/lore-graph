@@ -92,7 +92,7 @@ export default function AdminLogin() {
             </div>
           </div>
           <button
-            className="bg-primary rounded p-2 text-white dark:bg-white/15"
+            className="bg-primary cursor-pointer rounded p-2 text-white dark:bg-white/15"
             onClick={login}
             disabled={loading}
           >

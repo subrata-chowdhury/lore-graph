@@ -125,7 +125,7 @@ const LoreModal = ({ lore }: { lore: LoreType }) => {
           <div
             className={`flex ${
               isInFullscreen
-                ? "h-screen max-h-screen w-screen max-w-screen"
+                ? "h-screen max-h-dvh w-screen max-w-screen"
                 : "h-[85vh] max-h-[85vh] max-w-[90vw]"
             } items-center justify-center transition-all`}
           >

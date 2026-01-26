@@ -6,7 +6,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();
-    const userId = request.headers.get("x-user");
+    const authorId = request.headers.get("x-user");
+
+    if (!authorId) {
+      return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
+    }
 
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get("page") || "1");
@@ -18,7 +22,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort") || "createdAt";
     const order = searchParams.get("order") === "asc" ? 1 : -1;
 
-    const query: any = {};
+    const query: any = { createdById: authorId };
 
     // Text search using the index defined in the model
     if (search) {
@@ -31,16 +35,15 @@ export async function GET(request: NextRequest) {
     if (type) {
       query.type = type;
     }
-
     if (visibility) {
       query.visibility = visibility;
     }
-
     if (tags) {
       query.tags = { $in: tags.split(",").map((tag) => tag.trim()) };
     }
 
     const skip = (page - 1) * limit;
+
     const lores = await Lore.find(query)
       .sort({ [sort]: order })
       .skip(skip)
