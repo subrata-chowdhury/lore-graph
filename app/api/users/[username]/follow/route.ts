@@ -64,6 +64,8 @@ export async function POST(
           followerUsername: followerUser.username,
           followingName: followingUser.name,
           followingUsername: followingUser.username,
+          followerProfileImage: followerUser.profileImage,
+          followingProfileImage: followingUser.profileImage,
         },
       ],
       { session }

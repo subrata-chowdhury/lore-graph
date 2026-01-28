@@ -2,13 +2,13 @@
 import { useState, useEffect, useRef } from "react";
 
 export default function BannerImage({
-  userId,
   userName,
   className = "",
+  bannerImage,
 }: {
-  userId: string;
   userName: string;
   className?: string;
+  bannerImage?: string;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -29,7 +29,7 @@ export default function BannerImage({
   return imageLoaded ? (
     <img
       ref={imgRef}
-      src={`/img/banner/${userId}`}
+      src={bannerImage}
       alt={`${userName}'s banner`}
       onError={() => setImageLoaded(false)}
       className={`object-cover ${className}`}

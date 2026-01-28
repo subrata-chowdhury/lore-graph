@@ -125,6 +125,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const authorId = request.headers.get("x-user");
   const authorUsername = request.headers.get("x-username");
+  const authorProfileImage = request.headers.get("x-profile-image");
 
   if (!authorId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -156,6 +157,7 @@ export async function POST(request: NextRequest) {
       parentId: parentId || null,
       author: authorUsername,
       authorId,
+      authorProfileImage,
     });
     lore.commentsCount++;
     await lore.save();

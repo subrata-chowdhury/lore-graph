@@ -12,8 +12,9 @@ export type LoreType = {
   dislikesCount: number;
   visibility: "public" | "private";
   // next: string[]; // Array of Lore IDs
-  createdBy: string; // Reference to User (Indexed)
+  createdBy: string; // Reference to Username (Indexed)
   createdById: string; // Reference to User ID (Indexed)
+  authorProfileImage?: string;
   createdAt: string;
   updatedAt: string;
 };

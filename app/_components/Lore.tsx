@@ -4,6 +4,7 @@ import { useOpenedLoreContext } from "../../contexts/OpenedLoreContext";
 import { LoreType } from "../../types/loreTypes";
 import { BiVideo } from "react-icons/bi";
 import Title from "@/ui/components/Title";
+import { toast } from "react-toastify";
 
 interface LoreTypeWithNext extends LoreType {
   next: string[];
@@ -39,7 +40,13 @@ const Lore = ({
         ref={(el) => {
           if (refs) refs.current[lore._id] = el;
         }}
-        onClick={() => setLore(lore)}
+        onClick={() => {
+          if (!lore.title && !lore.description) {
+            toast.error("Lore is deleted or private");
+            return;
+          }
+          setLore(lore);
+        }}
         className={`flex aspect-video w-[230px] cursor-pointer items-center justify-center rounded-lg bg-white p-1 shadow-md ${className || ""}`}
       >
         {lore?.thumbnailUrl ? (

@@ -4,6 +4,7 @@ import fetcher from "@/libs/fetcher";
 import { LoreType } from "@/types/loreTypes";
 import { Optional } from "@/types/types";
 import Dropdown from "@/ui/components/Dropdown";
+import UploadToCloudinary from "@/ui/components/Inputs/ImageInput";
 import Input from "@/ui/components/Inputs/Input";
 import TagInput from "@/ui/components/Inputs/TagInput";
 import TextAreaInput from "@/ui/components/Inputs/TextAreaInput";
@@ -75,7 +76,7 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
             isEmbeddable: boolean;
             isPublic: boolean;
           };
-        }>(`/super-admin/video-details?videoId=${youtubeId}`)
+        }>(`/video-details?videoId=${youtubeId}`)
         .then((data) => {
           if (data.body?.data) {
             setError({ field: "", msg: "" });
@@ -215,6 +216,15 @@ const LoreForm = ({ loreData, onLoreDataChange = () => {}, onSave = () => {} }: 
         <div className="mt-1 mb-2 text-sm text-black/60">
           This thumbnail will be shown as a preview of the lore.
         </div>
+        <UploadToCloudinary
+          apiPath="/api/lores/upload"
+          onUpload={(url) => {
+            onLoreDataChange({
+              ...loreData,
+              thumbnailUrl: url,
+            });
+          }}
+        />
         <div
           className="group relative flex aspect-video h-auto w-80 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-black/20 bg-black/10 text-sm text-black/50 xl:w-100"
           onClick={() => {

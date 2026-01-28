@@ -54,7 +54,7 @@ const LoreFinder = ({ isOpen, onClose, onSelect }: Props) => {
             total: number;
             totalPages: number;
           };
-        }>(`/super-admin/lores?${params.toString()}`);
+        }>(`/lores?${params.toString()}`);
         if (res.body?.success) {
           setLores(res.body.data);
           setPagination((prev) => ({

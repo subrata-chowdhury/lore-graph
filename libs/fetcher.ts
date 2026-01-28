@@ -85,8 +85,10 @@ class Fetcher {
     if (response.status === 401) {
       if (window.location.href.includes("/super-admin"))
         window.location.href = "/login/super-admin?redirect=" + window.location.pathname;
-      else if (!window.location.href.includes("/login"))
-        window.location.href = "/login?redirect=" + window.location.pathname;
+      else if (!window.location.href.includes("/login")) {
+        if (process.env.NODE_ENV !== "development")
+          window.location.href = "/login?redirect=" + window.location.pathname;
+      }
     }
     if (response.status === 403) {
       window.location.href = "/verify";

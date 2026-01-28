@@ -212,6 +212,7 @@ const LevelForm = ({ id, onAdd = () => {}, onCancel = () => {} }: Props) => {
   }, []);
 
   useEffect(() => {
+    console.log(id);
     if (id) {
       fetchData(id);
     } else {
@@ -400,7 +401,7 @@ const LevelForm = ({ id, onAdd = () => {}, onCancel = () => {} }: Props) => {
                 const { body: data, error } = await fetcher.post<
                   { name: string; levels: { _id: string; next: string[] }[][] },
                   { _id: string; name: string }
-                >("/super-admin/levels", { name: levelName, levels });
+                >("/levels", { name: levelName, levels });
 
                 if (error) throw new Error(error);
                 if (data) {

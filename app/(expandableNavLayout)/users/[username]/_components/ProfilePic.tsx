@@ -3,13 +3,13 @@ import { getInitials } from "@/utils/getInitials";
 import { useState, useEffect, useRef } from "react";
 
 export default function ProfilePic({
-  userId,
   userName,
   className = "",
+  imageUrl,
 }: {
-  userId?: string;
   userName?: string;
   className?: string;
+  imageUrl?: string;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -30,7 +30,7 @@ export default function ProfilePic({
   return imageLoaded ? (
     <img
       ref={imgRef}
-      src={`/img/profile/${userId}`}
+      src={imageUrl}
       alt={`${userName}'s profile`}
       onLoad={() => setImageLoaded(true)}
       onError={() => {

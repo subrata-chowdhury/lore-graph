@@ -5,6 +5,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   username: string;
+  profileImage?: string;
+  bannerImage?: string;
   country?: string;
   followersCount: number;
   followingCount: number;
@@ -43,6 +45,8 @@ const UserSchema: Schema = new Schema(
       required: true,
       unique: true,
     },
+    profileImage: { type: String, required: false },
+    bannerImage: { type: String, required: false },
     about: { type: String, required: false },
     links: {
       type: [

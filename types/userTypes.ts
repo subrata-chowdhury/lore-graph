@@ -9,6 +9,8 @@ export type UserType = {
     type: "YouTube" | "Twittch" | "Instagram" | "TikTok" | "X" | "Facebook" | "Other";
     url: string;
   }[];
+  profileImage?: string;
+  bannerImage?: string;
   country?: string;
   followersCount: number;
   followingCount: number;

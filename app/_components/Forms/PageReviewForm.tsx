@@ -5,12 +5,26 @@ import React from "react";
 type Props = {
   pageData: Omit<
     PageType,
-    "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+    | "createdAt"
+    | "updatedAt"
+    | "authorUsername"
+    | "authorId"
+    | "rating"
+    | "views"
+    | "rated"
+    | "likes"
   >;
   onPageDataChange: (
     updatedPage: Omit<
       PageType,
-      "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+      | "createdAt"
+      | "updatedAt"
+      | "authorUsername"
+      | "authorId"
+      | "rating"
+      | "views"
+      | "rated"
+      | "likes"
     >
   ) => void;
   onBack?: () => void;

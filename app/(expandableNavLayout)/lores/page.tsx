@@ -9,29 +9,29 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import { BiPlus, BiSortAlt2, BiSortDown, BiSortUp, BiTrash, BiVideo } from "react-icons/bi";
 import { LuPencil } from "react-icons/lu";
+import DeleteLoreConfirmationModal from "./_components/DeleteLoreConfirmationModal";
+import { toast } from "react-toastify";
 
 const Lores = () => {
   const [lores, setLores] = useState<LoreType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [filters, setFilters] = useState({
     search: "",
     type: "",
     visibility: "",
   });
-
   const [sorting, setSorting] = useState({
     sort: "createdAt",
     order: "desc" as "asc" | "desc",
   });
-
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 1,
   });
+  const [showConfirmDelete, setShowConfirmDelete] = useState<LoreType | null>(null);
 
   const fetchLores = useCallback(async () => {
     setLoading(true);
@@ -82,6 +82,42 @@ const Lores = () => {
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
+  const handleLoreDelete = useCallback(
+    (id: string) => {
+      toast.promise(
+        async () =>
+          await fetcher.delete<
+            {},
+            {
+              message: string;
+              success: boolean;
+              error?: string;
+            }
+          >(`/lores/${id}`, {}),
+        {
+          pending: "Deleting lore...",
+          success: {
+            render: ({
+              data,
+            }: {
+              data: { message?: string | null; error?: string | null; success?: boolean };
+            }) => data.message || "Lore deleted successfully",
+          },
+          error: {
+            render: ({
+              data,
+            }: {
+              data: { message?: string | null; error?: string | null; success?: boolean };
+            }) => data.message || data.error || "Failed to delete lore",
+          },
+        }
+      );
+      setShowConfirmDelete(null);
+      fetchLores();
+    },
+    [fetchLores]
+  );
+
   const renderSortIcon = (field: keyof LoreType) => {
     if (sorting.sort !== field) return <BiSortAlt2 className="ml-1 inline opacity-40" />;
     return sorting.order === "asc" ? (
@@ -96,247 +132,262 @@ const Lores = () => {
   }, [fetchLores]);
 
   return (
-    <div className="m-4 mx-5 flex min-h-0 min-w-0 flex-1 flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Lores</h1>
-        <Link
-          href="/lores/create"
-          className="flex cursor-pointer items-center rounded-full bg-black px-4.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-black/80"
-        >
-          <BiPlus className="mr-1" size={20} />
-          Create Lore
-        </Link>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow-sm">
-        <div className="w-full max-w-xs">
-          <Input
-            label="Search"
-            placeholder="Search by title or ID..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            labelClass="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-            inputClass="text-sm"
-          />
+    <>
+      <div className="m-4 mx-5 flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Lores</h1>
+          <Link
+            href="/lores/create"
+            className="flex cursor-pointer items-center rounded-full bg-black px-4.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-black/80"
+          >
+            <BiPlus className="mr-1" size={20} />
+            Create Lore
+          </Link>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase">Type</span>
-          <Dropdown
-            options={[
-              { label: "All Types", value: "" },
-              { label: "Video", value: "video" },
-              { label: "YouTube", value: "youtube" },
-              { label: "Post", value: "post" },
-            ]}
-            value={filters.type}
-            onChange={(opt) => {
-              setFilters((prev) => ({ ...prev, type: opt.value.toString() }));
-              setPagination((prev) => ({ ...prev, page: 1 }));
-            }}
-            width={140}
-            containerClassName="text-sm"
-            mainContainerClassName="text-sm"
-          />
+        {/* Filter Bar */}
+        <div className="flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow-sm">
+          <div className="w-full max-w-xs">
+            <Input
+              label="Search"
+              placeholder="Search by title or ID..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              labelClass="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              inputClass="text-sm"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              Type
+            </span>
+            <Dropdown
+              options={[
+                { label: "All Types", value: "" },
+                { label: "Video", value: "video" },
+                { label: "YouTube", value: "youtube" },
+                { label: "Post", value: "post" },
+              ]}
+              value={filters.type}
+              onChange={(opt) => {
+                setFilters((prev) => ({ ...prev, type: opt.value.toString() }));
+                setPagination((prev) => ({ ...prev, page: 1 }));
+              }}
+              width={140}
+              containerClassName="text-sm"
+              mainContainerClassName="text-sm"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              Visibility
+            </span>
+            <Dropdown
+              options={[
+                { label: "All", value: "" },
+                { label: "Public", value: "public" },
+                { label: "Private", value: "private" },
+              ]}
+              value={filters.visibility}
+              onChange={(opt) => {
+                setFilters((prev) => ({ ...prev, visibility: opt.value.toString() }));
+                setPagination((prev) => ({ ...prev, page: 1 }));
+              }}
+              width={120}
+              containerClassName="text-sm"
+              mainContainerClassName="text-sm"
+            />
+          </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
-            Visibility
-          </span>
-          <Dropdown
-            options={[
-              { label: "All", value: "" },
-              { label: "Public", value: "public" },
-              { label: "Private", value: "private" },
-            ]}
-            value={filters.visibility}
-            onChange={(opt) => {
-              setFilters((prev) => ({ ...prev, visibility: opt.value.toString() }));
-              setPagination((prev) => ({ ...prev, page: 1 }));
-            }}
-            width={120}
-            containerClassName="text-sm"
-            mainContainerClassName="text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Table Section */}
-      <div className="flex flex-1 flex-col overflow-hidden rounded-lg bg-white shadow-sm">
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="sticky top-0 border-b border-gray-200 bg-gray-50 tracking-wider text-gray-600 uppercase">
-              <tr>
-                <th
-                  className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
-                  onClick={() => handleSort("title")}
-                >
-                  <div className="flex items-center justify-start">
-                    Title {renderSortIcon("title")}
-                  </div>
-                </th>
-                <th
-                  className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
-                  onClick={() => handleSort("type")}
-                >
-                  <div className="flex items-center justify-start">
-                    Type {renderSortIcon("type")}
-                  </div>
-                </th>
-                <th
-                  className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
-                  onClick={() => handleSort("visibility")}
-                >
-                  <div className="flex items-center justify-start">
-                    Visibility {renderSortIcon("visibility")}
-                  </div>
-                </th>
-                <th
-                  className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
-                  onClick={() => handleSort("viewsCount")}
-                >
-                  <div className="flex items-center justify-start">
-                    Views {renderSortIcon("viewsCount")}
-                  </div>
-                </th>
-                <th
-                  className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
-                  onClick={() => handleSort("createdAt")}
-                >
-                  <div className="flex items-center justify-start">
-                    Created {renderSortIcon("createdAt")}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
+        {/* Table Section */}
+        <div className="flex flex-1 flex-col overflow-hidden rounded-lg bg-white shadow-sm">
+          <div className="flex-1 overflow-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="sticky top-0 border-b border-gray-200 bg-gray-50 tracking-wider text-gray-600 uppercase">
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
-                    Loading lores...
-                  </td>
-                </tr>
-              ) : lores.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
-                    <div className="flex flex-col items-center gap-2">
-                      <BiVideo size={32} className="text-gray-300" />
-                      <p className="font-medium">No lores found</p>
-                      <p className="text-xs">Try adjusting your filters or search terms.</p>
+                  <th
+                    className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
+                    onClick={() => handleSort("title")}
+                  >
+                    <div className="flex items-center justify-start">
+                      Title {renderSortIcon("title")}
                     </div>
-                  </td>
+                  </th>
+                  <th
+                    className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
+                    onClick={() => handleSort("type")}
+                  >
+                    <div className="flex items-center justify-start">
+                      Type {renderSortIcon("type")}
+                    </div>
+                  </th>
+                  <th
+                    className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
+                    onClick={() => handleSort("visibility")}
+                  >
+                    <div className="flex items-center justify-start">
+                      Visibility {renderSortIcon("visibility")}
+                    </div>
+                  </th>
+                  <th
+                    className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
+                    onClick={() => handleSort("viewsCount")}
+                  >
+                    <div className="flex items-center justify-start">
+                      Views {renderSortIcon("viewsCount")}
+                    </div>
+                  </th>
+                  <th
+                    className="cursor-pointer px-6 py-3 font-semibold transition-colors hover:bg-gray-100"
+                    onClick={() => handleSort("createdAt")}
+                  >
+                    <div className="flex items-center justify-start">
+                      Created {renderSortIcon("createdAt")}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left font-semibold">Actions</th>
                 </tr>
-              ) : (
-                lores.map((lore) => (
-                  <tr key={lore._id} className="group transition-colors hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {lore.thumbnailUrl && (
-                          <img
-                            src={lore.thumbnailUrl}
-                            className="h-8 w-14 rounded border border-gray-100 object-cover"
-                            alt=""
-                          />
-                        )}
-                        <span
-                          className="max-w-50 truncate font-medium text-gray-900"
-                          title={lore.title}
-                        >
-                          {lore.title}
-                        </span>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                      Loading lores...
                     </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
-                          lore.type === "video"
-                            ? "bg-blue-50 text-blue-700"
-                            : lore.type === "youtube"
-                              ? "bg-red-50 text-red-700"
-                              : "bg-green-50 text-green-700"
-                        }`}
-                      >
-                        {lore.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
-                          lore.visibility === "public"
-                            ? "bg-purple-50 text-purple-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {lore.visibility}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-500">{lore.viewsCount}</td>
-                    <td className="px-6 py-4 text-gray-500">
-                      {new Date(lore.createdAt).toDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-3">
-                        <Link
-                          href={`/lores/${lore._id}`}
-                          className="flex items-center justify-start font-medium text-blue-600 transition-colors hover:text-blue-800"
-                        >
-                          <LuPencil />
-                        </Link>
-                        <button className="text-red-500">
-                          <BiTrash size={16} />
-                        </button>
+                  </tr>
+                ) : lores.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                      <div className="flex flex-col items-center gap-2">
+                        <BiVideo size={32} className="text-gray-300" />
+                        <p className="font-medium">No lores found</p>
+                        <p className="text-xs">Try adjusting your filters or search terms.</p>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {pagination.total > 0 && (
-          <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-3">
-            <div className="text-xs text-gray-500">
-              Showing{" "}
-              <span className="font-semibold text-gray-700">
-                {(pagination.page - 1) * pagination.limit + 1}
-              </span>{" "}
-              to{" "}
-              <span className="font-semibold text-gray-700">
-                {Math.min(pagination.page * pagination.limit, pagination.total)}
-              </span>{" "}
-              of <span className="font-semibold text-gray-700">{pagination.total}</span> results
-            </div>
-            <Dropdown
-              options={[
-                { label: "10", value: 10 },
-                { label: "25", value: 25 },
-                { label: "50", value: 50 },
-                { label: "100", value: 100 },
-              ]}
-              value={pagination.limit}
-              onChange={(opt) => {
-                setPagination((prev) => ({ ...prev, limit: opt.value as number, page: 1 }));
-              }}
-              showPopupAtTop={true}
-              containerClassName="text-xs mr-auto ml-3"
-              mainContainerClassName="text-xs"
-            />
-            <Pagination
-              currentPage={pagination.page}
-              totalPages={pagination.totalPages}
-              onChange={(page) => {
-                setPagination((prev) => ({ ...prev, page }));
-              }}
-            />
+                ) : (
+                  lores.map((lore) => (
+                    <tr key={lore._id} className="group transition-colors hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {lore.thumbnailUrl && (
+                            <img
+                              src={lore.thumbnailUrl}
+                              className="h-8 w-14 rounded border border-gray-100 object-cover"
+                              alt=""
+                            />
+                          )}
+                          <span
+                            className="max-w-50 truncate font-medium text-gray-900"
+                            title={lore.title}
+                          >
+                            {lore.title}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
+                            lore.type === "video"
+                              ? "bg-blue-50 text-blue-700"
+                              : lore.type === "youtube"
+                                ? "bg-red-50 text-red-700"
+                                : "bg-green-50 text-green-700"
+                          }`}
+                        >
+                          {lore.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
+                            lore.visibility === "public"
+                              ? "bg-purple-50 text-purple-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {lore.visibility}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-500">{lore.viewsCount}</td>
+                      <td className="px-6 py-4 text-gray-500">
+                        {new Date(lore.createdAt).toDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-1">
+                          <Link
+                            href={`/lores/${lore._id}`}
+                            className="flex items-center justify-start rounded-full p-2 font-medium transition-colors hover:bg-black/10"
+                          >
+                            <LuPencil />
+                          </Link>
+                          <button
+                            onClick={() => setShowConfirmDelete(lore)}
+                            className="cursor-pointer rounded-full p-2 transition-colors hover:bg-black/10"
+                          >
+                            <BiTrash size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
+
+          {/* Pagination */}
+          {pagination.total > 0 && (
+            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-3">
+              <div className="text-xs text-gray-500">
+                Showing{" "}
+                <span className="font-semibold text-gray-700">
+                  {(pagination.page - 1) * pagination.limit + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-semibold text-gray-700">
+                  {Math.min(pagination.page * pagination.limit, pagination.total)}
+                </span>{" "}
+                of <span className="font-semibold text-gray-700">{pagination.total}</span> results
+              </div>
+              <Dropdown
+                options={[
+                  { label: "10", value: 10 },
+                  { label: "25", value: 25 },
+                  { label: "50", value: 50 },
+                  { label: "100", value: 100 },
+                ]}
+                value={pagination.limit}
+                onChange={(opt) => {
+                  setPagination((prev) => ({ ...prev, limit: opt.value as number, page: 1 }));
+                }}
+                showPopupAtTop={true}
+                containerClassName="text-xs mr-auto ml-3"
+                mainContainerClassName="text-xs"
+              />
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onChange={(page) => {
+                  setPagination((prev) => ({ ...prev, page }));
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      {showConfirmDelete && (
+        <DeleteLoreConfirmationModal
+          lore={showConfirmDelete}
+          isOpen={true}
+          onClose={() => setShowConfirmDelete(null)}
+          onConfirm={() => handleLoreDelete(showConfirmDelete?._id)}
+        />
+      )}
+    </>
   );
 };
 

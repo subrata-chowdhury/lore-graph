@@ -6,6 +6,7 @@ type Props = {
     _id: string;
     username: string;
     name: string;
+    profileImage?: string;
   };
 };
 
@@ -16,7 +17,11 @@ const UserCard = ({ user }: Props) => {
         href={`/@${user.username}`}
         className="relative mb-0 h-10 w-10 overflow-hidden rounded-full sm:mb-4 sm:h-24 sm:w-24"
       >
-        <ProfilePic userId={user._id} userName={user.username} className="text-xs! sm:text-lg!" />
+        <ProfilePic
+          imageUrl={user.profileImage}
+          userName={user.username}
+          className="text-xs! sm:text-lg!"
+        />
       </Link>
 
       <div className="mb-0 ml-3 text-left sm:mb-4 sm:ml-0 sm:text-center">

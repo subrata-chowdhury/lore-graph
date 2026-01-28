@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
   try {
     const user = await User.findById(userId).select(
-      "name username email country about links followersCount followingCount verified"
+      "name username email country about links followersCount followingCount verified profileImage"
     );
     if (!user) {
       return NextResponse.json({ message: "User not found", success: false }, { status: 404 });

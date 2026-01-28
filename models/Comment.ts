@@ -4,6 +4,7 @@ export interface IComment extends Document {
   loreId: string; // The ID of the video / post this belongs to (INDEX THIS)
   parentId: string | null; // null = top-level comment; ID = reply to another comment
   author: string;
+  authorProfileImage?: string;
   authorId: string; // Reference to User (Indexed)
   content: string;
   likesCount: number;
@@ -29,6 +30,10 @@ const CommentSchema: Schema = new Schema(
     author: {
       type: String,
       required: true,
+    },
+    authorProfileImage: {
+      type: String,
+      required: false,
     },
     authorId: {
       type: mongoose.Schema.Types.ObjectId,

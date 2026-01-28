@@ -13,7 +13,15 @@ const CreatePage = () => {
   const [pageData, setPageData] = useState<
     Omit<
       PageType,
-      "_id" | "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes"
+      | "_id"
+      | "createdAt"
+      | "updatedAt"
+      | "authorUsername"
+      | "authorId"
+      | "rating"
+      | "views"
+      | "rated"
+      | "likes"
     >
   >({
     title: "Untitled Page",

@@ -8,6 +8,7 @@ export interface IPage extends Document {
   tags: string[];
   authorId: string;
   authorUsername: string;
+  authorProfileImage?: string;
   rating: number;
   rated: number;
   likes: number;
@@ -51,6 +52,10 @@ const PageSchema: Schema = new Schema(
     authorUsername: {
       type: String,
       required: true,
+    },
+    authorProfileImage: {
+      type: String,
+      required: false,
     },
     rating: {
       type: Number,

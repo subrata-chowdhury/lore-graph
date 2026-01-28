@@ -79,6 +79,7 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set("x-user", user.userId);
     requestHeaders.set("x-username", user.username);
     requestHeaders.set("x-user-role", userType);
+    requestHeaders.set("x-profile-image", user.profileImage || "");
 
     return NextResponse.next({
       request: { headers: requestHeaders },

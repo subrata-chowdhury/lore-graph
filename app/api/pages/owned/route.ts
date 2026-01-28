@@ -39,7 +39,8 @@ export async function GET(req: NextRequest) {
       .limit(limit);
 
     return NextResponse.json({
-      pages,
+      success: true,
+      data: pages,
       pagination: {
         pages: totalDocs,
         currentPage: page,
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error("Error fetching pages:", error);
     return NextResponse.json(
-      { message: "Internal Server Error", error: error.message },
+      { message: "Internal Server Error", error: error.message, success: false },
       { status: 500 }
     );
   }

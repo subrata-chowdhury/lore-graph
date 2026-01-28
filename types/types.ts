@@ -4,6 +4,7 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type AuthTokenPayloadType = {
   userId: string;
   username: string;
+  profileImage?: string;
   verified: string;
   ip: string;
   deviceInfo: string;
@@ -22,6 +23,8 @@ export type PageType = {
   description: string;
   tags: string[];
   authorId: string;
+  authorUsername: string;
+  authorProfileImage?: string;
   rating?: number;
   rated?: number;
   likes: number;

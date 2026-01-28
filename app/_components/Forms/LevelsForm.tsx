@@ -95,7 +95,7 @@ const LevelsForm = ({
           <LevelForm
             id={selectedId}
             onAdd={(newLevel) => {
-              onLevelsChange([...levels, newLevel]);
+              if (newLevel.id) onLevelsChange([...levels, newLevel]);
               setShowLevelForm(false);
             }}
             onCancel={() => setShowLevelForm(false)}

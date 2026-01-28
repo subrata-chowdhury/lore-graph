@@ -79,17 +79,29 @@ export async function POST(request: NextRequest) {
       existingUser.password = hashedPassword;
       await existingUser.save();
 
+      const requestInfo = {
+        ip: request.headers.get("x-forwarded-for"),
+        agent: request.headers.get("user-agent")?.split(")")[0] + ")" || "unknown",
+        language: request.headers.get("accept-language"),
+      };
+
       const token = await new SignJWT({
-        id: existingUser._id,
+        userId: existingUser._id.toString(),
+        username: existingUser.username,
+        profileImage: existingUser.profileImage,
         verified: existingUser.verified,
+        ip: requestInfo.ip,
+        deviceInfo: requestInfo.agent,
+        language: requestInfo.language,
       })
         .setProtectedHeader({ alg: "HS256" })
         .setExpirationTime(Math.floor(Date.now() / 1000) + 3 * 30 * 24 * 60 * 60) // 6 months
         .sign(new TextEncoder().encode(process.env.JWT_SECRET));
 
       return NextResponse.json({
-        message: "User reactivated successfully",
-        user: { verified: false, name: existingUser.name, email: existingUser.email },
+        success: true,
+        message: "Recover successful",
+        user: { verified: existingUser.verified || false },
         token,
       });
     }

@@ -22,6 +22,7 @@ import { AuthTokenPayloadType } from "@/types/types";
 import { BiPencil } from "react-icons/bi";
 import Follow from "@/models/Follow";
 import FollowBtn from "./_components/FollowBtn";
+import { UserType } from "@/types/userTypes";
 
 type Props = {
   params: Promise<{
@@ -57,7 +58,7 @@ async function getPages(userId: string) {
 
 const UserPage = async ({ params }: Props) => {
   const { username } = await params;
-  const user = await getUser(username);
+  const user = (await getUser(username)) as UserType & { _id: string };
 
   if (!user) {
     notFound();
@@ -87,7 +88,7 @@ const UserPage = async ({ params }: Props) => {
               <BiPencil size={18} className="text-white" />
             </div>
           )}
-          <BannerImage userId={userId} userName={user.name} />
+          <BannerImage bannerImage={user.bannerImage} userName={user.name} />
         </div>
 
         <div className="px-4 sm:px-6 lg:mx-10 lg:px-8">
@@ -95,7 +96,11 @@ const UserPage = async ({ params }: Props) => {
             <div className="flex flex-col items-center md:flex-row md:items-end">
               {/* Profile Picture */}
               <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-white shadow-md sm:h-48 sm:w-48 dark:border-gray-900 dark:bg-gray-800">
-                <ProfilePic userId={userId} userName={user.name} className="object-cover" />
+                <ProfilePic
+                  imageUrl={user.profileImage}
+                  userName={user.name}
+                  className="object-cover"
+                />
                 {isOwner && (
                   <div className="group absolute top-0 left-0 flex h-full w-full cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/20">
                     <BiPencil
@@ -170,7 +175,11 @@ const UserPage = async ({ params }: Props) => {
                   </div>
                   <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                     <GrLocation size={20} className="text-gray-400" />
-                    <span>{getCountryDetails(user.country)?.label || "Unknown"}</span>
+                    <span>
+                      {user.country
+                        ? getCountryDetails(user.country)?.label || "Unknown"
+                        : "Unknown"}
+                    </span>
                   </div>
                 </div>
               </div>

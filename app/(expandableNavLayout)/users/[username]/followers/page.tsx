@@ -10,8 +10,14 @@ import UserCard from "../_components/UserCard";
 
 interface FollowerType {
   _id: string;
+  follower: string; // WHO is following
+  following: string; // WHO is being followed
   followerName: string;
   followerUsername: string;
+  followingName: string;
+  followingUsername: string;
+  followerProfileImage?: string;
+  followingProfileImage?: string;
   createdAt: string;
 }
 
@@ -86,6 +92,7 @@ const FollowersPage = () => {
                 _id: user._id,
                 username: user.followerUsername,
                 name: user.followerName,
+                profileImage: user.followerProfileImage,
               }}
             />
           ))}

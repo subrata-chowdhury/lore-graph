@@ -11,7 +11,17 @@ import { useParams, useRouter } from "next/navigation";
 
 const CreatePage = () => {
   const [pageData, setPageData] = useState<
-    Omit<PageType, "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes">
+    Omit<
+      PageType,
+      | "createdAt"
+      | "authorUsername"
+      | "updatedAt"
+      | "authorId"
+      | "rating"
+      | "views"
+      | "rated"
+      | "likes"
+    >
   >({
     title: "Untitled Page",
     lvls: [],
@@ -60,7 +70,7 @@ const CreatePage = () => {
       const res = await fetcher.get<{
         success: boolean;
         data: PageType;
-      }>(`/pages/${pageId}`);
+      }>(`/pages/owned/${pageId}`);
       if (res.body?.success) {
         setPageData(res.body.data);
       } else {

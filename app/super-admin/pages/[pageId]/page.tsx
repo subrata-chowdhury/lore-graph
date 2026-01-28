@@ -11,7 +11,17 @@ import { useParams, useRouter } from "next/navigation";
 
 const CreatePage = () => {
   const [pageData, setPageData] = useState<
-    Omit<PageType, "createdAt" | "updatedAt" | "authorId" | "rating" | "views" | "rated" | "likes">
+    Omit<
+      PageType,
+      | "createdAt"
+      | "updatedAt"
+      | "authorUsername"
+      | "authorId"
+      | "rating"
+      | "views"
+      | "rated"
+      | "likes"
+    >
   >({
     title: "Untitled Page",
     lvls: [],

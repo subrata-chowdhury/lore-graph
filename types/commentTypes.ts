@@ -2,8 +2,9 @@ export type CommentType = {
   _id: string;
   loreId: string; // The ID of the video / post this belongs to (INDEX THIS)
   parentId: string | null; // null = top-level comment; ID = reply to another comment
-  author: string;
+  author: string; // username
   authorId: string; // Reference to User (Indexed)
+  profileImage?: string;
   content: string;
   likesCount: number;
   dislikesCount: number;

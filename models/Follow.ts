@@ -7,6 +7,8 @@ export interface IFollow extends Document {
   followerUsername: string;
   followingName: string;
   followingUsername: string;
+  followerProfileImage?: string;
+  followingProfileImage?: string;
   createdAt: Date;
 }
 
@@ -43,6 +45,14 @@ const FollowSchema: Schema<IFollow> = new Schema(
       type: String,
       required: true,
       index: true,
+    },
+    followerProfileImage: {
+      type: String,
+      required: false,
+    },
+    followingProfileImage: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: { createdAt: true, updatedAt: false } } // We only need createdAt

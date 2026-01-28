@@ -14,6 +14,7 @@ export interface ILore extends Document {
   visibility: "public" | "private";
   createdBy: string; // User's name
   createdById: mongoose.Schema.Types.ObjectId; // Reference to User ID (Indexed)
+  authorProfileImage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,6 +80,10 @@ const LoreSchema: Schema = new Schema(
       required: true,
       ref: "User",
       index: true,
+    },
+    authorProfileImage: {
+      type: String,
+      required: false,
     },
   },
   {

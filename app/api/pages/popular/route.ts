@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search");
     const author = searchParams.get("author");
 
-    const match: any = {};
+    const match: any = { visibility: "public" };
 
     if (search) {
       match.$or = [

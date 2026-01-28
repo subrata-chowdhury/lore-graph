@@ -42,7 +42,11 @@ const ProfilePopup = ({ profileData: profile, onClose = () => {} }: Props) => {
       <div className="absolute top-14 right-0 z-20 w-70 rounded-2xl border border-black/10 bg-white p-4 pb-2 shadow-lg">
         <div className="mb-4 flex flex-col gap-1 text-center">
           <div className="relative mx-auto mt-3 h-10 w-10 overflow-hidden rounded-full bg-white dark:border-gray-900 dark:bg-gray-800">
-            <ProfilePic userId={profile?._id} userName={profile?.name} className="text-sm!" />
+            <ProfilePic
+              imageUrl={profile?.profileImage}
+              userName={profile?.name}
+              className="text-sm!"
+            />
           </div>
           <div className="text-xl font-semibold">{profile?.name || "N/A"}</div>
           <div className="text-sm">{profile?.email || "N/A"}</div>

@@ -68,10 +68,10 @@ export async function POST(request: Request) {
     await dbConnect();
 
     const userId = request.headers.get("x-user");
-    const userRole = request.headers.get("x-user-role");
     const username = request.headers.get("x-username");
+    const profileImage = request.headers.get("x-profile-image");
 
-    if (!userId || userRole !== "super-admin") {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized", success: false }, { status: 401 });
     }
 
@@ -147,6 +147,7 @@ export async function POST(request: Request) {
       tags: Array.isArray(tags) ? tags.map((t: string) => t.trim()) : [],
       createdBy: username,
       createdById: userId,
+      authorProfileImage: profileImage,
     });
 
     await newLore.save();

@@ -14,23 +14,21 @@ const Pages = () => {
   const [pages, setPages] = useState<PageType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [filters, setFilters] = useState({
     search: "",
     visibility: "",
   });
-
   const [sorting, setSorting] = useState({
     sort: "createdAt",
     order: "desc" as "asc" | "desc",
   });
-
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 1,
   });
+  const [showConfirmDelete, setShowConfirmDelete] = useState<PageType | null>(null);
 
   const fetchPages = useCallback(async () => {
     setLoading(true);
@@ -228,14 +226,17 @@ const Pages = () => {
                       {new Date(page.createdAt).toDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex gap-3">
+                      <div className="flex gap-1">
                         <Link
                           href={`/pages/${page._id}`}
-                          className="flex items-center justify-start font-medium text-blue-600 transition-colors hover:text-blue-800"
+                          className="flex items-center justify-start rounded-full p-2 font-medium transition-colors hover:bg-black/10"
                         >
                           <LuPencil />
                         </Link>
-                        <button className="text-red-500">
+                        <button
+                          onClick={() => setShowConfirmDelete(page)}
+                          className="cursor-pointer rounded-full p-2 transition-colors hover:bg-black/10"
+                        >
                           <BiTrash size={16} />
                         </button>
                       </div>

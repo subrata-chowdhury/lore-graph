@@ -66,6 +66,8 @@ const MainPage = async ({ params, searchParams }: Props) => {
           views: pageData.views,
           bgImgUrl: pageData.bgImgUrl,
           visibility: pageData.visibility,
+          authorUsername: pageData.authorUsername,
+          authorProfileImage: pageData.authorProfileImage,
           createdAt: pageData.createdAt.toString(),
           updatedAt: pageData.updatedAt.toString(),
         }}

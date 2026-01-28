@@ -31,7 +31,7 @@ const LoreFormPage = () => {
 
   async function fetchLore() {
     try {
-      const { body, error } = await fetcher.get<{ data: LoreType }>(`/lores/${loreId}`);
+      const { body, error } = await fetcher.get<{ data: LoreType }>(`/lores/owned/${loreId}`);
       if (body && body.data) {
         setLoreData(body.data);
       } else {
